@@ -1,0 +1,953 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>BRDC Recruit — Sign in</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,500;0,600;1,500&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#F4F5F3; --card:#FFFFFF; --ink:#1B1D1F; --muted:#6B7178; --line:#DFE2E5;
+  --accent:#1F5F4E; --accent-soft:#E7F1ED; --warn:#B4620E; --warn-soft:#FDF0E3;
+  --danger:#B3352F; --danger-soft:#FBEBEA; --ok:#1F6B45; --ok-soft:#E6F2EA;
+  --r:8px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:var(--bg);color:var(--ink);font:14px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+button{font:inherit;cursor:pointer}
+a{color:inherit}
+
+/* prototype chrome */
+.proto{position:sticky;top:0;z-index:50;background:#14171A;color:#fff;padding:8px 14px;display:flex;gap:10px;align-items:center;flex-wrap:wrap;font-size:12px}
+.proto b{font-weight:600;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.proto .sw{display:flex;gap:4px;flex-wrap:wrap}
+.proto .sw button{background:#25292E;border:1px solid #3A4046;color:#CFD4D9;padding:5px 9px;border-radius:5px;font-size:12px}
+.proto .sw button.on{background:#fff;color:#14171A;border-color:#fff}
+.proto .note{color:#8B9298;margin-left:auto}
+
+.wrap{max-width:1180px;margin:0 auto;padding:18px}
+.screen{display:none}
+.screen.on{display:block}
+
+/* app shell */
+.app{background:var(--card);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.top{display:flex;align-items:center;gap:12px;padding:11px 16px;border-bottom:1px solid var(--line);background:#FBFBFA}
+.logo{font-weight:700;letter-spacing:.06em;font-size:13px;text-transform:uppercase;color:var(--accent)}
+.top .spacer{flex:1}
+.bell{position:relative;border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 9px;font-size:12px}
+.bell span{position:absolute;top:-6px;right:-6px;background:var(--danger);color:#fff;border-radius:99px;font-size:10px;padding:1px 5px}
+.who{font-size:12px;color:var(--muted)}
+.row{display:flex;min-height:560px}
+.side{width:190px;flex:none;border-right:1px solid var(--line);padding:12px 0;background:#FBFBFA}
+.side a{display:block;padding:9px 16px;font-size:13px;color:var(--muted);text-decoration:none;border-left:3px solid transparent}
+.side a.on{color:var(--ink);font-weight:600;background:#fff;border-left-color:var(--accent)}
+.side a:hover{background:#fff}
+.main{flex:1;padding:18px;min-width:0}
+h2{font-size:17px;font-weight:600;margin-bottom:3px}
+.sub{font-size:12px;color:var(--muted);margin-bottom:16px}
+h3{font-size:13px;font-weight:600;margin-bottom:10px}
+
+/* bits */
+.pill{display:inline-block;font-size:11px;padding:2px 8px;border-radius:99px;border:1px solid var(--line);background:#fff;white-space:nowrap}
+.pill.red{background:var(--danger-soft);border-color:#F0C9C7;color:var(--danger);font-weight:600}
+.pill.amber{background:var(--warn-soft);border-color:#F3D9BC;color:var(--warn);font-weight:600}
+.pill.green{background:var(--ok-soft);border-color:#C6E2D1;color:var(--ok);font-weight:600}
+.pill.mute{color:var(--muted)}
+.btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 12px;font-size:12.5px}
+.btn:hover{border-color:#B9BFC5}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.pri:hover{background:#194E40}
+.btn.sm{padding:4px 8px;font-size:11.5px}
+.bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.inp,select{border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:inherit;font-size:13px;background:#fff}
+.card{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:#fff}
+.grid{display:grid;gap:12px}
+.kpis{grid-template-columns:repeat(auto-fit,minmax(150px,1fr))}
+.kpi .n{font-size:26px;font-weight:600;line-height:1.1}
+.kpi .l{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:3px}
+.kpi.bad .n{color:var(--danger)} .kpi.good .n{color:var(--ok)}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;font-size:11px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted);border-bottom:1px solid var(--line);padding:8px}
+td{padding:9px 8px;border-bottom:1px solid #EEF0F1;vertical-align:top}
+tr.clk:hover{background:#FAFBFB;cursor:pointer}
+.empty{color:var(--muted);font-size:13px;padding:22px;text-align:center;border:1px dashed var(--line);border-radius:var(--r)}
+
+/* kanban */
+.kb{display:flex;gap:12px;overflow-x:auto;padding-bottom:6px}
+.col{width:216px;flex:none}
+.colh{font-size:12px;font-weight:600;margin-bottom:8px;display:flex;gap:6px}
+.colh i{font-style:normal;color:var(--muted);font-weight:400}
+.kc{border:1px solid var(--line);border-radius:6px;background:#fff;padding:9px;margin-bottom:8px;font-size:12.5px;cursor:pointer}
+.kc:hover{border-color:#B9BFC5}
+.kc.late{border-color:#E8B4B1;background:#FEF8F8}
+.kc .nm{font-weight:600}
+.kc .mt{color:var(--muted);font-size:11.5px;margin:2px 0 6px}
+
+/* profile */
+.phead{display:flex;gap:14px;align-items:flex-start;border:1px solid var(--line);border-radius:var(--r);padding:14px;margin-bottom:14px;background:#fff}
+.avatar{width:62px;height:62px;border-radius:6px;background:#EDEFF0;flex:none;display:flex;align-items:center;justify-content:center;color:var(--muted);font-size:11px}
+.kv{display:grid;grid-template-columns:110px 1fr;gap:4px 12px;font-size:12.5px}
+.kv dt{color:var(--muted)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);margin-bottom:14px;flex-wrap:wrap}
+.tabs button{border:none;background:none;padding:8px 12px;font-size:13px;color:var(--muted);border-bottom:2px solid transparent}
+.tabs button.on{color:var(--ink);font-weight:600;border-bottom-color:var(--accent)}
+.tp{display:none}.tp.on{display:block}
+.tl{border-left:2px solid var(--line);padding-left:14px;margin-left:6px}
+.tl .ev{margin-bottom:14px;position:relative}
+.tl .ev::before{content:"";position:absolute;left:-19px;top:5px;width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.tl .ev .t{font-size:11px;color:var(--muted)}
+.quad{display:grid;grid-template-columns:90px 1fr 44px;gap:8px;align-items:center;margin-bottom:9px;font-size:12.5px}
+.qb{height:14px;background:#EDEFF0;border-radius:3px;overflow:hidden}
+.qb i{display:block;height:100%;background:var(--accent)}
+.doc{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid #EEF0F1;font-size:13px}
+
+/* messages */
+.msg{border:1px solid var(--line);border-radius:var(--r);padding:12px;margin-bottom:10px;background:#fff}
+.msg.done{opacity:.55}
+.msgtxt{background:#F7F8F8;border:1px solid var(--line);border-radius:6px;padding:10px;font-size:12.5px;white-space:pre-wrap;margin:9px 0}
+
+/* public */
+.pub{max-width:640px;margin:0 auto}
+.pubhead{text-align:center;padding:22px 0}
+.pubhead .lg{font-weight:700;color:var(--accent);letter-spacing:.08em;font-size:15px}
+.job{border:1px solid var(--line);border-radius:var(--r);padding:14px;background:#fff;margin-bottom:10px}
+.job h4{font-size:14px;font-weight:600}
+.job .meta{font-size:12px;color:var(--muted);margin:3px 0 8px}
+.fld{margin-bottom:12px}
+.fld label{display:block;font-size:12px;color:var(--muted);margin-bottom:4px}
+.fld .inp{width:100%}
+.prog{height:5px;background:#EDEFF0;border-radius:99px;overflow:hidden;margin-bottom:14px}
+.prog i{display:block;height:100%;background:var(--accent);transition:width .25s}
+.saved{font-size:11.5px;color:var(--ok);margin-left:8px}
+.matrix{width:100%;border-collapse:collapse;font-size:12.5px}
+.matrix th{font-size:10.5px;text-align:center}
+.matrix td{text-align:center;padding:7px 4px}
+.matrix td:first-child{text-align:left;padding-right:10px}
+.toast{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);background:#14171A;color:#fff;padding:10px 16px;border-radius:8px;font-size:13px;opacity:0;transition:opacity .25s;pointer-events:none;z-index:300}
+.toast.on{opacity:1}
+.hint{background:var(--accent-soft);border:1px solid #CBE0D8;border-radius:6px;padding:9px 11px;font-size:12px;color:#17513F;margin-bottom:14px}
+@media(max-width:820px){.row{flex-direction:column}.side{width:100%;display:flex;overflow-x:auto;border-right:none;border-bottom:1px solid var(--line);padding:0}.side a{border-left:none!important;padding:11px 13px}}
+
+/* ============ PREMIUM LOGIN ============ */
+body.locked{overflow:hidden}
+body.locked .proto,body.locked .wrap{display:none}
+.login{position:fixed;inset:0;z-index:200;display:grid;grid-template-columns:1.1fr 1fr;background:#0B1F1A;font-family:Inter,-apple-system,"Segoe UI",sans-serif;transition:opacity .6s ease,transform .6s ease}
+.login.out{opacity:0;transform:scale(1.02);pointer-events:none}
+.lg-brand{position:relative;overflow:hidden;color:#EDE6D6;padding:48px 56px;display:flex;flex-direction:column;justify-content:space-between;
+  background:radial-gradient(120% 80% at 10% 0%,#1F5F4E 0%,#0F3329 45%,#081A15 100%)}
+.lg-brand::before{content:"";position:absolute;inset:0;opacity:.07;
+  background-image:linear-gradient(#fff 1px,transparent 1px),linear-gradient(90deg,#fff 1px,transparent 1px);background-size:44px 44px;
+  mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(ellipse at 30% 40%,#000 20%,transparent 75%)}
+.lg-orb{position:absolute;border-radius:50%;filter:blur(60px);opacity:.55;animation:float 14s ease-in-out infinite}
+.lg-orb.a{width:380px;height:380px;background:#C9A45C;right:-120px;top:-80px;opacity:.22}
+.lg-orb.b{width:300px;height:300px;background:#2E8A6F;left:-80px;bottom:-60px;animation-delay:-7s;opacity:.35}
+@keyframes float{0%,100%{transform:translate(0,0)}50%{transform:translate(24px,-30px)}}
+.lg-mark{position:relative;display:flex;align-items:center;gap:14px}
+.lg-seal{width:46px;height:46px;border-radius:12px;display:grid;place-items:center;
+  background:linear-gradient(145deg,#E3C47E,#A9803A);color:#0B1F1A;font:600 20px "Cormorant Garamond",serif;box-shadow:0 8px 24px rgba(201,164,92,.35),inset 0 1px 0 rgba(255,255,255,.5)}
+.lg-mark b{display:block;font-size:13px;letter-spacing:.22em;text-transform:uppercase;font-weight:600}
+.lg-mark small{display:block;font-size:11px;color:#9FB5AC;letter-spacing:.06em}
+.lg-hero{position:relative;max-width:480px}
+.lg-eyebrow{font-size:11px;letter-spacing:.28em;text-transform:uppercase;color:#C9A45C;margin-bottom:18px;display:flex;align-items:center;gap:10px}
+.lg-eyebrow::before{content:"";width:28px;height:1px;background:#C9A45C}
+.lg-hero h1{font:500 50px/1.05 "Cormorant Garamond",Georgia,serif;letter-spacing:-.01em;color:#F5EFE2}
+.lg-hero h1 em{font-style:italic;color:#E3C47E}
+.lg-hero p{margin-top:18px;color:#A9BDB5;font-size:14px;line-height:1.7;max-width:400px}
+.lg-stats{position:relative;display:flex;gap:36px;border-top:1px solid rgba(237,230,214,.12);padding-top:22px}
+.lg-stats div b{display:block;font:500 28px "Cormorant Garamond",serif;color:#F5EFE2}
+.lg-stats div span{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#8FA69D}
+.lg-panel{display:flex;align-items:center;justify-content:center;padding:40px 24px;background:linear-gradient(180deg,#FBFAF7,#F2EFE8)}
+.lg-card{width:100%;max-width:400px;animation:rise .7s cubic-bezier(.2,.7,.2,1) both}
+@keyframes rise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.lg-card h2{font:500 34px/1.1 "Cormorant Garamond",Georgia,serif;color:#12241F;margin-bottom:6px}
+.lg-card .lede{font-size:13.5px;color:#6B726E;margin-bottom:30px}
+.lg-f{position:relative;margin-bottom:16px}
+.lg-f label{display:block;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:#5B6460;font-weight:600;margin-bottom:8px}
+.lg-f .ic{position:absolute;left:14px;bottom:14px;width:17px;height:17px;color:#9AA29E;pointer-events:none}
+.lg-f input{width:100%;height:48px;border:1px solid #DCD8CE;border-radius:10px;background:#fff;padding:0 44px;font:15px Inter,sans-serif;color:#12241F;
+  transition:border-color .2s,box-shadow .2s;outline:none}
+.lg-f input:focus{border-color:#1F5F4E;box-shadow:0 0 0 4px rgba(31,95,78,.12)}
+.lg-f input:focus~.ic{color:#1F5F4E}
+.lg-eye{position:absolute;right:8px;bottom:8px;width:32px;height:32px;border:none;background:none;border-radius:8px;color:#8A928E;display:grid;place-items:center}
+.lg-eye:hover{background:#F2EFE8;color:#1F5F4E}
+.lg-row{display:flex;justify-content:space-between;align-items:center;font-size:13px;color:#5B6460;margin:4px 0 24px}
+.lg-row label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.lg-row input{accent-color:#1F5F4E;width:15px;height:15px}
+.lg-row a{color:#1F5F4E;text-decoration:none;font-weight:500}
+.lg-row a:hover{text-decoration:underline}
+.lg-btn{position:relative;width:100%;height:50px;border:none;border-radius:10px;color:#F5EFE2;font:600 14px Inter,sans-serif;letter-spacing:.06em;
+  background:linear-gradient(135deg,#1F5F4E,#123D32);box-shadow:0 10px 24px -8px rgba(18,61,50,.6),inset 0 1px 0 rgba(255,255,255,.12);overflow:hidden;transition:transform .15s,box-shadow .2s}
+.lg-btn:hover{transform:translateY(-1px);box-shadow:0 14px 28px -8px rgba(18,61,50,.7),inset 0 1px 0 rgba(255,255,255,.12)}
+.lg-btn::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;background:linear-gradient(90deg,transparent,rgba(227,196,126,.35),transparent);transform:skewX(-20deg);transition:left .7s}
+.lg-btn:hover::after{left:120%}
+.lg-btn:disabled{opacity:.85;cursor:wait;transform:none}
+.lg-spin{display:inline-block;width:16px;height:16px;border:2px solid rgba(245,239,226,.35);border-top-color:#F5EFE2;border-radius:50%;animation:spin .7s linear infinite;vertical-align:-3px;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+.lg-err{display:none;align-items:center;gap:8px;background:#FBEBEA;border:1px solid #F0C9C7;color:#9C2D28;font-size:13px;border-radius:10px;padding:10px 12px;margin-bottom:18px}
+.lg-err.on{display:flex}
+.lg-caps{display:none;font-size:12px;color:#B4620E;margin-top:6px}
+.lg-caps.on{display:block}
+.shake{animation:shake .42s}
+@keyframes shake{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+.lg-foot{margin-top:34px;padding-top:18px;border-top:1px solid #E4E0D6;display:flex;align-items:center;gap:8px;font-size:11.5px;color:#8A928E}
+.lg-foot svg{width:14px;height:14px;color:#1F5F4E;flex:none}
+.logout{border:1px solid var(--line);background:#fff;border-radius:6px;padding:5px 10px;font-size:12px;color:var(--muted)}
+.logout:hover{color:var(--danger);border-color:#F0C9C7}
+.who b{color:var(--ink);font-weight:600}
+@media (max-width:860px){
+  .login{grid-template-columns:1fr;overflow:auto}
+  .lg-brand{padding:28px 20px;min-height:auto}
+  .lg-hero h1{font-size:34px}.lg-hero p,.lg-stats{display:none}.lg-hero{margin-top:26px}
+  .lg-panel{padding:32px 16px 40px}
+}
+</style>
+</head>
+<body class="locked">
+
+<!-- ============ ADMIN LOGIN ============ -->
+<div class="login" id="login">
+  <aside class="lg-brand">
+    <span class="lg-orb a"></span><span class="lg-orb b"></span>
+    <div class="lg-mark">
+      <div class="lg-seal">B</div>
+      <div><b>BRDC Recruit</b><small>Bahama Realty and Development Corporation</small></div>
+    </div>
+    <div class="lg-hero">
+      <div class="lg-eyebrow">Shared Services HR</div>
+      <h1>Every hire, <em>one clear</em> view.</h1>
+      <p>Manpower requests, candidate pipeline, interviews, offers and onboarding across all BRDC business units — in one secure workspace.</p>
+    </div>
+    <div class="lg-stats">
+      <div><b>7</b><span>Business units</span></div>
+      <div><b>13</b><span>Pipeline stages</span></div>
+      <div><b>1</b><span>Source of truth</span></div>
+    </div>
+  </aside>
+
+  <main class="lg-panel">
+    <form class="lg-card" id="lgForm" onsubmit="doLogin(event)" autocomplete="on" novalidate>
+      <h2>Welcome back</h2>
+      <p class="lede">Sign in with your administrator credentials to continue.</p>
+
+      <div class="lg-err" id="lgErr" role="alert">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 8v4M12 16h.01"/></svg>
+        <span id="lgErrTxt">Incorrect username or password.</span>
+      </div>
+
+      <div class="lg-f">
+        <label for="lgUser">Username</label>
+        <input id="lgUser" name="username" autocomplete="username" placeholder="Enter username" required>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+      </div>
+
+      <div class="lg-f">
+        <label for="lgPass">Password</label>
+        <input id="lgPass" name="password" type="password" autocomplete="current-password" placeholder="Enter password" required>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg>
+        <button type="button" class="lg-eye" id="lgEye" aria-label="Show password" onclick="togglePw()">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/></svg>
+        </button>
+        <div class="lg-caps" id="lgCaps">Caps Lock is on</div>
+      </div>
+
+      <div class="lg-row">
+        <label><input type="checkbox" id="lgRem" checked> Keep me signed in</label>
+        <a href="#" onclick="lgToast('Contact BRDC IT to reset administrator access.');return false">Forgot password?</a>
+      </div>
+
+      <button class="lg-btn" id="lgBtn" type="submit">SIGN IN</button>
+
+      <div class="lg-foot">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
+        Restricted to authorised BRDC personnel. Access is logged.
+      </div>
+    </form>
+  </main>
+</div>
+
+<div class="proto">
+  <b>Prototype</b>
+  <div class="sw" id="sw"></div>
+  <span class="note">dummy data · nothing is saved</span>
+</div>
+
+<div class="wrap">
+  <!-- ============ HR SCREENS ============ -->
+  <section class="screen on" id="s-dash"></section>
+  <section class="screen" id="s-pipe"></section>
+  <section class="screen" id="s-prof"></section>
+  <section class="screen" id="s-pool"></section>
+  <section class="screen" id="s-msg"></section>
+  <section class="screen" id="s-rep"></section>
+  <section class="screen" id="s-jobs"></section>
+  <!-- ============ PUBLIC SCREENS ============ -->
+  <section class="screen" id="s-careers"></section>
+  <section class="screen" id="s-apply"></section>
+  <section class="screen" id="s-test"></section>
+  <section class="screen" id="s-portal"></section>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+/* ============================================================
+   DUMMY DATA
+   ============================================================ */
+const BU = {sf:"Smartfuels", uh:"U Hotels", lg:"Logistics", en:"Engineering", ag:"Agriculture", co:"Corporate"};
+const STAGES = [
+  {k:"new", n:"New", sla:2},
+  {k:"screening", n:"Screening", sla:3},
+  {k:"exam", n:"Exam", sla:3},
+  {k:"interview", n:"Interview", sla:3},
+  {k:"final", n:"Final interview", sla:3},
+  {k:"offer", n:"Offer", sla:5}
+];
+const REASONS = [
+  {c:"insufficient_experience", l:"Experience did not match the role requirements", q:false},
+  {c:"incomplete_requirements", l:"Requirements were not completed on time", q:false},
+  {c:"failed_assessment", l:"Did not meet the assessment criteria", q:false},
+  {c:"location_mismatch", l:"Location is too far from the work site", q:true},
+  {c:"position_filled", l:"The position has been filled", q:true},
+  {c:"stronger_candidate", l:"Another candidate was a closer fit", q:true}
+];
+const JOBS = [
+  {id:"SF-114", t:"Station Crew", bu:"sf", br:"Calamba", rf:"station_crew", head:5, open:"2026-08-12", owner:"R. Cruz", status:"open", sal:"₱13,000–15,000", vac:"2026-08-01"},
+  {id:"UH-021", t:"Front Desk Associate", bu:"uh", br:"Manila", rf:"front_desk", head:2, open:"2026-08-05", owner:"J. Tan", status:"open", sal:"₱16,000–18,000", vac:"2026-07-20"},
+  {id:"LG-008", t:"Delivery Driver", bu:"lg", br:"Biñan", rf:"driver", head:3, open:"2026-08-18", owner:"R. Cruz", status:"open", sal:"₱15,000–17,000", vac:null},
+  {id:"UH-024", t:"Housekeeping Attendant", bu:"uh", br:"Tagaytay", rf:"housekeeping", head:4, open:"2026-08-22", owner:"M. Lim", status:"pending_approval", sal:"₱12,000–14,000", vac:null},
+  {id:"GEN-SF", t:"Any available position", bu:"sf", br:"—", rf:"general", head:0, open:"2026-01-01", owner:null, status:"open", sal:"", vac:null}
+];
+let CANDS = [
+  {id:1, n:"Maria Santos Dela Cruz", nick:"Maria", mob:"0917 123 4567", em:"maria.dc@email.com", city:"San Pedro", prov:"Laguna", job:"SF-114", stage:"new", days:4, late:true, src:"Facebook", owner:"R. Cruz", lang:"tl", pool:false,
+   quad:{A:22,B:29,C:18,D:15}, docs:false, exp:"Cashier – 7-Eleven Pacita (2022–2024); Service Crew – Jollibee San Pedro (2020–2022)", skills:["Cash handling","Customer service","Basic Excel"]},
+  {id:2, n:"Jerome Aquino", nick:"Jerome", mob:"0918 224 9910", em:"", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"new", days:1, late:false, src:"Walk-in (QR)", owner:"R. Cruz", lang:"tl", pool:false,
+   quad:null, docs:false, exp:"Gasoline attendant – Petron Calamba (2023–2025)", skills:["Fuel dispensing","Basic math"]},
+  {id:3, n:"Rowena Bautista", nick:"Weng", mob:"0906 771 2280", em:"rowena.b@email.com", city:"Biñan", prov:"Laguna", job:"SF-114", stage:"screening", days:2, late:false, src:"Jobstreet", owner:"R. Cruz", lang:"en", pool:false,
+   quad:{A:31,B:24,C:20,D:17}, docs:false, exp:"Sales associate – SM Biñan (2021–2025)", skills:["POS","Inventory","Customer service"]},
+  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"interview", days:1, late:false, src:"Referral", owner:"R. Cruz", lang:"tl", pool:false,
+   quad:{A:19,B:33,C:26,D:14}, docs:false, exp:"Warehouse staff – Puregold (2022–2026)", skills:["Inventory","Forklift","Teamwork"]},
+  {id:5, n:"Kristine Villanueva", nick:"Tin", mob:"0917 884 2201", em:"kristine.v@email.com", city:"Manila", prov:"NCR", job:"UH-021", stage:"screening", days:5, late:true, src:"Indeed", owner:"J. Tan", lang:"en", pool:false,
+   quad:{A:26,B:21,C:32,D:25}, docs:false, exp:"Front desk – Red Planet Manila (2023–2026)", skills:["Front office","English","Booking systems"]},
+  {id:6, n:"Angelo Ramos", nick:"Gelo", mob:"0920 118 4432", em:"", city:"Biñan", prov:"Laguna", job:"LG-008", stage:"exam", days:2, late:false, src:"Facebook", owner:"R. Cruz", lang:"tl", pool:false,
+   quad:null, docs:false, exp:"Driver – JRS Express (2020–2026)", skills:["Professional license","Route planning"]},
+  {id:7, n:"Divina Manalo", nick:"Divine", mob:"0956 220 7781", em:"divina.m@email.com", city:"Sto. Tomas", prov:"Batangas", job:"UH-021", stage:"offer", days:6, late:true, src:"Referral", owner:"J. Tan", lang:"en", pool:false,
+   quad:{A:24,B:30,C:28,D:19}, docs:true, exp:"Guest services – Taal Vista (2019–2026)", skills:["Guest relations","Reservations"]},
+  {id:8, n:"Joseph Mendoza", nick:"Jo", mob:"0977 441 8890", em:"", city:"Sto. Tomas", prov:"Batangas", job:"GEN-SF", stage:"new", days:3, late:true, src:"Walk-in (QR)", owner:null, lang:"tl", pool:false,
+   quad:null, docs:false, exp:"Service crew – Mang Inasal (2023–2026)", skills:["Food handling","Customer service"]},
+  {id:9, n:"Liza Fernandez", nick:"Liza", mob:"0915 662 3310", em:"liza.f@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"draft", days:2, late:false, src:"Apply page", owner:"R. Cruz", lang:"tl", pool:false,
+   quad:null, docs:false, exp:"—", skills:[]}
+];
+let POOL = [
+  {id:101, n:"Joseph Manalo", mob:"0923 118 2299", city:"Sto. Tomas, Batangas", rf:"Station crew", last:"2026-06-14", reason:"Position filled", warm:"interested", reply:"2 days ago"},
+  {id:102, n:"Angel Ramos", mob:"0917 553 8821", city:"Calamba, Laguna", rf:"Station crew", last:"2026-05-30", reason:"Stronger candidate", warm:"pending", reply:"sent today"},
+  {id:103, n:"Bernadette Cruz", mob:"0908 221 7745", city:"Biñan, Laguna", rf:"Front desk", last:"2026-05-11", reason:"Location mismatch", warm:"no_reply", reply:"flagged unresponsive"},
+  {id:104, n:"Ronnie Delos Reyes", mob:"0921 776 3390", city:"San Pedro, Laguna", rf:"Driver", last:"2026-04-28", reason:"Position filled", warm:"interested", reply:"5 days ago"}
+];
+let MSGS = [
+  {id:1, cand:"Maria Santos Dela Cruz", mob:"0917 123 4567", tpl:"Rejection, kept in talent pool", lang:"tl", status:"pending", age:0,
+   body:"Hi Maria, salamat po sa inyong application para sa Station Crew sa BRDC. Napunan na po ang posisyon. Sa inyong pahintulot ay itatago po namin ang inyong profile at kokontakin kayo kapag may bagong bakanteng angkop sa inyo."},
+  {id:2, cand:"Angelo Ramos", mob:"0920 118 4432", tpl:"Assessment invitation", lang:"tl", status:"pending", age:1,
+   body:"Hi Gelo, pakikumpleto po ang maikling assessment para sa inyong Delivery Driver application sa loob ng 3 araw: brdc.ph/t/9fa21c"},
+  {id:3, cand:"Kristine Villanueva", mob:"0917 884 2201", tpl:"Interview invitation", lang:"en", status:"pending", age:0,
+   body:"Hi Kristine, you are scheduled for an interview on 2 Sep 2026, 10:00 AM at U Hotels Manila for Front Desk Associate. Please reply to confirm."},
+  {id:4, cand:"Carlo Reyes", mob:"0995 330 1187", tpl:"Interview invitation", lang:"tl", status:"sent", age:2, by:"R. Cruz", at:"26 Aug, 9:14 AM",
+   body:"Hi Carlo, naka-schedule po kayo ng interview sa 28 Ago 2026, 10:00 AM sa Smartfuels Calamba para sa Station Crew. Pakisagot po para kumpirmahin."}
+];
+const DOCS = ["SSS Number","PhilHealth Number","Pag-IBIG MID","TIN","NBI Clearance","Police Clearance","Barangay Clearance","PSA Birth Certificate","Diploma","Transcript of Records","Medical Examination","Drug Test","Valid Government ID"];
+let DOCSTATE = {0:"verified",1:"submitted",2:"pending",3:"verified",4:"pending",5:"pending",6:"submitted",7:"verified",8:"pending",9:"pending",10:"pending",11:"pending",12:"verified"};
+
+const QUESTIONS = {
+  A:["Do you like to gather information or research on various topics?","Do you like to organize, arrange and classify information?","Do you like making frameworks for analysis and synthesis?","Do you like to analyze, dissect and solve problems?"],
+  B:["Do you like taking detailed notes?","Do you like doing work step by step?","Do you follow manuals and guidelines faithfully?","Do you like to make schedules and follow them?"],
+  C:["Do you enjoy lecturing and sharing ideas with people?","Are you looking for personal meaning in whatever you do?","Do you like to attend parties and group meetings?","Do you like to teach, tutor, or mentor other people?"],
+  D:["Do you like learning the whole story before the finer details?","Do you usually take the initiative to start new projects?","Do you like brainstorming and coming up with wild ideas?","Do you rely on your intuition to make decisions?"]
+};
+const SECNAMES = {A:"Facts", B:"Form", C:"Feelings", D:"Future"};
+
+
+/* ============================================================
+   AUTH (prototype only — client-side check, not real security)
+   ============================================================ */
+const USERS = {
+  admin:{hash:"ef82e7ef372c17f73480bfd42eefe540662851a0ab6e382a5c4529d69eee9619", name:"Administrator", first:"Admin", role:"hr_admin"}
+};
+let SESSION = null, lgFails = 0, lgLockUntil = 0;
+async function sha256(s){
+  if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
+    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
+  return null;
+}
+function lgShowErr(t){const e=document.getElementById('lgErr');document.getElementById('lgErrTxt').textContent=t;e.classList.add('on');
+  const f=document.getElementById('lgForm');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');}
+function lgToast(t){toast(t);}
+function togglePw(){const p=document.getElementById('lgPass');p.type=p.type==='password'?'text':'password';
+  document.getElementById('lgEye').setAttribute('aria-label',p.type==='password'?'Show password':'Hide password');p.focus();}
+async function doLogin(e){
+  e.preventDefault();
+  const u=document.getElementById('lgUser').value.trim().toLowerCase(), p=document.getElementById('lgPass').value;
+  const btn=document.getElementById('lgBtn');
+  document.getElementById('lgErr').classList.remove('on');
+  if(Date.now()<lgLockUntil){lgShowErr(`Too many attempts. Try again in ${Math.ceil((lgLockUntil-Date.now())/1000)}s.`);return;}
+  if(!u||!p){lgShowErr('Enter your username and password.');return;}
+  btn.disabled=true;btn.innerHTML='<span class="lg-spin"></span>AUTHENTICATING';
+  const h=await sha256(p);
+  await new Promise(r=>setTimeout(r,850));
+  const acct=USERS[u], ok=acct && (h? h===acct.hash : p==='BRDC@Admin2026');
+  if(!ok){
+    btn.disabled=false;btn.textContent='SIGN IN';lgFails++;
+    if(lgFails>=5){lgLockUntil=Date.now()+30000;lgFails=0;lgShowErr('Too many attempts. Sign-in locked for 30 seconds.');}
+    else lgShowErr(`Incorrect username or password. ${5-lgFails} attempt${5-lgFails===1?'':'s'} left.`);
+    document.getElementById('lgPass').select();return;
+  }
+  SESSION={user:u,...acct,at:new Date()};
+  btn.innerHTML='✓ WELCOME';
+  document.title='BRDC Recruit — Dashboard';
+  const L=document.getElementById('login');L.classList.add('out');
+  setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},550);
+}
+function logout(){
+  SESSION=null;lgFails=0;
+  const L=document.getElementById('login'),btn=document.getElementById('lgBtn');
+  document.getElementById('lgPass').value='';document.getElementById('lgErr').classList.remove('on');
+  btn.disabled=false;btn.textContent='SIGN IN';document.title='BRDC Recruit — Sign in';
+  document.body.classList.add('locked');L.style.display='';void L.offsetWidth;L.classList.remove('out');
+  document.getElementById('lgPass').focus();
+}
+['keydown','keyup'].forEach(ev=>document.getElementById('lgPass').addEventListener(ev,e=>{
+  if(e.getModifierState)document.getElementById('lgCaps').classList.toggle('on',e.getModifierState('CapsLock'));}));
+document.getElementById('lgUser').focus();
+
+/* ============================================================
+   PLUMBING
+   ============================================================ */
+const SCREENS = [
+  ["s-dash","Dashboard"],["s-pipe","Pipeline"],["s-prof","Candidate"],["s-pool","Talent pool"],
+  ["s-msg","Messages"],["s-rep","Reports"],["s-jobs","Jobs"],
+  ["s-careers","Careers page"],["s-apply","Apply form"],["s-test","Take test"],["s-portal","Candidate portal"]
+];
+let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
+
+function go(id){cur=id;document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+  document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
+function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
+function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
+function job(id){return JOBS.find(j=>j.id===id)||{t:"—",bu:"co",br:"—"};}
+function cand(id){return CANDS.find(c=>c.id===id);}
+function stageName(k){return k==="draft"?"Draft":(STAGES.find(s=>s.k===k)||{n:k}).n;}
+
+document.getElementById('sw').innerHTML = SCREENS.map(([id,n])=>
+  `<button data-s="${id}" class="${id===cur?'on':''}" onclick="go('${id}')">${n}</button>`).join('');
+
+function greet(){const h=new Date().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
+function shell(active, body, extra){
+  const late = CANDS.filter(c=>c.late).length;
+  return `<div class="app">
+    <div class="top">
+      <span class="logo">▣ BRDC Recruit</span>
+      <span class="pill mute">Shared Services HR</span>
+      <span class="spacer"></span>
+      ${late?`<span class="pill red">${late} overdue</span>`:''}
+      <button class="bell" onclick="toast('3 unread notifications')">🔔<span>3</span></button>
+      <span class="who"><b>${SESSION?esc(SESSION.name):"R. Cruz"}</b> · ${SESSION?SESSION.role:"hr_staff"}</span>
+      <button class="logout" onclick="logout()">Sign out</button>
+    </div>
+    <div class="row">
+      <nav class="side">
+        <a href="#" class="${active==='dash'?'on':''}" onclick="go('s-dash');return false">Dashboard</a>
+        <a href="#" class="${active==='pipe'?'on':''}" onclick="go('s-pipe');return false">Pipeline</a>
+        <a href="#" class="${active==='pool'?'on':''}" onclick="go('s-pool');return false">Talent pool</a>
+        <a href="#" class="${active==='msg'?'on':''}" onclick="go('s-msg');return false">Messages</a>
+        <a href="#" class="${active==='jobs'?'on':''}" onclick="go('s-jobs');return false">Jobs</a>
+        <a href="#" class="${active==='rep'?'on':''}" onclick="go('s-rep');return false">Reports</a>
+        <a href="#" onclick="toast('Settings: templates, reasons, SLAs, tests, users');return false">Settings</a>
+      </nav>
+      <div class="main">${body}</div>
+    </div>
+  </div>${extra||''}`;
+}
+
+/* ============================================================
+   SCREENS
+   ============================================================ */
+function rDash(){
+  const late = CANDS.filter(c=>c.late);
+  const pend = MSGS.filter(m=>m.status==='pending');
+  const unclaimed = CANDS.filter(c=>!c.owner && c.stage!=='draft');
+  const sentPct = Math.round(MSGS.filter(m=>m.status==='sent').length/MSGS.length*100);
+  document.getElementById('s-dash').innerHTML = shell('dash',`
+    <h2>${greet()}, ${SESSION?esc(SESSION.first):"Rhea"}</h2>
+    <p class="sub">Daily digest · 28 August 2026, 8:00 AM · sent to all HR</p>
+    <div class="grid kpis" style="margin-bottom:18px">
+      <div class="card kpi ${late.length?'bad':'good'}"><div class="n">${late.length}</div><div class="l">Overdue candidates</div></div>
+      <div class="card kpi ${pend.length?'bad':'good'}"><div class="n">${pend.length}</div><div class="l">Messages not sent</div></div>
+      <div class="card kpi"><div class="n">${sentPct}%</div><div class="l">Feedback rate</div></div>
+      <div class="card kpi"><div class="n">${POOL.length}</div><div class="l">In talent pool</div></div>
+    </div>
+
+    ${unclaimed.length?`<h3>Unclaimed — general applications</h3>
+    <div class="card" style="margin-bottom:18px">
+      ${unclaimed.map(c=>`<div class="doc"><span><b>${esc(c.n)}</b> · ${esc(c.city)} · ${c.days}d in New</span>
+        <button class="btn sm" onclick="claim(${c.id})">Claim</button></div>`).join('')}
+    </div>`:''}
+
+    <h3>Overdue — needs action today</h3>
+    <div class="card" style="margin-bottom:18px">
+      <table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>Days over</th><th>Owner</th></tr></thead><tbody>
+      ${late.length?late.map(c=>`<tr class="clk" onclick="openCand(${c.id})">
+        <td><b>${esc(c.n)}</b></td><td>${c.job} · ${BU[job(c.job).bu]}</td><td>${stageName(c.stage)}</td>
+        <td><span class="pill red">${c.days - (STAGES.find(s=>s.k===c.stage)||{sla:0}).sla}d over</span></td>
+        <td>${c.owner||'<span class="pill mute">unassigned</span>'}</td></tr>`).join('')
+        :`<tr><td colspan="5" style="color:var(--ok)">Nothing overdue. Every candidate is within SLA.</td></tr>`}
+      </tbody></table>
+    </div>
+
+    <h3>Pending messages</h3>
+    <div class="card">
+      ${pend.length?pend.map(m=>`<div class="doc"><span><b>${esc(m.cand)}</b> · ${esc(m.tpl)}${m.age?` · <span class="pill amber">${m.age}d waiting</span>`:''}</span>
+        <button class="btn sm" onclick="go('s-msg')">Open</button></div>`).join('')
+        :'<span style="color:var(--ok)">All feedback sent.</span>'}
+    </div>
+  `);
+}
+
+function rPipe(){
+  const list = CANDS.filter(c=>c.stage!=='draft'||true);
+  const rows = list.map(c=>`<tr class="clk" onclick="openCand(${c.id})">
+      <td><b>${esc(c.n)}</b><div style="color:var(--muted);font-size:11.5px">${esc(c.mob)} · ${esc(c.city)}</div></td>
+      <td>${c.job}<div style="color:var(--muted);font-size:11.5px">${esc(job(c.job).t)}</div></td>
+      <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':stageName(c.stage)}</td>
+      <td>${c.late?`<span class="pill red">${c.days}d · over SLA</span>`:`<span class="pill mute">${c.days}d</span>`}</td>
+      <td>${esc(c.src)}</td>
+      <td>${c.owner||'<span class="pill mute">unassigned</span>'}</td>
+    </tr>`).join('');
+
+  const kb = STAGES.map(s=>{
+    const cs = CANDS.filter(c=>c.stage===s.k);
+    return `<div class="col"><div class="colh">${s.n} <i>(${cs.length})</i></div>
+      ${cs.map(c=>`<div class="kc ${c.late?'late':''}" onclick="openCand(${c.id})">
+        <div class="nm">${esc(c.n)}</div><div class="mt">${esc(c.city)} · ${esc(c.src)}</div>
+        ${c.late?`<span class="pill red">${c.days}d over</span>`:`<span class="pill mute">${c.days}d in stage</span>`}
+      </div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:6px">—</div>'}
+    </div>`;
+  }).join('') + `<div class="col"><div class="colh">Closed <i>(—)</i></div>
+      <div class="card" style="font-size:11.5px;color:var(--muted);padding:10px">Hired · Rejected–Qualified · Rejected–Not qualified · Withdrew · No-show · Did not report</div></div>`;
+
+  document.getElementById('s-pipe').innerHTML = shell('pipe',`
+    <h2>Pipeline</h2>
+    <p class="sub">All business units · sorted overdue first</p>
+    <div class="bar">
+      <select class="inp"><option>All positions</option>${JOBS.map(j=>`<option>${j.id} — ${j.t}</option>`).join('')}</select>
+      <select class="inp"><option>All business units</option>${Object.values(BU).map(b=>`<option>${b}</option>`).join('')}</select>
+      <select class="inp"><option>All stages</option>${STAGES.map(s=>`<option>${s.n}</option>`).join('')}</select>
+      <input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:220px" onkeyup="if(event.key==='Enter')toast('Full-text search across name, mobile, skills and resume text')">
+      <span style="flex:1"></span>
+      <button class="btn ${pipeView==='list'?'pri':''}" onclick="pipeView='list';render()">List</button>
+      <button class="btn ${pipeView==='kanban'?'pri':''}" onclick="pipeView='kanban';render()">Kanban</button>
+    </div>
+    <div class="bar" style="margin-bottom:10px">
+      <span class="pill mute">3 selected</span>
+      <button class="btn sm" onclick="toast('Bulk: move stage')">Move stage</button>
+      <button class="btn sm" onclick="toast('Bulk reject → one reason → 3 messages queued as pending')">Reject with reason</button>
+      <button class="btn sm" onclick="toast('Bulk: assign to recruiter')">Assign</button>
+    </div>
+    ${pipeView==='list'
+      ? `<div class="card" style="padding:0"><table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>In stage</th><th>Source</th><th>Owner</th></tr></thead><tbody>${rows}</tbody></table></div>`
+      : `<div class="kb">${kb}</div>`}
+  `);
+}
+
+function rProf(){
+  const c = cand(curCand); const j = job(c.job);
+  const q = c.quad;
+  const tab = (k,n)=>`<button class="${profTab===k?'on':''}" onclick="profTab='${k}';render()">${n}</button>`;
+  document.getElementById('s-prof').innerHTML = shell('pipe',`
+    <div class="bar"><button class="btn sm" onclick="go('s-pipe')">← Pipeline</button></div>
+    <div class="phead">
+      <div class="avatar">2×2</div>
+      <div style="flex:1">
+        <h2>${esc(c.n)} <span class="pill mute">${esc(c.nick)}</span></h2>
+        <p class="sub" style="margin-bottom:10px">Ref #C-20${c.id}4 · applied ${c.days} days ago · consent v1.2 recorded</p>
+        <dl class="kv">
+          <dt>Mobile</dt><dd>${esc(c.mob)}</dd>
+          <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
+          <dt>Location</dt><dd>${esc(c.city)}, ${esc(c.prov)}</dd>
+          <dt>Applied for</dt><dd>${esc(j.t)} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':`<span class="pill">${stageName(c.stage)}</span>`}</dd>
+          <dt>Source</dt><dd>${esc(c.src)}</dd>
+          <dt>Owner</dt><dd>${c.owner||'<span class="pill mute">unassigned</span>'}</dd>
+        </dl>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        <button class="btn pri" onclick="advance(${c.id})">Move to next stage</button>
+        <button class="btn" onclick="openReject(${c.id})">Reject…</button>
+        <button class="btn" onclick="toast('Test invite queued as a pending message')">Send test</button>
+        <button class="btn" onclick="toast('Document checklist started — 13 core documents')">Start documents</button>
+      </div>
+    </div>
+
+    <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents')}${tab('sens','Sensitive')}</div>
+
+    <div class="tp ${profTab==='app'?'on':''}">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="card"><h3>Employment history</h3><p style="font-size:13px;color:var(--muted)">${esc(c.exp)}</p></div>
+        <div class="card"><h3>Skills (from form checkboxes)</h3>${c.skills.length?c.skills.map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'<span class="pill mute">none recorded</span>'}</div>
+      </div>
+      <div class="card" style="margin-top:12px"><h3>Resume text (auto-extracted)</h3>
+        <div style="font-size:12.5px;color:var(--muted);white-space:pre-wrap;background:#F7F8F8;border-radius:6px;padding:10px">${esc(c.n.toUpperCase())}
+${esc(c.mob)} | Brgy. ${esc(c.city)}, ${esc(c.prov)}
+${esc(c.exp)}
+SKILLS: ${esc(c.skills.join(", ")||"—")}</div></div>
+    </div>
+
+    <div class="tp ${profTab==='act'?'on':''}">
+      <div class="card"><h3>Timeline</h3><div class="tl">
+        <div class="ev"><b>Stage → ${stageName(c.stage)}</b><div class="t">${c.days} days ago · R. Cruz</div></div>
+        <div class="ev"><b>Message sent</b> — Application acknowledgment (email)<div class="t">${c.days} days ago · automatic</div></div>
+        <div class="ev"><b>Application submitted</b> via ${esc(c.src)}<div class="t">${c.days} days ago</div></div>
+        <div class="ev"><b>Consent recorded</b> — privacy notice v1.2<div class="t">${c.days} days ago</div></div>
+      </div></div>
+      <div class="card" style="margin-top:12px"><h3>Notes</h3>
+        <div class="doc"><span>Willing to work shifting schedule. Lives 6 km from station.<div style="color:var(--muted);font-size:11.5px">R. Cruz · 2 days ago</div></span></div>
+        <div style="margin-top:10px;display:flex;gap:8px"><input class="inp" style="flex:1" placeholder="Add a note…"><button class="btn" onclick="toast('Note added (append-only, attributed)')">Add</button></div>
+      </div>
+    </div>
+
+    <div class="tp ${profTab==='test'?'on':''}">
+      <div class="card"><h3>Four Quadrant Brain Dominance</h3>
+      ${q?`<p class="sub">Submitted · 48 items · max 36 per quadrant · no single dominance label shown</p>
+        ${Object.keys(q).map(k=>`<div class="quad"><span>${SECNAMES[k]}</span><div class="qb"><i style="width:${q[k]/36*100}%"></i></div><b>${q[k]}</b></div>`).join('')}`
+        :`<p class="sub">Not yet taken.</p><button class="btn" onclick="toast('Test invite queued as a pending message')">Send invite</button>
+          <button class="btn" onclick="go('s-test')">Preview candidate view</button>`}
+      </div>
+      <div class="card" style="margin-top:12px"><h3>Position-based tests</h3>
+        <div class="doc"><span>Basic Numeracy (knowledge · pass mark 70%)</span>${q?'<span class="pill green">82% · passed</span>':'<span class="pill mute">not sent</span>'}</div>
+        <div class="doc"><span>Customer Service Scenarios (free text)</span><span class="pill mute">awaiting HR scoring</span></div>
+      </div>
+    </div>
+
+    <div class="tp ${profTab==='doc'?'on':''}">
+      <div class="card"><h3>Pre-employment documents</h3>
+        <p class="sub">${c.docs?'Checklist started at Offer stage · deadline 5 Sep 2026':'Not started. HR triggers this manually, usually at Offer.'}</p>
+        ${c.docs?DOCS.map((d,i)=>{const st=DOCSTATE[i];const cls=st==='verified'?'green':st==='submitted'?'amber':'mute';
+          return `<div class="doc"><span>${d}${i>=10?' <span class="pill mute">sensitive</span>':''}</span>
+            <span><span class="pill ${cls}">${st}</span> <button class="btn sm" onclick="cycleDoc(${i})">Update</button></span></div>`}).join('')
+          :`<button class="btn pri" onclick="startDocs(${c.id})">Start checklist</button>`}
+      </div>
+    </div>
+
+    <div class="tp ${profTab==='sens'?'on':''}">
+      <div class="card">
+        <h3>Sensitive personal information</h3>
+        <div class="hint">Restricted to hr_admin. You are signed in as hr_staff, so this section is hidden — RA 10173 §3(l) sensitive personal information.</div>
+        <div style="color:var(--muted);font-size:13px">Medical declaration · gender identity · religion · height and weight · government ID numbers</div>
+      </div>
+    </div>
+  `);
+}
+
+function rPool(){
+  const badge=w=>w==='interested'?'<span class="pill green">interested</span>':w==='no_reply'?'<span class="pill red">no reply</span>':'<span class="pill amber">awaiting reply</span>';
+  document.getElementById('s-pool').innerHTML = shell('pool',`
+    <h2>Talent pool</h2>
+    <p class="sub">Suggested for SF-114 Station Crew, Calamba · ranked by most recent application</p>
+    <div class="hint">Qualified rejections are pre-ticked into the pool. A warm-check goes out before anyone is shortlisted; no reply in 2 days flags them unresponsive.</div>
+    <div class="bar">
+      <select class="inp"><option>All role families</option><option>Station crew</option><option>Front desk</option><option>Driver</option></select>
+      <select class="inp"><option>All locations</option><option>Laguna</option><option>Batangas</option></select>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="toast('Warm-check messages queued for all interested candidates')">Send warm-check to all</button>
+    </div>
+    <div class="card" style="padding:0"><table>
+      <thead><tr><th>Candidate</th><th>Role family</th><th>Location</th><th>Last applied</th><th>Why pooled</th><th>Warm check</th><th></th></tr></thead>
+      <tbody>${POOL.map(p=>`<tr>
+        <td><b>${esc(p.n)}</b><div style="color:var(--muted);font-size:11.5px">${esc(p.mob)}</div></td>
+        <td>${esc(p.rf)}</td><td>${esc(p.city)}</td><td>${esc(p.last)}</td><td style="color:var(--muted)">${esc(p.reason)}</td>
+        <td>${badge(p.warm)}<div style="color:var(--muted);font-size:11.5px">${esc(p.reply)}</div></td>
+        <td>${p.warm==='interested'?`<button class="btn sm" onclick="toast('Added to SF-114 pipeline at Screening')">Add to job</button>`
+            :p.warm==='no_reply'?`<button class="btn sm" onclick="archivePool(${p.id})">Archive</button>`
+            :`<button class="btn sm" onclick="toast('Reminder queued')">Chase</button>`}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+  `);
+}
+
+function rMsg(){
+  const pend = MSGS.filter(m=>m.status==='pending'), sent = MSGS.filter(m=>m.status==='sent');
+  const pct = Math.round(sent.length/MSGS.length*100);
+  document.getElementById('s-msg').innerHTML = shell('msg',`
+    <h2>Messages</h2>
+    <p class="sub">Copy the text, send it yourself, then mark it sent · one at a time</p>
+    <div class="hint">Nothing sends automatically except the application acknowledgment email. A message stays pending — and stays on the daily digest — until someone marks it sent.</div>
+    <div class="grid kpis" style="margin-bottom:16px">
+      <div class="card kpi ${pend.length?'bad':'good'}"><div class="n">${pend.length}</div><div class="l">Pending</div></div>
+      <div class="card kpi"><div class="n">${pct}%</div><div class="l">Feedback rate</div></div>
+    </div>
+    <h3>Pending</h3>
+    ${pend.length?pend.map(m=>`<div class="msg">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <b>${esc(m.cand)}</b><span class="pill mute">${esc(m.mob)}</span>
+        <span class="pill">${esc(m.tpl)}</span><span class="pill mute">${m.lang==='tl'?'Tagalog':'English'}</span>
+        ${m.age?`<span class="pill amber">${m.age}d waiting</span>`:''}
+      </div>
+      <div class="msgtxt">${esc(m.body)}</div>
+      <div style="display:flex;gap:8px">
+        <button class="btn" onclick="copyMsg(${m.id})">Copy text</button>
+        <button class="btn" onclick="toast('Mobile number copied')">Copy number</button>
+        <button class="btn pri" onclick="markSent(${m.id})">Mark as sent</button>
+      </div>
+    </div>`).join(''):'<div class="empty">Nothing pending. Every dispositioned candidate has been contacted.</div>'}
+    <h3 style="margin-top:18px">Sent</h3>
+    ${sent.map(m=>`<div class="msg done">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <b>${esc(m.cand)}</b><span class="pill">${esc(m.tpl)}</span>
+        <span class="pill green">sent by ${esc(m.by||'—')} · ${esc(m.at||'')}</span>
+      </div><div class="msgtxt">${esc(m.body)}</div></div>`).join('')}
+  `);
+}
+
+function rRep(){
+  document.getElementById('s-rep').innerHTML = shell('rep',`
+    <h2>Reports</h2>
+    <p class="sub">August 2026 · calendar days · imported backlog excluded</p>
+    <div class="bar">
+      <select class="inp"><option>August 2026</option><option>July 2026</option></select>
+      <select class="inp"><option>All business units</option>${Object.values(BU).map(b=>`<option>${b}</option>`).join('')}</select>
+      <select class="inp"><option>All role families</option></select>
+      <label style="font-size:12px;color:var(--muted)"><input type="checkbox"> include imported records</label>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="toast('Export logged: who, when, 412 rows, filters. Sensitive fields excluded.')">Export CSV</button>
+      <button class="btn" onclick="toast('PDF report generated')">PDF</button>
+    </div>
+    <div class="grid kpis" style="margin-bottom:16px">
+      <div class="card kpi"><div class="n">18</div><div class="l">Median time to hire (days)</div></div>
+      <div class="card kpi"><div class="n">27</div><div class="l">Median time to fill (days)</div></div>
+      <div class="card kpi"><div class="n">34</div><div class="l">Median vacancy duration</div></div>
+      <div class="card kpi good"><div class="n">92%</div><div class="l">30-day retention</div></div>
+    </div>
+    <div class="grid" style="grid-template-columns:1fr 1fr">
+      <div class="card"><h3>Where the days go</h3>
+        ${[["New",2.4],["Screening",3.1],["Exam",4.8],["Interview",3.6],["Final interview",2.9],["Offer",5.2]].map(([n,d])=>
+          `<div class="quad"><span>${n}</span><div class="qb"><i style="width:${d/6*100}%"></i></div><b>${d}d</b></div>`).join('')}
+      </div>
+      <div class="card"><h3>Source effectiveness</h3>
+        <table><thead><tr><th>Channel</th><th>Apps</th><th>Hires</th><th>Rate</th></tr></thead><tbody>
+        ${[["Facebook",164,9,"5.5%"],["Walk-in (QR)",97,11,"11.3%"],["Jobstreet",78,4,"5.1%"],["Referral",41,7,"17.1%"],["Indeed",33,2,"6.1%"]]
+          .map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><b>${r[3]}</b></td></tr>`).join('')}
+        </tbody></table>
+      </div>
+      <div class="card"><h3>Funnel — SF-114</h3>
+        ${[["Applied",62],["Screening",24],["Exam",16],["Interview",11],["Final",7],["Offer",5],["Hired",4]].map(([n,v])=>
+          `<div class="quad"><span>${n}</span><div class="qb"><i style="width:${v/62*100}%"></i></div><b>${v}</b></div>`).join('')}
+      </div>
+      <div class="card"><h3>Offer outcomes</h3>
+        <div class="doc"><span>Accepted</span><b>14</b></div>
+        <div class="doc"><span>Declined</span><b>3</b></div>
+        <div class="doc"><span>Did not report on day one</span><b>2</b></div>
+        <div class="doc"><span>Outstanding</span><b>4</b></div>
+      </div>
+    </div>
+    <div class="card" style="margin-top:12px"><h3>Withdrawal reasons</h3>
+      ${[["Accepted another offer",6],["Salary below expectation",4],["Location too far",3],["Went abroad / OFW",2],["Schedule not suitable",1]]
+        .map(([n,v])=>`<div class="quad"><span style="width:180px">${n}</span><div class="qb"><i style="width:${v/6*100}%"></i></div><b>${v}</b></div>`).join('')}
+    </div>
+  `);
+}
+
+function rJobs(){
+  document.getElementById('s-jobs').innerHTML = shell('jobs',`
+    <h2>Jobs</h2>
+    <p class="sub">HR posts · hr_admin approves before it goes live</p>
+    <div class="bar"><button class="btn pri" onclick="toast('New job → draft → submitted for hr_admin approval')">+ New job</button>
+      <span style="flex:1"></span><button class="btn" onclick="go('s-careers')">View public careers page</button></div>
+    <div class="card" style="padding:0"><table>
+      <thead><tr><th>Ref</th><th>Position</th><th>Business unit</th><th>Headcount</th><th>Owner</th><th>Status</th><th></th></tr></thead>
+      <tbody>${JOBS.map(j=>`<tr>
+        <td><b>${j.id}</b></td><td>${esc(j.t)}<div style="color:var(--muted);font-size:11.5px">${esc(j.br)}</div></td>
+        <td>${BU[j.bu]}</td><td>${j.head||'—'}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td>
+        <td>${j.status==='open'?'<span class="pill green">open</span>':'<span class="pill amber">pending approval</span>'}${j.is_general?'':''}</td>
+        <td>${j.id==='GEN-SF'?'<span class="pill mute">cannot be closed</span>'
+          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close job</button>
+            <button class="btn sm" onclick="toast('QR poster PNG generated for ${j.id}')">QR</button>`}</td>
+      </tr>`).join('')}</tbody>
+    </table></div>
+    <div class="hint" style="margin-top:14px">Try closing SF-114 — the database blocks it while candidates still lack a final status.</div>
+  `);
+}
+
+/* ---------- public ---------- */
+function rCareers(){
+  document.getElementById('s-careers').innerHTML = `<div class="pub">
+    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
+      <p class="sub" style="margin-top:6px">Careers · careers.brdc.com.ph</p></div>
+    ${JOBS.filter(j=>j.status==='open'&&j.id!=='GEN-SF').map(j=>`<div class="job">
+      <h4>${esc(j.t)}</h4>
+      <div class="meta">${BU[j.bu]} · ${esc(j.br)} · ${j.head} opening${j.head>1?'s':''} · ${esc(j.sal)}</div>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Full-time, shifting schedule. Applicants must be willing to be assigned within the group.</p>
+      <button class="btn pri" onclick="go('s-apply')">Apply now</button>
+      <button class="btn" onclick="toast('Shareable link + QR code copied')">Share</button>
+    </div>`).join('')}
+    <div class="job" style="border-style:dashed">
+      <h4>Any available position</h4>
+      <div class="meta">Don't see a fit? Send a general application.</div>
+      <button class="btn" onclick="go('s-apply')">Apply anyway</button>
+    </div>
+    <p class="sub" style="text-align:center;margin-top:18px">Job postings carry structured data for Google for Jobs.</p>
+  </div>`;
+}
+
+function rApply(){
+  const pages = ["Position &amp; photo","Personal information","Family, education &amp; work","Availability &amp; skills","Consent"];
+  const total = pages.length;
+  const body = {
+    1:`<div class="fld"><label>Position applied for *</label><select class="inp">${JOBS.filter(j=>j.status==='open').map(j=>`<option>${j.t} — ${j.br}</option>`).join('')}<option>Any available position</option></select></div>
+       <div class="fld"><label>Department *</label><input class="inp" value="Retail Operations"></div>
+       <div class="fld"><label>Expected salary *</label><input class="inp" placeholder="₱"></div>
+       <div class="fld"><label>How did you learn about BRDC? *</label><select class="inp"><option>Facebook</option><option>Indeed</option><option>Jobstreet</option><option>Company website / walk-in</option><option>Job fair</option><option>Referral</option></select></div>
+       <div class="fld"><label>2×2 photo * — upload any photo and crop it here</label>
+         <div class="card" style="text-align:center;padding:20px;border-style:dashed">
+           <div class="avatar" style="margin:0 auto 10px">2×2</div>
+           <button class="btn" onclick="toast('Crop tool: drag the square frame to fit your face')">Upload &amp; crop</button>
+           <p class="sub" style="margin:8px 0 0">White background preferred, not required.</p></div></div>`,
+    2:`<div class="fld"><label>Full name *</label><input class="inp" value="Maria Santos Dela Cruz"></div>
+       <div class="fld"><label>Nickname *</label><input class="inp" value="Maria"></div>
+       <div class="fld"><label>Date of birth *</label><input class="inp" type="date" value="1999-04-12" onchange="toast('Applicants under 18 are blocked and the draft is discarded')"></div>
+       <div class="fld"><label>Mobile number *</label><input class="inp" value="0917 123 4567"></div>
+       <div class="fld"><label>Email address *</label><input class="inp" value="maria.dc@email.com"></div>
+       <div class="fld"><label>Home address *</label><input class="inp" value="Brgy. San Vicente, San Pedro, Laguna"></div>
+       <div class="fld"><label>Location * — choose one</label>
+         <div style="display:flex;gap:8px;flex-wrap:wrap">
+           <button class="btn" onclick="toast('Coordinates captured — used for distance matching')">📍 Use my current location</button>
+           <button class="btn" onclick="toast('Map screenshot uploaded')">Upload map screenshot</button>
+           <button class="btn" onclick="toast('Landmark saved')">Type a landmark</button></div></div>
+       <div class="fld"><label>SSS / TIN / PhilHealth / Pag-IBIG *</label><input class="inp" placeholder="stored as sensitive data, hr_admin access only"></div>`,
+    3:`<div class="fld"><label>Family information *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Father · Mother · Spouse · Siblings — name, age, occupation, employer</div></div>
+       <div class="fld"><label>Educational background *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Elementary · High school · College · Graduate · Vocational</div></div>
+       <div class="fld"><label>Employment history</label><div class="card" style="font-size:12.5px;color:var(--muted)">Company · period · position · gross pay · reason for leaving</div></div>
+       <div class="fld"><label>Attach resume</label><button class="btn" onclick="toast('Uploaded — text extracted automatically for search')">Choose file or photo</button></div>`,
+    4:`<div class="fld"><label>Date available to start *</label><input class="inp" type="date"></div>
+       <div class="fld"><label>Willing to work in</label><div>${["Construction site","Hotel","Gas station","Office"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
+       <div class="fld"><label>Hard skills</label><div>${["Computer proficiency","Data entry","Driving","Records management","Basic bookkeeping"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
+       <div class="fld"><label>Soft skills</label><div>${["Leadership","Teamwork","Communication","Customer service","Works under pressure"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
+       <div class="fld"><label>Medical declaration *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Stored separately as sensitive personal information — visible only to hr_admin.</div></div>`,
+    5:`<div class="card" style="font-size:12.5px;line-height:1.6;margin-bottom:12px">
+         <b>Data Privacy Consent (v1.2)</b><br>
+         I consent to BRDC collecting and processing my personal information for recruitment and employment evaluation, <b>and for future job openings</b>, until I withdraw my consent. I understand my information is saved as I type and cleared after 7 days if I do not finish, and that BRDC may follow up on incomplete applications. I may withdraw my consent at any time through the applicant portal.</div>
+       <label style="font-size:13px"><input type="checkbox" checked> Acknowledged</label>
+       <div class="fld" style="margin-top:14px"><label>Applicant signature *</label><div class="card" style="height:70px;border-style:dashed"></div></div>`
+  }[applyPage];
+
+  document.getElementById('s-apply').innerHTML = `<div class="pub">
+    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
+      <p class="sub" style="margin-top:6px">Application for Employment</p></div>
+    <div class="card">
+      <div class="prog"><i style="width:${applyPage/total*100}%"></i></div>
+      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
+        <h3>${pages[applyPage-1]}</h3>
+        <span style="font-size:12px;color:var(--muted)">Page ${applyPage} of ${total}<span class="saved">✓ Naka-save</span></span>
+      </div>
+      ${body}
+      <div style="display:flex;gap:8px;margin-top:16px">
+        ${applyPage>1?`<button class="btn" onclick="applyPage--;render()">Back</button>`:''}
+        <span style="flex:1"></span>
+        ${applyPage<total?`<button class="btn pri" onclick="applyPage++;render();toast('Draft saved — you can close this and come back within 7 days')">Next</button>`
+          :`<button class="btn pri" onclick="submitApply()">Submit application</button>`}
+      </div>
+    </div>
+    <p class="sub" style="text-align:center;margin-top:14px">Your answers are saved automatically. If your connection drops, reopen this page and continue where you left off.</p>
+  </div>`;
+}
+
+function rTest(){
+  const secs = Object.keys(QUESTIONS);
+  document.getElementById('s-test').innerHTML = `<div class="pub">
+    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
+      <p class="sub" style="margin-top:6px">Four Quadrant Brain Dominance — Self Assessment</p></div>
+    <div class="card" style="margin-bottom:12px;font-size:12.5px;color:var(--muted)">
+      There are no right or wrong answers. Answer honestly. Your answers save as you go — if your connection drops, reopen the same link. No time limit. This link is valid for 3 days and can be used once.</div>
+    ${secs.map(s=>`<div class="card" style="margin-bottom:12px">
+      <h3>${s}. ${SECNAMES[s]}</h3>
+      <table class="matrix"><thead><tr><th></th><th>Very Much<br>(3)</th><th>Yes<br>(2)</th><th>Somewhat<br>(1)</th><th>Not at all<br>(0)</th></tr></thead>
+      <tbody>${QUESTIONS[s].map((q,i)=>`<tr><td>${i+1}. ${q}</td>
+        ${[3,2,1,0].map(v=>`<td><input type="radio" name="${s}${i}" onchange="toast('Answer saved')"></td>`).join('')}</tr>`).join('')}
+      <tr><td colspan="5" style="text-align:right;color:var(--muted);font-size:12px">…8 more items in this section · section total computed automatically</td></tr>
+      </tbody></table></div>`).join('')}
+    <button class="btn pri" style="width:100%;padding:12px" onclick="toast('Submitted. Four section totals computed and saved to the candidate profile.')">Submit assessment</button>
+  </div>`;
+}
+
+function rPortal(){
+  document.getElementById('s-portal').innerHTML = `<div class="pub" style="max-width:420px">
+    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
+      <p class="sub" style="margin-top:6px">Check your application status</p></div>
+    <div class="card">
+      <div class="fld"><label>Mobile number</label><input class="inp" value="0917 123 4567"></div>
+      <button class="btn pri" style="width:100%" onclick="document.getElementById('pstat').style.display='block'">Check status</button>
+    </div>
+    <div id="pstat" style="display:none;margin-top:12px">
+      <div class="card">
+        <h3>Application #C-2014</h3>
+        <p class="sub">Status: <b style="color:var(--ink)">Under review</b> · last updated 26 August 2026</p>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button class="btn" onclick="go('s-careers')">Apply to another opening</button>
+          <button class="btn" onclick="toast('Withdrawal request recorded — your data will be deleted')">Withdraw my data</button>
+        </div>
+      </div>
+      <div class="hint" style="margin-top:12px">Only the status is shown — no name, address, documents or application answers — so a mobile number alone reveals nothing sensitive.</div>
+    </div>
+  </div>`;
+}
+
+/* ============================================================
+   ACTIONS
+   ============================================================ */
+function openCand(id){curCand=id;profTab='app';go('s-prof');}
+function claim(id){const c=cand(id);c.owner="R. Cruz";toast(`${c.nick||c.n} assigned to you`);render();}
+function advance(id){const c=cand(id);const i=STAGES.findIndex(s=>s.k===c.stage);
+  if(c.stage==='draft'){c.stage='new';}else if(i<STAGES.length-1){c.stage=STAGES[i+1].k;}else{toast('Already at Offer — use Hired or Reject');return;}
+  c.days=0;c.late=false;toast(`Moved to ${stageName(c.stage)} · SLA clock reset · message queued as pending`);render();}
+function openReject(id){
+  const c=cand(id);
+  const pick = prompt("Rejection reason (required — this renders the feedback message):\n\n"+REASONS.map((r,i)=>`${i+1}. ${r.l}`).join("\n")+"\n\nEnter 1-6:");
+  const r = REASONS[parseInt(pick,10)-1];
+  if(!r){toast('Rejection cancelled — a reason is required by the database');return;}
+  c.stage = r.q ? 'rejected_qualified' : 'rejected_not_qualified';
+  c.late=false; c.days=0;
+  if(r.q){POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+", "+c.prov,rf:job(c.job).rf.replace('_',' '),last:"2026-08-28",reason:r.l,warm:"pending",reply:"not yet sent"});}
+  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,
+    body:(c.lang==='tl'
+      ? `Hi ${c.nick}, salamat po sa inyong application para sa ${job(c.job).t} sa BRDC. ${r.l}.${r.q?" Sa inyong pahintulot ay itatago po namin ang inyong profile.":""}`
+      : `Hi ${c.nick}, thank you for your interest in ${job(c.job).t} at BRDC. ${r.l}.${r.q?" With your permission we will keep your profile on file.":""}`)});
+  CANDS = CANDS.filter(x=>x.id!==c.id);
+  toast(r.q?'Rejected–Qualified · added to talent pool · feedback message queued':'Rejected · feedback message queued');
+  go('s-msg');
+}
+function startDocs(id){cand(id).docs=true;toast('Checklist started — 13 core documents, deadline 5 Sep');render();}
+function cycleDoc(i){const o=["pending","submitted","verified"];DOCSTATE[i]=o[(o.indexOf(DOCSTATE[i])+1)%3];render();}
+function copyMsg(id){const m=MSGS.find(x=>x.id===id);
+  navigator.clipboard&&navigator.clipboard.writeText(m.body).catch(()=>{});toast('Message copied — now send it, then mark as sent');}
+function markSent(id){const m=MSGS.find(x=>x.id===id);m.status='sent';m.by='R. Cruz';m.at='today, '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+  toast('Marked sent — recorded against your name');render();}
+function archivePool(id){POOL=POOL.filter(p=>p.id!==id);toast('Archived — hidden from pool suggestions, still searchable');render();}
+function tryClose(id){
+  const live = CANDS.filter(c=>c.job===id && c.stage!=='draft').length;
+  if(live){alert(`Cannot close job ${id}:\n\n${live} candidate(s) still lack a final status.\n\nThis is enforced by the database (guard_job_close), not by the interface. Disposition them first — that is what stops applicants being forgotten.`);}
+  else{toast(`Job ${id} closed.`);}
+}
+function submitApply(){
+  applyPage=1;
+  alert("Application submitted.\n\nReference number: C-2087\n\n• A copy has been emailed to you\n• A PDF of your application is available to download\n• Your record now appears in HR's pipeline at 'New' with a 2-business-day SLA");
+  go('s-pipe');
+}
+
+/* ============================================================
+   RENDER
+   ============================================================ */
+function render(){
+  ({'s-dash':rDash,'s-pipe':rPipe,'s-prof':rProf,'s-pool':rPool,'s-msg':rMsg,'s-rep':rRep,'s-jobs':rJobs,
+    's-careers':rCareers,'s-apply':rApply,'s-test':rTest,'s-portal':rPortal})[cur]();
+}
+render();
+</script>
+</body>
+</html>
