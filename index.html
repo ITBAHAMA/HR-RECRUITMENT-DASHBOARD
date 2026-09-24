@@ -309,6 +309,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 @media (max-width:860px){.top .logo>span{display:none}.top{gap:8px}.top .logout{padding:5px 8px}.side{display:none}.jsum{display:none}.gsearch{margin-left:0}.top .who b,.top .pill.red{display:none}}
 
 /* ============ FULL SCREEN ============ */
+.row{background:#F6F7F4}
 .wrap{max-width:none;padding:0;margin:0}
 .app{border:none;border-radius:0;box-shadow:none;min-height:100vh;display:flex;flex-direction:column}
 .top{position:sticky;top:0;z-index:40}
@@ -317,6 +318,86 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 .pub{padding:18px}
 .backhr{position:fixed;top:14px;left:14px;z-index:60;display:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-size:12.5px;color:#1C5A12;box-shadow:0 4px 14px -6px rgba(0,0,0,.2)}
 .backhr.on{display:block}
+/* ============ v2 COMPONENTS ============ */
+.mut{color:var(--muted);font-size:11.5px}
+.lnk{cursor:pointer;color:#1C5A12}.lnk:hover{text-decoration:underline}
+.tw{overflow-x:auto}
+.dhead{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:16px}
+.kpi7{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:12px;margin-bottom:14px}
+.k7{position:relative;text-align:left;background:#fff;border:1px solid var(--line);border-radius:12px;padding:14px 14px 12px;display:flex;flex-direction:column;gap:2px;transition:box-shadow .15s,transform .15s;overflow:hidden}
+.k7::after{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:linear-gradient(#3E9E2A,#1C5A12)}
+.k7:hover{box-shadow:0 8px 20px -12px rgba(16,40,16,.35);transform:translateY(-1px)}
+.k7i{width:28px;height:28px;border-radius:8px;background:#E8F1E3;color:#256B12;display:grid;place-items:center;margin-bottom:6px}
+.k7i svg{width:16px;height:16px}
+.k7l{font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.k7 b{font-size:28px;font-weight:600;color:#12330D;line-height:1.15}
+.k7 small{font-size:11.5px;color:var(--muted)}
+.measures{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));background:#fff;border:1px solid var(--line);border-radius:12px;margin-bottom:14px}
+.measures>div{padding:12px 16px;border-right:1px solid var(--line)}.measures>div:last-child{border-right:none}
+.measures span{display:block;font-size:10.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.measures b{font-size:22px;font-weight:600;color:#12330D}.measures b small{font-size:12px;font-weight:500;color:var(--muted)}
+.dg2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.dg3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:14px}
+.ch{display:flex;align-items:baseline;gap:8px;margin-bottom:10px}.ch h3{margin:0}.ch small{color:var(--muted);font-size:11.5px}
+.hb{display:grid;gap:7px}
+.hbr{display:grid;grid-template-columns:minmax(90px,38%) 1fr auto auto;gap:10px;align-items:center;font-size:12.5px}
+.hbr.clk{cursor:pointer}.hbr.clk:hover .hbl{color:#1C5A12;text-decoration:underline}
+.hbl{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:#3B423C}
+.hbt{height:12px;background:#EEF1EB;border-radius:0 4px 4px 0;overflow:hidden}
+.hbt i{display:block;height:100%;background:#2F7D22;border-radius:0 4px 4px 0}
+.hbr b{font-weight:600;min-width:22px;text-align:right;color:var(--ink)}
+.hbr em{font-style:normal;color:var(--muted);font-size:11.5px;min-width:34px;text-align:right}
+.mc{width:100%;height:auto;display:block}
+.mc .grid{stroke:#E6E9E3;stroke-width:1}.mc .ax{font-size:10.5px;fill:#6B7178}.mc .val{font-size:11px;fill:#1B1D1F;font-weight:600}
+.mc .bar{fill:#2F7D22}.mc .bar.cur{fill:#7DB86B}.mc g:hover .bar{fill:#1C5A12}
+.mc .tgt{stroke:#B8892F;stroke-width:2;stroke-dasharray:5 4}
+.lgd{display:flex;gap:16px;font-size:11.5px;color:var(--muted);margin-top:6px}.lgd span{display:flex;align-items:center;gap:6px}
+.sw{display:inline-block;width:14px;height:10px;border-radius:2px}.sw.bar{background:#2F7D22}.sw.tgt{height:0;border-top:2px dashed #B8892F}
+.pa{display:grid;gap:2px}
+.pai{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid #EEF0F1}.pai:last-child{border-bottom:none}
+.pai>i{width:8px;height:8px;border-radius:50%;flex:none}
+.pat{flex:1;min-width:0}.pat b{display:block;font-weight:500;font-size:13px}.pat small{color:var(--muted);font-size:11.5px}
+.tip{position:fixed;z-index:400;pointer-events:none;background:#14171A;color:#fff;font-size:12px;line-height:1.45;padding:7px 10px;border-radius:7px;max-width:260px;opacity:0;transition:opacity .12s;left:-999px}
+.tip.on{opacity:1}
+.cav.s{width:28px;height:28px;font-size:11px}
+.sdot{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:7px;vertical-align:1px}
+th.srt{cursor:pointer;user-select:none}th.srt:hover{color:var(--ink)}
+.gres{display:none;position:absolute;top:42px;left:0;right:0;background:#fff;border-radius:10px;box-shadow:0 16px 40px -12px rgba(0,0,0,.35);padding:6px;z-index:80;color:var(--ink);max-height:420px;overflow:auto}
+.gres.on{display:block}
+.gres .gh{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);padding:8px 10px 4px;font-weight:600}
+.gres a{display:flex;gap:10px;align-items:center;padding:7px 10px;border-radius:8px;cursor:pointer}.gres a:hover{background:#F0F4EC}
+.gres a b{display:block;font-size:13px}.gres a small{color:var(--muted);font-size:11.5px}
+.bellw{position:relative}
+.notif{display:none;position:absolute;right:0;top:44px;width:360px;background:#fff;color:var(--ink);border-radius:12px;box-shadow:0 18px 44px -12px rgba(0,0,0,.4);padding:6px;z-index:90}
+.notif.on{display:block}
+.notif .nh{padding:10px 12px;font-weight:600;font-size:13px}.notif .nh small{font-weight:400;color:var(--muted);margin-left:6px}
+.notif a{display:flex;gap:10px;padding:8px 12px;border-radius:8px;cursor:pointer}.notif a:hover{background:#F0F4EC}
+.notif a>i{width:8px;height:8px;border-radius:50%;margin-top:6px;flex:none}
+.notif a b{display:block;font-weight:500;font-size:12.5px}.notif a small{color:var(--muted);font-size:11.5px}
+.notif .more{justify-content:center;color:#1C5A12;font-size:12.5px}
+.side a{position:relative}
+.side .sb{margin-left:auto;font-style:normal;background:#256B12;color:#fff;border-radius:99px;font-size:10.5px;padding:0 7px;font-weight:600}
+body.sidecol .side .sb{position:absolute;left:34px;top:4px;margin:0;padding:0 5px}
+.jbar{display:flex;gap:8px;align-items:center;flex-wrap:wrap;padding:12px 18px 0}
+.jbar .mut{font-size:12px}
+.tgl{display:flex;align-items:center;gap:6px;font-size:12.5px;color:#3B423C}
+.bcol.over{outline:2px dashed var(--c);outline-offset:2px}
+.ccard.drag{opacity:.45}
+.bug{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:14px}
+.buh{display:flex;gap:12px;align-items:center;margin-bottom:12px}
+.bui{width:42px;height:42px;border-radius:10px;background:linear-gradient(145deg,#2F7D22,#12330D);color:#F4EEDF;display:grid;place-items:center;font-weight:700;font-size:14px;flex:none}
+.bus{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;background:#F6F8F4;border-radius:10px;padding:10px;margin-bottom:10px;text-align:center}
+.bus b{display:block;font-size:18px;color:#12330D}.bus span{font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.bujob{display:flex;justify-content:space-between;align-items:center;padding:8px 2px;border-bottom:1px solid #EEF0F1;font-size:12.5px;cursor:pointer}
+.bujob:hover b{color:#1C5A12;text-decoration:underline}.bujob small{display:block;color:var(--muted);font-size:11px}
+.fg{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px}
+.fg label{display:flex;flex-direction:column;gap:4px;font-size:12px;color:var(--muted)}
+.rec{display:flex;gap:6px;align-items:center;flex-wrap:wrap}.rec .inp{padding:4px 6px;font-size:12px}.rec input{width:140px}
+.prog{height:8px;background:#EEF1EB;border-radius:99px;overflow:hidden}.prog i{display:block;height:100%;background:linear-gradient(90deg,#3E9E2A,#1C5A12);border-radius:99px}
+.chk{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer}.chk input{accent-color:#256B12}
+@media (max-width:1280px){.kpi7{grid-template-columns:repeat(4,minmax(0,1fr))}.dg3{grid-template-columns:1fr 1fr}}
+@media (max-width:860px){.kpi7{grid-template-columns:repeat(2,minmax(0,1fr))}.measures{grid-template-columns:1fr 1fr}.measures>div{border-right:none;border-bottom:1px solid var(--line)}.dg2,.dg3{grid-template-columns:1fr}.notif{width:300px;right:-60px}}
+@media print{.top,.side,.noprint,.backhr,.toast,.tip{display:none!important}.main{background:#fff}.app{min-height:0}.card,.measures{break-inside:avoid}body{background:#fff}}
 </style>
 </head>
 <body class="locked">
@@ -333,7 +414,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
     </div>
     <div class="lg-stats">
       <div><b>7</b><span>Business units</span></div>
-      <div><b>13</b><span>Pipeline stages</span></div>
+      <div><b>10</b><span>Pipeline stages</span></div>
       <div><b>1</b><span>Source of truth</span></div>
     </div>
   </aside>
@@ -394,24 +475,54 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
   <section class="screen" id="s-apply"></section>
   <section class="screen" id="s-test"></section>
   <section class="screen" id="s-portal"></section>
+  <section class="screen" id="s-job"></section>
+  <section class="screen" id="s-bu"></section>
+  <section class="screen" id="s-mpr"></section>
+  <section class="screen" id="s-int"></section>
+  <section class="screen" id="s-onb"></section>
+  <section class="screen" id="s-set"></section>
+  <section class="screen" id="s-adm"></section>
 </div>
 
 <div class="toast" id="toast"></div>
+<div class="tip" id="tip"></div>
 <button class="backhr" id="backhr" onclick="go('s-dash')">← Back to HR dashboard</button>
 
 <script>
 /* ============================================================
    DUMMY DATA
    ============================================================ */
-const BU = {sf:"Smartfuels", uh:"U Hotels", lg:"Logistics", en:"Engineering", ag:"Agriculture", co:"Corporate"};
+/* ============================================================
+   DATA (v2) — BRDC business units, full workflow, dates relative to today
+   ============================================================ */
+const BU = {sf:"Smartfuels", nb:"Neo Bros Ventures", uh:"U Hotels", th:"Toilena Hotel", ex:"Exelhaul Logistics", pp:"Pan Pacific", lf:"La Ferme Organique"};
 const STAGES = [
-  {k:"new", n:"New", sla:2},
-  {k:"screening", n:"Screening", sla:3},
-  {k:"exam", n:"Exam", sla:3},
-  {k:"interview", n:"Interview", sla:3},
-  {k:"final", n:"Final interview", sla:3},
-  {k:"offer", n:"Offer", sla:5}
+  {k:"new",        n:"New",                  sla:2,  c:"#2F9E44"},
+  {k:"screening",  n:"Initial screening",    sla:3,  c:"#2466C9"},
+  {k:"hr_int",     n:"HR interview",         sla:3,  c:"#1F7A8C"},
+  {k:"dept_int",   n:"Department interview", sla:4,  c:"#0E6E6E"},
+  {k:"exam",       n:"Assessment",           sla:3,  c:"#7B4FB0"},
+  {k:"final",      n:"Final interview",      sla:3,  c:"#B4620E"},
+  {k:"offer",      n:"Job offer",            sla:5,  c:"#C9A04E"},
+  {k:"reqs",       n:"Requirements",         sla:10, c:"#8A6D1F"},
+  {k:"hired",      n:"Hired",                sla:0,  c:"#256B12"},
+  {k:"onboarding", n:"Onboarding",           sla:14, c:"#12330D"}
 ];
+const ACTIVE = ["new","screening","hr_int","dept_int","exam","final","offer","reqs"];
+const INTERVIEW_STAGES = ["hr_int","dept_int","final"];
+const TODAY = new Date(); TODAY.setHours(0,0,0,0);
+function localISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
+const todayKey=localISO(TODAY);
+function isoAgo(n){const d=new Date(TODAY);d.setDate(d.getDate()-n);return localISO(d);}
+function localDT(iso){const d=new Date(iso);return localISO(d)+'T'+String(d.getHours()).padStart(2,'0')+':'+String(d.getMinutes()).padStart(2,'0');}
+function isoIn(n,h){const d=new Date(TODAY);d.setDate(d.getDate()+n);d.setHours(h||9,0,0,0);return d.toISOString();}
+function daysSince(iso){return Math.max(0,Math.round((TODAY-new Date(iso.slice(0,10)+"T00:00:00"))/864e5));}
+function fmtD(iso){return new Date(iso.length>10?iso:iso+"T00:00:00").toLocaleDateString('en-PH',{day:'numeric',month:'short',year:'numeric'});}
+function fmtDT(iso){return new Date(iso).toLocaleString('en-PH',{day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});}
+function rng(seed){return function(){seed|=0;seed=seed+0x6D2B79F5|0;let t=Math.imul(seed^seed>>>15,1|seed);t=t+Math.imul(t^t>>>7,61|t)^t;return((t^t>>>14)>>>0)/4294967296;};}
+const R = rng(20260924);
+const pick = a => a[Math.floor(R()*a.length)];
+
 const REASONS = [
   {c:"insufficient_experience", l:"Experience did not match the role requirements", q:false},
   {c:"incomplete_requirements", l:"Requirements were not completed on time", q:false},
@@ -420,33 +531,115 @@ const REASONS = [
   {c:"position_filled", l:"The position has been filled", q:true},
   {c:"stronger_candidate", l:"Another candidate was a closer fit", q:true}
 ];
-const JOBS = [
-  {id:"SF-114", t:"Station Crew", bu:"sf", br:"Calamba", rf:"station_crew", head:5, open:"2026-08-12", owner:"R. Cruz", status:"open", sal:"₱13,000–15,000", vac:"2026-08-01"},
-  {id:"UH-021", t:"Front Desk Associate", bu:"uh", br:"Manila", rf:"front_desk", head:2, open:"2026-08-05", owner:"J. Tan", status:"open", sal:"₱16,000–18,000", vac:"2026-07-20"},
-  {id:"LG-008", t:"Delivery Driver", bu:"lg", br:"Biñan", rf:"driver", head:3, open:"2026-08-18", owner:"R. Cruz", status:"open", sal:"₱15,000–17,000", vac:null},
-  {id:"UH-024", t:"Housekeeping Attendant", bu:"uh", br:"Tagaytay", rf:"housekeeping", head:4, open:"2026-08-22", owner:"M. Lim", status:"pending_approval", sal:"₱12,000–14,000", vac:null},
-  {id:"GEN-SF", t:"Any available position", bu:"sf", br:"—", rf:"general", head:0, open:"2026-01-01", owner:null, status:"open", sal:"", vac:null}
+let JOBS = [
+  {id:"SF-114", t:"Station Crew", bu:"sf", dept:"Station Operations", br:"Calamba", prov:"Laguna", rf:"station_crew", head:5, filled:1, open:isoAgo(43), owner:"R. Cruz", status:"open", sal:"₱13,000–15,000", vac:true, skills:["Cash handling","Customer service","Fuel dispensing","Basic math"], team:["R. Cruz","Station Manager – Calamba"]},
+  {id:"SF-118", t:"Station Supervisor", bu:"sf", dept:"Station Operations", br:"Sto. Tomas", prov:"Batangas", rf:"supervisor", head:1, filled:0, open:isoAgo(61), owner:"R. Cruz", status:"open", sal:"₱20,000–24,000", vac:true, skills:["Leadership","Inventory","Cash handling","Records management"], team:["R. Cruz","Area Manager – South"]},
+  {id:"NB-031", t:"Heavy Equipment Mechanic", bu:"nb", dept:"Service & Parts", br:"Biñan", prov:"Laguna", rf:"mechanic", head:2, filled:0, open:isoAgo(55), owner:"M. Lim", status:"open", sal:"₱22,000–28,000", vac:false, skills:["Diesel engines","Hydraulics","Troubleshooting"], team:["M. Lim","Service Manager"]},
+  {id:"NB-034", t:"Sales Account Executive", bu:"nb", dept:"Sales", br:"Quezon City", prov:"NCR", rf:"sales", head:2, filled:1, open:isoAgo(30), owner:"J. Tan", status:"open", sal:"₱18,000–22,000 + commission", vac:false, skills:["Sales","Negotiation","Driving","Communication"], team:["J. Tan","Sales Director"]},
+  {id:"UH-021", t:"Front Desk Associate", bu:"uh", dept:"Front Office", br:"Manila", prov:"NCR", rf:"front_desk", head:2, filled:1, open:isoAgo(50), owner:"J. Tan", status:"open", sal:"₱16,000–18,000", vac:true, skills:["Front office","English","Booking systems","Customer service"], team:["J. Tan","Front Office Manager"]},
+  {id:"UH-024", t:"Housekeeping Attendant", bu:"uh", dept:"Housekeeping", br:"Tagaytay", prov:"Cavite", rf:"housekeeping", head:4, filled:0, open:isoAgo(2), owner:"M. Lim", status:"pending_approval", sal:"₱12,000–14,000", vac:false, skills:["Housekeeping","Attention to detail","Teamwork"], team:["M. Lim"]},
+  {id:"TH-007", t:"Line Cook", bu:"th", dept:"Kitchen", br:"Manila", prov:"NCR", rf:"cook", head:2, filled:0, open:isoAgo(25), owner:"J. Tan", status:"open", sal:"₱15,000–17,000", vac:false, skills:["Food handling","Knife skills","Teamwork"], team:["J. Tan","Executive Chef"]},
+  {id:"EX-008", t:"Delivery Driver", bu:"ex", dept:"Fleet", br:"Biñan", prov:"Laguna", rf:"driver", head:3, filled:1, open:isoAgo(37), owner:"R. Cruz", status:"open", sal:"₱15,000–17,000", vac:false, skills:["Professional license","Route planning","Driving"], team:["R. Cruz","Fleet Supervisor"]},
+  {id:"EX-012", t:"Dispatcher", bu:"ex", dept:"Operations", br:"Calamba", prov:"Laguna", rf:"dispatcher", head:1, filled:0, open:isoAgo(12), owner:"R. Cruz", status:"open", sal:"₱16,000–18,000", vac:true, skills:["Data entry","Communication","Records management"], team:["R. Cruz","Operations Head"]},
+  {id:"PP-005", t:"Accounting Staff", bu:"pp", dept:"Finance", br:"Quezon City", prov:"NCR", rf:"accounting", head:1, filled:0, open:isoAgo(70), owner:"M. Lim", status:"open", sal:"₱18,000–21,000", vac:true, skills:["Basic bookkeeping","Basic Excel","Records management"], team:["M. Lim","Finance Manager"]},
+  {id:"LF-003", t:"Farm Supervisor", bu:"lf", dept:"Farm Operations", br:"Batangas farm", prov:"Batangas", rf:"farm_sup", head:1, filled:0, open:isoAgo(48), owner:"M. Lim", status:"open", sal:"₱18,000–22,000", vac:false, skills:["Organic farming","Leadership","Records management"], team:["M. Lim","Farm Manager"]},
+  {id:"LF-006", t:"Farm Hand", bu:"lf", dept:"Farm Operations", br:"Batangas farm", prov:"Batangas", rf:"farm_hand", head:4, filled:2, open:isoAgo(20), owner:"M. Lim", status:"open", sal:"₱12,000–13,500", vac:false, skills:["Manual labor","Teamwork","Organic farming"], team:["M. Lim","Farm Manager"]},
+  {id:"GEN-SF", t:"Any available position", bu:"sf", dept:"—", br:"—", prov:"", rf:"general", head:0, filled:0, open:isoAgo(260), owner:null, status:"open", sal:"", vac:false, skills:[], team:[]}
 ];
 let CANDS = [
-  {id:1, n:"Maria Santos Dela Cruz", nick:"Maria", mob:"0917 123 4567", em:"maria.dc@email.com", city:"San Pedro", prov:"Laguna", job:"SF-114", stage:"new", days:4, late:true, src:"Facebook", owner:"R. Cruz", lang:"tl", pool:false,
+  {id:1, n:"Maria Santos Dela Cruz", nick:"Maria", mob:"0917 123 4567", em:"maria.dc@email.com", city:"San Pedro", prov:"Laguna", job:"SF-114", stage:"new", since:isoAgo(4), applied:isoAgo(4), src:"Facebook", owner:"R. Cruz", lang:"tl",
    quad:{A:22,B:29,C:18,D:15}, docs:false, exp:"Cashier – 7-Eleven Pacita (2022–2024); Service Crew – Jollibee San Pedro (2020–2022)", skills:["Cash handling","Customer service","Basic Excel"]},
-  {id:2, n:"Jerome Aquino", nick:"Jerome", mob:"0918 224 9910", em:"", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"new", days:1, late:false, src:"Walk-in (QR)", owner:"R. Cruz", lang:"tl", pool:false,
+  {id:2, n:"Jerome Aquino", nick:"Jerome", mob:"0918 224 9910", em:"", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"new", since:isoAgo(1), applied:isoAgo(1), src:"Walk-in (QR)", owner:"R. Cruz", lang:"tl",
    quad:null, docs:false, exp:"Gasoline attendant – Petron Calamba (2023–2025)", skills:["Fuel dispensing","Basic math"]},
-  {id:3, n:"Rowena Bautista", nick:"Weng", mob:"0906 771 2280", em:"rowena.b@email.com", city:"Biñan", prov:"Laguna", job:"SF-114", stage:"screening", days:2, late:false, src:"Jobstreet", owner:"R. Cruz", lang:"en", pool:false,
+  {id:3, n:"Rowena Bautista", nick:"Weng", mob:"0906 771 2280", em:"rowena.b@email.com", city:"Biñan", prov:"Laguna", job:"SF-114", stage:"screening", since:isoAgo(2), applied:isoAgo(6), src:"Jobstreet", owner:"R. Cruz", lang:"en",
    quad:{A:31,B:24,C:20,D:17}, docs:false, exp:"Sales associate – SM Biñan (2021–2025)", skills:["POS","Inventory","Customer service"]},
-  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"interview", days:1, late:false, src:"Referral", owner:"R. Cruz", lang:"tl", pool:false,
-   quad:{A:19,B:33,C:26,D:14}, docs:false, exp:"Warehouse staff – Puregold (2022–2026)", skills:["Inventory","Forklift","Teamwork"]},
-  {id:5, n:"Kristine Villanueva", nick:"Tin", mob:"0917 884 2201", em:"kristine.v@email.com", city:"Manila", prov:"NCR", job:"UH-021", stage:"screening", days:5, late:true, src:"Indeed", owner:"J. Tan", lang:"en", pool:false,
+  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"hr_int", since:isoAgo(1), applied:isoAgo(9), src:"Referral", owner:"R. Cruz", lang:"tl",
+   quad:{A:19,B:33,C:26,D:14}, docs:false, exp:"Warehouse staff – Puregold (2022–2026)", skills:["Inventory","Forklift","Teamwork","Cash handling"]},
+  {id:5, n:"Kristine Villanueva", nick:"Tin", mob:"0917 884 2201", em:"kristine.v@email.com", city:"Manila", prov:"NCR", job:"UH-021", stage:"screening", since:isoAgo(5), applied:isoAgo(8), src:"Indeed", owner:"J. Tan", lang:"en",
    quad:{A:26,B:21,C:32,D:25}, docs:false, exp:"Front desk – Red Planet Manila (2023–2026)", skills:["Front office","English","Booking systems"]},
-  {id:6, n:"Angelo Ramos", nick:"Gelo", mob:"0920 118 4432", em:"", city:"Biñan", prov:"Laguna", job:"LG-008", stage:"exam", days:2, late:false, src:"Facebook", owner:"R. Cruz", lang:"tl", pool:false,
+  {id:6, n:"Angelo Ramos", nick:"Gelo", mob:"0920 118 4432", em:"", city:"Biñan", prov:"Laguna", job:"EX-008", stage:"exam", since:isoAgo(2), applied:isoAgo(14), src:"Facebook", owner:"R. Cruz", lang:"tl",
    quad:null, docs:false, exp:"Driver – JRS Express (2020–2026)", skills:["Professional license","Route planning"]},
-  {id:7, n:"Divina Manalo", nick:"Divine", mob:"0956 220 7781", em:"divina.m@email.com", city:"Sto. Tomas", prov:"Batangas", job:"UH-021", stage:"offer", days:6, late:true, src:"Referral", owner:"J. Tan", lang:"en", pool:false,
-   quad:{A:24,B:30,C:28,D:19}, docs:true, exp:"Guest services – Taal Vista (2019–2026)", skills:["Guest relations","Reservations"]},
-  {id:8, n:"Joseph Mendoza", nick:"Jo", mob:"0977 441 8890", em:"", city:"Sto. Tomas", prov:"Batangas", job:"GEN-SF", stage:"new", days:3, late:true, src:"Walk-in (QR)", owner:null, lang:"tl", pool:false,
+  {id:7, n:"Divina Manalo", nick:"Divine", mob:"0956 220 7781", em:"divina.m@email.com", city:"Sto. Tomas", prov:"Batangas", job:"UH-021", stage:"offer", since:isoAgo(6), applied:isoAgo(24), src:"Referral", owner:"J. Tan", lang:"en",
+   quad:{A:24,B:30,C:28,D:19}, docs:true, exp:"Guest services – Taal Vista (2019–2026)", skills:["Guest relations","Reservations","Customer service","English"]},
+  {id:8, n:"Joseph Mendoza", nick:"Jo", mob:"0977 441 8890", em:"", city:"Sto. Tomas", prov:"Batangas", job:"GEN-SF", stage:"new", since:isoAgo(3), applied:isoAgo(3), src:"Walk-in (QR)", owner:null, lang:"tl",
    quad:null, docs:false, exp:"Service crew – Mang Inasal (2023–2026)", skills:["Food handling","Customer service"]},
-  {id:9, n:"Liza Fernandez", nick:"Liza", mob:"0915 662 3310", em:"liza.f@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"draft", days:2, late:false, src:"Apply page", owner:"R. Cruz", lang:"tl", pool:false,
+  {id:9, n:"Liza Fernandez", nick:"Liza", mob:"0915 662 3310", em:"liza.f@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"draft", since:isoAgo(2), applied:isoAgo(2), src:"Career page", owner:"R. Cruz", lang:"tl",
    quad:null, docs:false, exp:"—", skills:[]}
 ];
+/* generated applicants so charts have realistic volume */
+(function(){
+  const FN=["Mark","Ana","Paolo","Grace","Rico","Jessa","Noel","Camille","Jomar","Rhea","Dennis","Kaye","Arvin","Lovely","Ramon","Shiela","Bryan","Janine","Ernesto","Mika","Vince","Aileen","Ronald","Trisha","Edwin","Joy","Nestor","Bea","Gerald","Precious","Allan","Hazel","Jun","Mae","Rodel","Cherry","Francis","Ella","Randy","Nicole","Joel","Irish"];
+  const LN=["Garcia","Reyes","Santos","Mendoza","Flores","Gonzales","Bautista","Villanueva","Cruz","Ramos","Aquino","Castillo","Rivera","Navarro","Torres","Domingo","Salazar","Pascual","Mercado","Soriano","Lopez","Del Rosario","Manalo","Valdez","Tolentino","Aguilar"];
+  const PLACES=[["Calamba","Laguna"],["Biñan","Laguna"],["Sta. Rosa","Laguna"],["San Pedro","Laguna"],["Quezon City","NCR"],["Manila","NCR"],["Makati","NCR"],["Tagaytay","Cavite"],["Dasmariñas","Cavite"],["Lipa","Batangas"],["Sto. Tomas","Batangas"],["Tanauan","Batangas"]];
+  const SRC=["Facebook","Facebook","Facebook","Walk-in (QR)","Walk-in (QR)","Jobstreet","Jobstreet","Referral","Indeed","Career page"];
+  const EXTRA=["Customer service","Teamwork","Communication","Basic Excel","Driving","Leadership","Data entry","Inventory"];
+  const PREV=["Service crew – Jollibee","Cashier – Puregold","Sales clerk – SM","Warehouse helper – LBC","Utility – Robinsons","Rider – Lalamove","Staff – Mercury Drug","Crew – McDonald's","Helper – construction","Clerk – LGU office"];
+  const W={new:6,screening:5,hr_int:4,dept_int:3,exam:3,final:2,offer:2,reqs:2,hired:1,onboarding:2};
+  const bag=[];Object.entries(W).forEach(([k,n])=>{for(let i=0;i<n;i++)bag.push(k)});
+  const jobsOpen=JOBS.filter(j=>j.status==='open'&&j.rf!=='general');
+  for(let i=0;i<46;i++){
+    const j=pick(jobsOpen), st=pick(bag), [city,prov]=R()<.6?[j.br.replace(' farm',''),j.prov]:pick(PLACES);
+    const fn=pick(FN), ln=pick(LN), idx=STAGES.findIndex(s=>s.k===st);
+    const sl=(STAGES.find(s=>s.k===st)||{sla:3}).sla||5, inStage=R()<.78?Math.floor(R()*(sl+1)):sl+1+Math.floor(R()*4);
+    const sk=[...new Set([...j.skills.filter(()=>R()<.55),...[pick(EXTRA)]])];
+    CANDS.push({id:100+i,n:`${fn} ${ln}`,nick:fn,mob:`09${10+Math.floor(R()*89)} ${100+Math.floor(R()*899)} ${1000+Math.floor(R()*8999)}`,em:R()<.7?`${fn.toLowerCase()}.${ln.toLowerCase().replace(/ /g,'')}@email.com`:"",
+      city,prov:prov||"Laguna",job:j.id,stage:st,since:isoAgo(inStage),applied:isoAgo(inStage+idx*3+Math.floor(R()*4)),src:pick(SRC),owner:j.owner,lang:R()<.6?'tl':'en',
+      quad:idx>=4?{A:14+Math.floor(R()*18),B:14+Math.floor(R()*18),C:14+Math.floor(R()*18),D:14+Math.floor(R()*18)}:null,
+      docs:idx>=6,exp:`${pick(PREV)} (${2019+Math.floor(R()*4)}–${2023+Math.floor(R()*3)})`,skills:sk});
+  }
+})();
+/* onboarding checklist */
+const ONB_ITEMS=["Contract signed","Pre-employment medical","Government IDs (SSS, PhilHealth, Pag-IBIG, TIN)","NBI clearance","Company orientation","ID and uniform issued","Payroll enrollment","Reported on day one"];
+CANDS.forEach(c=>{if(c.stage==='hired'||c.stage==='onboarding'){c.start=localISO(new Date(isoIn(c.stage==='hired'?7:-3)));c.onb=ONB_ITEMS.map((_,i)=>c.stage==='onboarding'?R()<.6+(i<3?.3:0):i<1);}});
+/* closed history: hires and other outcomes, last 8 months */
+let HIST=[];
+(function(){
+  const SRC=["Facebook","Walk-in (QR)","Jobstreet","Referral","Indeed","Career page"], bus=Object.keys(BU);
+  for(let m=7;m>=0;m--){
+    const d=new Date(TODAY.getFullYear(),TODAY.getMonth()-m,1), month=localISO(d).slice(0,7);
+    const hires=m===0?3:4+Math.floor(R()*6), rej=14+Math.floor(R()*14), wd=2+Math.floor(R()*4);
+    for(let i=0;i<hires;i++){const s=pick(SRC);HIST.push({month,out:'hired',bu:pick(bus),src:s,tth:12+Math.floor(R()*22)+(s==='Referral'?-4:0),ttf:18+Math.floor(R()*40)});}
+    for(let i=0;i<rej;i++)HIST.push({month,out:'rejected',bu:pick(bus),src:pick(SRC)});
+    for(let i=0;i<wd;i++)HIST.push({month,out:'withdrew',bu:pick(bus),src:pick(SRC)});
+  }
+})();
+let TARGET=8;
+/* manpower requests */
+let MPR=[
+  {id:"MPR-041", bu:"uh", dept:"Housekeeping", pos:"Housekeeping Attendant", head:4, type:"New", reason:"Additional rooms opening in Tagaytay wing", by:"Front Office Manager – U Hotels", date:isoAgo(2), status:"pending", job:"UH-024"},
+  {id:"MPR-042", bu:"th", dept:"Food & Beverage", pos:"Barista", head:2, type:"New", reason:"New lobby café", by:"F&B Manager – Toilena Hotel", date:isoAgo(1), status:"pending", job:null},
+  {id:"MPR-039", bu:"ex", dept:"Operations", pos:"Dispatcher", head:1, type:"Replacement", reason:"Resignation of incumbent", by:"Operations Head – Exelhaul", date:isoAgo(14), status:"approved", job:"EX-012"},
+  {id:"MPR-036", bu:"pp", dept:"Finance", pos:"Accounting Staff", head:1, type:"Replacement", reason:"Resignation", by:"Finance Manager – Pan Pacific", date:isoAgo(72), status:"approved", job:"PP-005"},
+  {id:"MPR-035", bu:"sf", dept:"Station Operations", pos:"Station Crew", head:5, type:"Replacement", reason:"Attrition across Calamba stations", by:"Area Manager – Laguna", date:isoAgo(45), status:"approved", job:"SF-114"},
+  {id:"MPR-033", bu:"nb", dept:"Admin", pos:"Messenger", head:1, type:"New", reason:"Workload", by:"Admin Head – Neo Bros", date:isoAgo(40), status:"rejected", job:null, note:"Covered by existing staff"}
+];
+/* interviews */
+let INTV=[];
+(function(){
+  const who={hr_int:["R. Cruz","J. Tan","M. Lim"],dept_int:null,final:["BU General Manager"]};
+  let n=1;
+  CANDS.filter(c=>INTERVIEW_STAGES.includes(c.stage)).forEach((c,i)=>{
+    const j=JOBS.find(x=>x.id===c.job), type=c.stage==='hr_int'?'HR interview':c.stage==='dept_int'?'Department interview':'Final interview';
+    const iv=c.stage==='dept_int'?(j.team[1]||j.owner):pick(who[c.stage]);
+    const done=i%3===0;
+    INTV.push({id:n++,cid:c.id,type,when:done?isoIn(-1,10+i%5):isoIn(i%4,9+i%7),interviewer:iv,loc:c.stage==='hr_int'&&i%2?'Video call':`${BU[j.bu]} – ${j.br}`,status:done?'done':'scheduled',score:null,result:null,remarks:''});
+  });
+})();
+let NOTES={"SF-114":[{by:"R. Cruz",at:isoAgo(3),text:"Calamba station manager prefers candidates within 10 km. Prioritise walk-ins."}]};
+let ACT=[
+  {at:isoAgo(0),by:"System",text:"Daily digest generated",job:null},
+  {at:isoAgo(1),by:"R. Cruz",text:"Moved Carlo Reyes to HR interview",job:"SF-114"},
+  {at:isoAgo(2),by:"J. Tan",text:"Sent job offer to Divina Manalo",job:"UH-021"},
+  {at:isoAgo(2),by:"M. Lim",text:"Submitted MPR-041 for approval",job:"UH-024"}
+];
+const STAFF=[
+  {n:"Administrator",u:"admin",role:"hr_admin",bu:"All business units",st:"active"},
+  {n:"R. Cruz",u:"rcruz",role:"hr_staff",bu:"Smartfuels, Exelhaul Logistics",st:"active"},
+  {n:"J. Tan",u:"jtan",role:"hr_staff",bu:"U Hotels, Toilena Hotel, Neo Bros Ventures",st:"active"},
+  {n:"M. Lim",u:"mlim",role:"hr_staff",bu:"Pan Pacific, La Ferme Organique, Neo Bros Ventures",st:"active"},
+  {n:"BU Managers",u:"(group)",role:"viewer",bu:"Own business unit only",st:"active"}
+];
+
 let POOL = [
   {id:101, n:"Joseph Manalo", mob:"0923 118 2299", city:"Sto. Tomas, Batangas", rf:"Station crew", last:"2026-06-14", reason:"Position filled", warm:"interested", reply:"2 days ago"},
   {id:102, n:"Angel Ramos", mob:"0917 553 8821", city:"Calamba, Laguna", rf:"Station crew", last:"2026-05-30", reason:"Stronger candidate", warm:"pending", reply:"sent today"},
@@ -510,12 +703,14 @@ async function doLogin(e){
     document.getElementById('lgPass').select();return;
   }
   SESSION={user:u,...acct,at:new Date()};
+  try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-sess',u);else localStorage.removeItem('brdc-sess');}catch(e){}
   btn.innerHTML='✓ WELCOME';
   document.title='BRDC Recruit — Dashboard';
   const L=document.getElementById('login');L.classList.add('out');
   setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},550);
 }
 function logout(){
+  try{localStorage.removeItem('brdc-sess');}catch(e){}
   SESSION=null;lgFails=0;
   const L=document.getElementById('login'),btn=document.getElementById('lgBtn');
   document.getElementById('lgPass').value='';document.getElementById('lgErr').classList.remove('on');
@@ -526,6 +721,7 @@ function logout(){
 ['keydown','keyup'].forEach(ev=>document.getElementById('lgPass').addEventListener(ev,e=>{
   if(e.getModifierState)document.getElementById('lgCaps').classList.toggle('on',e.getModifierState('CapsLock'));}));
 document.getElementById('lgUser').focus();
+(function(){try{const u=localStorage.getItem('brdc-sess');if(u&&USERS[u]){SESSION={user:u,...USERS[u],at:new Date()};const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}catch(e){}})();
 
 /* ============================================================
    PLUMBING
@@ -543,7 +739,6 @@ function toast(t){const el=document.getElementById('toast');el.textContent=t;el.
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
 function job(id){return JOBS.find(j=>j.id===id)||{t:"—",bu:"co",br:"—"};}
 function cand(id){return CANDS.find(c=>c.id===id);}
-function stageName(k){return k==="draft"?"Draft":(STAGES.find(s=>s.k===k)||{n:k}).n;}
 
 
 
@@ -580,192 +775,21 @@ const IC={
  note:'<path d="M4 4h16v12l-4 4H4z"/><path d="M16 20v-4h4"/>'
 };
 function ic(n,extra){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${IC[n]||''}</svg>`;}
-let RECENT=[];
-function toggleSide(){document.body.classList.toggle('sidecol');}
 function greet(){const h=new Date().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
-function shell(active, body, extra){
-  const late = CANDS.filter(c=>c.late).length;
-  const nm = SESSION?SESSION.name:"R. Cruz";
-  const L=(key,screen,icon,label)=>`<a href="#" class="${active===key?'on':''}" title="${label}" onclick="${screen?`go('${screen}')`:`toast('${label}: coming in the next build')`};return false">${ic(icon)}<span>${label}</span></a>`;
-  return `<div class="app">
-    <div class="top">
-      <button class="burger" onclick="toggleSide()" aria-label="Toggle menu">${ic('menu','width="20" height="20"')}</button>
-      <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
-      <div class="gsearch">${ic('search')}<input placeholder="Search by name, job, email or business unit" onkeyup="if(event.key==='Enter')toast('Search: '+this.value)"></div>
-      <span class="spacer"></span>
-      ${late?`<span class="pill red">${late} overdue</span>`:''}
-      <button class="bell" onclick="toast('3 unread notifications')">🔔<span>3</span></button>
-      <span class="who"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
-      <button class="logout" onclick="logout()">Sign out</button>
-    </div>
-    <div class="row">
-      <nav class="side">
-        <div class="grp">
-          ${L('dash','s-dash','home','Home')}
-          ${L('bu',null,'bu','Business units')}
-          ${L('jobs','s-jobs','jobs','Jobs')}
-          ${L('pipe','s-pipe','cands','Candidates')}
-        </div>
-        <div class="grp">
-          ${L('req',null,'req','Manpower requests')}
-          ${L('int',null,'cal','Interviews')}
-          ${L('pool','s-pool','pool','Talent pool')}
-          ${L('onb',null,'onb','Onboarding')}
-          ${L('msg','s-msg','msg','Messages')}
-        </div>
-        <div class="grp">
-          ${L('rep','s-rep','rep','Reports')}
-          ${L('car','s-careers','web','Career page')}
-          ${L('set',null,'set','Settings')}
-          ${L('adm',null,'lock','Administration')}
-        </div>
-        ${RECENT.length?`<div class="rv">Recently visited</div>${RECENT.map(id=>{const c=cand(id);return c?`<a class="rvi" onclick="openCand(${id})">${esc(c.n)}</a>`:''}).join('')}`:''}
-      </nav>
-      <div class="main">${body}${body.startsWith('<div class="pad">')?'</div>':''}</div>
-    </div>
-  </div>${extra||''}`;
-}
-
 /* ============================================================
    SCREENS
    ============================================================ */
-let dashJob="SF-114", dashTab="cands";
-const AVC=["#2F7D4F","#2466C9","#B4620E","#7B4FB0","#B3352F","#1F7A8C","#8A6D1F","#5B6B2E"];
-function initials(n){const p=n.split(' ');return (p[0][0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
-function matchPct(c){if(!c.quad)return 8+((c.id*17)%30);const t=c.quad.A+c.quad.B+c.quad.C+c.quad.D;return Math.min(95,Math.round((t-60)*0.9));}
-function matchCol(p){return p<20?'#D9412E':p<35?'#E07B1F':p<50?'#9BB51F':'#2F9E44';}
-function ccard(c){
-  const p=matchPct(c), role=(c.exp||'—').split(/[;(]/)[0].trim(), at=role.includes('–')?role.split('–'):[role,''];
-  return `<div class="ccard ${c.late?'late':''}" onclick="openCand(${c.id})">
-    <div class="ctop">
-      <div class="cav" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</div>
-      <div style="min-width:0;flex:1">
-        <div class="cnm">${esc(c.n)}</div>
-        <div class="cttl">${esc(at[0].trim())}${at[1]?`<br><span style="color:#7A847B">@ ${esc(at[1].trim())}</span>`:''}</div>
-      </div>
-      <div class="cico"><span title="Expected salary">${ic('peso')}</span><span class="${c.docs?'has':''}" title="${c.docs?'Documents started':'Resume on file'}">${ic('doc')}</span></div>
-    </div>
-    <div class="cfoot">
-      <span class="match" style="background:${matchCol(p)}" title="Assessment match">${p}%</span>
-      <span title="Days in stage">${ic('clock')} ${c.days}d</span>
-      <span title="Source">${ic('bolt')} ${esc(c.src)}</span>
-      <span class="eye" title="View profile">${ic('eye')}</span>
-    </div>
-  </div>`;
-}
-function rDash(){
-  const j=job(dashJob);
-  const cs=CANDS.filter(c=>c.job===dashJob && c.stage!=='draft');
-  const late = CANDS.filter(c=>c.late);
-  const pend = MSGS.filter(m=>m.status==='pending');
-  const unclaimed = CANDS.filter(c=>!c.owner && c.stage!=='draft');
-  const sentPct = Math.round(MSGS.filter(m=>m.status==='sent').length/MSGS.length*100);
-  const COLS=[["new","New candidate","#2F9E44"],["screening","Screening","#2466C9"],["exam","Assessment","#7B4FB0"],["interview","Interview","#1F7A8C"],["final","Final interview","#B4620E"],["offer","Job offer","#C9A04E"]];
-  const st=j.status==='open'?'<span class="bdg g">Published</span>':'<span class="bdg a">Pending approval</span>';
-  const filled=j.id==='UH-021'?1:0;
-  const board=`<div class="board">${COLS.map(([k,n,col])=>{const l=cs.filter(c=>c.stage===k);return `<div class="bcol" style="--c:${col}">
-      <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${n}<span class="n">${l.length}</span><span class="kb3" onclick="toast('Column options')">⋮</span></div>
-      ${l.map(ccard).join('')||'<div class="bempty">No candidates</div>'}
-    </div>`}).join('')}</div>`;
-  const summary=`<div class="pad">
-    <h2>${greet()}, ${SESSION?esc(SESSION.first):"Rhea"}</h2>
-    <p class="sub">Daily digest · 28 August 2026, 8:00 AM · sent to all HR</p>
-    <div class="grid kpis" style="margin-bottom:18px">
-      <div class="card kpi ${late.length?'bad':'good'}"><div class="n">${late.length}</div><div class="l">Overdue candidates</div></div>
-      <div class="card kpi ${pend.length?'bad':'good'}"><div class="n">${pend.length}</div><div class="l">Messages not sent</div></div>
-      <div class="card kpi"><div class="n">${sentPct}%</div><div class="l">Feedback rate</div></div>
-      <div class="card kpi"><div class="n">${POOL.length}</div><div class="l">In talent pool</div></div>
-    </div>
-    ${unclaimed.length?`<h3>Unclaimed — general applications</h3><div class="card" style="margin-bottom:18px">
-      ${unclaimed.map(c=>`<div class="doc"><span><b>${esc(c.n)}</b> · ${esc(c.city)} · ${c.days}d in New</span><button class="btn sm" onclick="claim(${c.id})">Claim</button></div>`).join('')}</div>`:''}
-    <h3>Overdue — needs action today</h3>
-    <div class="card" style="margin-bottom:18px"><table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>Days over</th><th>Owner</th></tr></thead><tbody>
-      ${late.length?late.map(c=>`<tr class="clk" onclick="openCand(${c.id})"><td><b>${esc(c.n)}</b></td><td>${c.job} · ${BU[job(c.job).bu]}</td><td>${stageName(c.stage)}</td>
-        <td><span class="pill red">${c.days-(STAGES.find(s=>s.k===c.stage)||{sla:0}).sla}d over</span></td><td>${c.owner||'<span class="pill mute">unassigned</span>'}</td></tr>`).join('')
-        :`<tr><td colspan="5" style="color:var(--ok)">Nothing overdue. Every candidate is within SLA.</td></tr>`}
-    </tbody></table></div>
-    <h3>Pending messages</h3>
-    <div class="card">${pend.length?pend.map(m=>`<div class="doc"><span><b>${esc(m.cand)}</b> · ${esc(m.tpl)}${m.age?` · <span class="pill amber">${m.age}d waiting</span>`:''}</span><button class="btn sm" onclick="go('s-msg')">Open</button></div>`).join(''):'<span style="color:var(--ok)">All feedback sent.</span>'}</div>
-  </div>`;
-  const other=t=>`<div class="pad"><div class="empty">${t}</div></div>`;
-  const TABS=[["cands","list","Candidates",cs.length],["summary","doc","Summary",null],["team","team","Team",2],["act","act","Activities",null],["notes","note","Notes",null]];
-  document.getElementById('s-dash').innerHTML = shell('dash',`
-    <div class="jhead">
-      <div class="jicon"><div class="ci">${ic('bulb')}</div><div class="jstat" onclick="toast('Change job status')"><i></i>${j.status==='open'?'Active':'On hold'} ▾</div></div>
-      <div style="min-width:0">
-        <div class="jt"><h2>${esc(j.t)}</h2>${st}${filled?'<span class="bdg b">Hired</span>':''}<span class="chip"><span class="mini">${j.owner?initials(j.owner):'—'}</span>${esc(j.owner||'Unassigned')}</span>
-          <select class="inp" onchange="dashJob=this.value;render()" title="Switch job">${JOBS.filter(x=>x.rf!=='general').map(x=>`<option value="${x.id}" ${x.id===dashJob?'selected':''}>${x.id} — ${esc(x.t)}</option>`).join('')}</select></div>
-        <div class="jmeta">
-          <div>${ic('dept')} ${BU[j.bu]} · ${esc(j.id)}</div>
-          <div>${ic('pin')} ${esc(j.br)}, Philippines</div>
-          ${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}
-        </div>
-        <div class="tags"><span class="tag">${ic('tag','width="12" height="12"')} ${j.head} headcount</span>${j.vac?`<span class="tag red">${ic('flag','width="12" height="12"')} Replacement</span>`:`<span class="tag">${ic('flag','width="12" height="12"')} New position</span>`}<span class="tag add" onclick="toast('Add tag')">+ Tags</span></div>
-      </div>
-      <div class="jsum"><div><b>${cs.length}</b><span>In process</span></div><div><b>${cs.filter(c=>['interview','final'].includes(c.stage)).length}</b><span>For interview</span></div><div><b>${filled}/${j.head}</b><span>Filled</span></div></div>
-    </div>
-    <div class="jtabs">${TABS.map(([k,i,n,c])=>`<button class="${dashTab===k?'on':''}" onclick="dashTab='${k}';render()">${ic(i)}${n}${c!=null?`<span class="cnt ${k==='team'?'gr':''}">${c}</span>`:''}</button>`).join('')}</div>
-    ${dashTab==='cands'?board:dashTab==='summary'?summary:dashTab==='team'?other('Hiring team: '+esc(j.owner||'—')+' (recruiter) · Branch manager (interviewer)'):dashTab==='act'?other('Activity log for this job appears here.'):other('No notes yet.')}
-  `);
-}
-
-function rPipe(){
-  const list = CANDS.filter(c=>c.stage!=='draft'||true);
-  const rows = list.map(c=>`<tr class="clk" onclick="openCand(${c.id})">
-      <td><b>${esc(c.n)}</b><div style="color:var(--muted);font-size:11.5px">${esc(c.mob)} · ${esc(c.city)}</div></td>
-      <td>${c.job}<div style="color:var(--muted);font-size:11.5px">${esc(job(c.job).t)}</div></td>
-      <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':stageName(c.stage)}</td>
-      <td>${c.late?`<span class="pill red">${c.days}d · over SLA</span>`:`<span class="pill mute">${c.days}d</span>`}</td>
-      <td>${esc(c.src)}</td>
-      <td>${c.owner||'<span class="pill mute">unassigned</span>'}</td>
-    </tr>`).join('');
-
-  const kb = STAGES.map(s=>{
-    const cs = CANDS.filter(c=>c.stage===s.k);
-    return `<div class="col"><div class="colh">${s.n} <i>(${cs.length})</i></div>
-      ${cs.map(c=>`<div class="kc ${c.late?'late':''}" onclick="openCand(${c.id})">
-        <div class="nm">${esc(c.n)}</div><div class="mt">${esc(c.city)} · ${esc(c.src)}</div>
-        ${c.late?`<span class="pill red">${c.days}d over</span>`:`<span class="pill mute">${c.days}d in stage</span>`}
-      </div>`).join('')||'<div style="color:var(--muted);font-size:12px;padding:6px">—</div>'}
-    </div>`;
-  }).join('') + `<div class="col"><div class="colh">Closed <i>(—)</i></div>
-      <div class="card" style="font-size:11.5px;color:var(--muted);padding:10px">Hired · Rejected–Qualified · Rejected–Not qualified · Withdrew · No-show · Did not report</div></div>`;
-
-  document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
-    <h2>Pipeline</h2>
-    <p class="sub">All business units · sorted overdue first</p>
-    <div class="bar">
-      <select class="inp"><option>All positions</option>${JOBS.map(j=>`<option>${j.id} — ${j.t}</option>`).join('')}</select>
-      <select class="inp"><option>All business units</option>${Object.values(BU).map(b=>`<option>${b}</option>`).join('')}</select>
-      <select class="inp"><option>All stages</option>${STAGES.map(s=>`<option>${s.n}</option>`).join('')}</select>
-      <input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:220px" onkeyup="if(event.key==='Enter')toast('Full-text search across name, mobile, skills and resume text')">
-      <span style="flex:1"></span>
-      <button class="btn ${pipeView==='list'?'pri':''}" onclick="pipeView='list';render()">List</button>
-      <button class="btn ${pipeView==='kanban'?'pri':''}" onclick="pipeView='kanban';render()">Kanban</button>
-    </div>
-    <div class="bar" style="margin-bottom:10px">
-      <span class="pill mute">3 selected</span>
-      <button class="btn sm" onclick="toast('Bulk: move stage')">Move stage</button>
-      <button class="btn sm" onclick="toast('Bulk reject → one reason → 3 messages queued as pending')">Reject with reason</button>
-      <button class="btn sm" onclick="toast('Bulk: assign to recruiter')">Assign</button>
-    </div>
-    ${pipeView==='list'
-      ? `<div class="card" style="padding:0"><table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>In stage</th><th>Source</th><th>Owner</th></tr></thead><tbody>${rows}</tbody></table></div>`
-      : `<div class="kb">${kb}</div>`}
-  `);
-}
-
 function rProf(){
   const c = cand(curCand); const j = job(c.job);
   const q = c.quad;
   const tab = (k,n)=>`<button class="${profTab===k?'on':''}" onclick="profTab='${k}';render()">${n}</button>`;
   document.getElementById('s-prof').innerHTML = shell('pipe',`<div class="pad">
-    <div class="bar"><button class="btn sm" onclick="go('s-pipe')">← Pipeline</button></div>
+    <div class="bar"><button class="btn sm" onclick="openJob(cand(curCand).job)">← Job board</button> <button class="btn sm" onclick="go('s-pipe')">All candidates</button></div>
     <div class="phead">
       <div class="avatar">2×2</div>
       <div style="flex:1">
         <h2>${esc(c.n)} <span class="pill mute">${esc(c.nick)}</span></h2>
-        <p class="sub" style="margin-bottom:10px">Ref #C-20${c.id}4 · applied ${c.days} days ago · consent v1.2 recorded</p>
+        <p class="sub" style="margin-bottom:10px">Ref #C-20${c.id}4 · applied ${daysSince(c.applied||c.since)} days ago · consent v1.2 recorded</p>
         <dl class="kv">
           <dt>Mobile</dt><dd>${esc(c.mob)}</dd>
           <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
@@ -903,83 +927,14 @@ function rMsg(){
   `);
 }
 
-function rRep(){
-  document.getElementById('s-rep').innerHTML = shell('rep',`<div class="pad">
-    <h2>Reports</h2>
-    <p class="sub">August 2026 · calendar days · imported backlog excluded</p>
-    <div class="bar">
-      <select class="inp"><option>August 2026</option><option>July 2026</option></select>
-      <select class="inp"><option>All business units</option>${Object.values(BU).map(b=>`<option>${b}</option>`).join('')}</select>
-      <select class="inp"><option>All role families</option></select>
-      <label style="font-size:12px;color:var(--muted)"><input type="checkbox"> include imported records</label>
-      <span style="flex:1"></span>
-      <button class="btn" onclick="toast('Export logged: who, when, 412 rows, filters. Sensitive fields excluded.')">Export CSV</button>
-      <button class="btn" onclick="toast('PDF report generated')">PDF</button>
-    </div>
-    <div class="grid kpis" style="margin-bottom:16px">
-      <div class="card kpi"><div class="n">18</div><div class="l">Median time to hire (days)</div></div>
-      <div class="card kpi"><div class="n">27</div><div class="l">Median time to fill (days)</div></div>
-      <div class="card kpi"><div class="n">34</div><div class="l">Median vacancy duration</div></div>
-      <div class="card kpi good"><div class="n">92%</div><div class="l">30-day retention</div></div>
-    </div>
-    <div class="grid" style="grid-template-columns:1fr 1fr">
-      <div class="card"><h3>Where the days go</h3>
-        ${[["New",2.4],["Screening",3.1],["Exam",4.8],["Interview",3.6],["Final interview",2.9],["Offer",5.2]].map(([n,d])=>
-          `<div class="quad"><span>${n}</span><div class="qb"><i style="width:${d/6*100}%"></i></div><b>${d}d</b></div>`).join('')}
-      </div>
-      <div class="card"><h3>Source effectiveness</h3>
-        <table><thead><tr><th>Channel</th><th>Apps</th><th>Hires</th><th>Rate</th></tr></thead><tbody>
-        ${[["Facebook",164,9,"5.5%"],["Walk-in (QR)",97,11,"11.3%"],["Jobstreet",78,4,"5.1%"],["Referral",41,7,"17.1%"],["Indeed",33,2,"6.1%"]]
-          .map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td><b>${r[3]}</b></td></tr>`).join('')}
-        </tbody></table>
-      </div>
-      <div class="card"><h3>Funnel — SF-114</h3>
-        ${[["Applied",62],["Screening",24],["Exam",16],["Interview",11],["Final",7],["Offer",5],["Hired",4]].map(([n,v])=>
-          `<div class="quad"><span>${n}</span><div class="qb"><i style="width:${v/62*100}%"></i></div><b>${v}</b></div>`).join('')}
-      </div>
-      <div class="card"><h3>Offer outcomes</h3>
-        <div class="doc"><span>Accepted</span><b>14</b></div>
-        <div class="doc"><span>Declined</span><b>3</b></div>
-        <div class="doc"><span>Did not report on day one</span><b>2</b></div>
-        <div class="doc"><span>Outstanding</span><b>4</b></div>
-      </div>
-    </div>
-    <div class="card" style="margin-top:12px"><h3>Withdrawal reasons</h3>
-      ${[["Accepted another offer",6],["Salary below expectation",4],["Location too far",3],["Went abroad / OFW",2],["Schedule not suitable",1]]
-        .map(([n,v])=>`<div class="quad"><span style="width:180px">${n}</span><div class="qb"><i style="width:${v/6*100}%"></i></div><b>${v}</b></div>`).join('')}
-    </div>
-  `);
-}
-
-function rJobs(){
-  document.getElementById('s-jobs').innerHTML = shell('jobs',`<div class="pad">
-    <h2>Jobs</h2>
-    <p class="sub">HR posts · hr_admin approves before it goes live</p>
-    <div class="bar"><button class="btn pri" onclick="toast('New job → draft → submitted for hr_admin approval')">+ New job</button>
-      <span style="flex:1"></span><button class="btn" onclick="go('s-careers')">View public careers page</button></div>
-    <div class="card" style="padding:0"><table>
-      <thead><tr><th>Ref</th><th>Position</th><th>Business unit</th><th>Headcount</th><th>Owner</th><th>Status</th><th></th></tr></thead>
-      <tbody>${JOBS.map(j=>`<tr>
-        <td><b>${j.id}</b></td><td>${esc(j.t)}<div style="color:var(--muted);font-size:11.5px">${esc(j.br)}</div></td>
-        <td>${BU[j.bu]}</td><td>${j.head||'—'}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td>
-        <td>${j.status==='open'?'<span class="pill green">open</span>':'<span class="pill amber">pending approval</span>'}${j.is_general?'':''}</td>
-        <td>${j.id==='GEN-SF'?'<span class="pill mute">cannot be closed</span>'
-          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close job</button>
-            <button class="btn sm" onclick="toast('QR poster PNG generated for ${j.id}')">QR</button>`}</td>
-      </tr>`).join('')}</tbody>
-    </table></div>
-    <div class="hint" style="margin-top:14px">Try closing SF-114 — the database blocks it while candidates still lack a final status.</div>
-  `);
-}
-
 /* ---------- public ---------- */
 function rCareers(){
   document.getElementById('s-careers').innerHTML = `<div class="pub">
     <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
       <p class="sub" style="margin-top:6px">Careers · careers.brdc.com.ph</p></div>
-    ${JOBS.filter(j=>j.status==='open'&&j.id!=='GEN-SF').map(j=>`<div class="job">
+    ${JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0).map(j=>`<div class="job">
       <h4>${esc(j.t)}</h4>
-      <div class="meta">${BU[j.bu]} · ${esc(j.br)} · ${j.head} opening${j.head>1?'s':''} · ${esc(j.sal)}</div>
+      <div class="meta">${BU[j.bu]} · ${esc(j.br)} · ${vacancies(j)} opening${vacancies(j)>1?'s':''}${j.sal?' · '+esc(j.sal):''}</div>
       <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Full-time, shifting schedule. Applicants must be willing to be assigned within the group.</p>
       <button class="btn pri" onclick="go('s-apply')">Apply now</button>
       <button class="btn" onclick="toast('Shareable link + QR code copied')">Share</button>
@@ -1098,11 +1053,6 @@ function rPortal(){
 /* ============================================================
    ACTIONS
    ============================================================ */
-function openCand(id){curCand=id;profTab='app';RECENT=[id,...RECENT.filter(x=>x!==id)].slice(0,4);go('s-prof');}
-function claim(id){const c=cand(id);c.owner="R. Cruz";toast(`${c.nick||c.n} assigned to you`);render();}
-function advance(id){const c=cand(id);const i=STAGES.findIndex(s=>s.k===c.stage);
-  if(c.stage==='draft'){c.stage='new';}else if(i<STAGES.length-1){c.stage=STAGES[i+1].k;}else{toast('Already at Offer — use Hired or Reject');return;}
-  c.days=0;c.late=false;toast(`Moved to ${stageName(c.stage)} · SLA clock reset · message queued as pending`);render();}
 function openReject(id){
   const c=cand(id);
   const pick = prompt("Rejection reason (required — this renders the feedback message):\n\n"+REASONS.map((r,i)=>`${i+1}. ${r.l}`).join("\n")+"\n\nEnter 1-6:");
@@ -1110,11 +1060,12 @@ function openReject(id){
   if(!r){toast('Rejection cancelled — a reason is required by the database');return;}
   c.stage = r.q ? 'rejected_qualified' : 'rejected_not_qualified';
   c.late=false; c.days=0;
-  if(r.q){POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+", "+c.prov,rf:job(c.job).rf.replace('_',' '),last:"2026-08-28",reason:r.l,warm:"pending",reply:"not yet sent"});}
+  if(r.q){POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+", "+c.prov,rf:job(c.job).rf.replace('_',' '),last:isoAgo(0),reason:r.l,warm:"pending",reply:"not yet sent"});}
   MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,
     body:(c.lang==='tl'
       ? `Hi ${c.nick}, salamat po sa inyong application para sa ${job(c.job).t} sa BRDC. ${r.l}.${r.q?" Sa inyong pahintulot ay itatago po namin ang inyong profile.":""}`
       : `Hi ${c.nick}, thank you for your interest in ${job(c.job).t} at BRDC. ${r.l}.${r.q?" With your permission we will keep your profile on file.":""}`)});
+  HIST.push({month:todayKey.slice(0,7),out:'rejected',bu:job(c.job).bu,src:c.src});log(`Rejected ${c.n}: ${r.l}`,c.job);
   CANDS = CANDS.filter(x=>x.id!==c.id);
   toast(r.q?'Rejected–Qualified · added to talent pool · feedback message queued':'Rejected · feedback message queued');
   go('s-msg');
@@ -1123,7 +1074,7 @@ function startDocs(id){cand(id).docs=true;toast('Checklist started — 13 core d
 function cycleDoc(i){const o=["pending","submitted","verified"];DOCSTATE[i]=o[(o.indexOf(DOCSTATE[i])+1)%3];render();}
 function copyMsg(id){const m=MSGS.find(x=>x.id===id);
   navigator.clipboard&&navigator.clipboard.writeText(m.body).catch(()=>{});toast('Message copied — now send it, then mark as sent');}
-function markSent(id){const m=MSGS.find(x=>x.id===id);m.status='sent';m.by='R. Cruz';m.at='today, '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
+function markSent(id){const m=MSGS.find(x=>x.id===id);m.status='sent';m.by=ME();m.at='today, '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
   toast('Marked sent — recorded against your name');render();}
 function archivePool(id){POOL=POOL.filter(p=>p.id!==id);toast('Archived — hidden from pool suggestions, still searchable');render();}
 function tryClose(id){
@@ -1140,10 +1091,540 @@ function submitApply(){
 /* ============================================================
    RENDER
    ============================================================ */
-function render(){
-  ({'s-dash':rDash,'s-pipe':rPipe,'s-prof':rProf,'s-pool':rPool,'s-msg':rMsg,'s-rep':rRep,'s-jobs':rJobs,
-    's-careers':rCareers,'s-apply':rApply,'s-test':rTest,'s-portal':rPortal})[cur]();
+/* ============================================================
+   v2 CORE — persistence, derived data, charts, search, notifications
+   ============================================================ */
+const STORE='brdc-recruit-v2';
+function saveData(){try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
+function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');if(!d||d.v!==2)return;
+  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
+function resetData(){if(!confirm('Reset all demo data? Every change you made will be lost.'))return;try{localStorage.removeItem(STORE);}catch(e){}location.reload();}
+loadData();
+function ME(){return SESSION?SESSION.name:"R. Cruz";}
+function log(text,jobId){ACT.unshift({at:new Date().toISOString(),by:ME(),text,job:jobId||null});ACT=ACT.slice(0,200);}
+function refreshDerived(){CANDS.forEach(c=>{c.days=daysSince(c.since||isoAgo(0));const s=STAGES.find(x=>x.k===c.stage);c.late=!!(s&&s.sla&&ACTIVE.concat('onboarding').includes(c.stage)&&c.days>s.sla);});}
+function stg(k){return STAGES.find(s=>s.k===k)||{k,n:k,c:'#8A928B',sla:0};}
+function stageName(k){return k==="draft"?"Draft":stg(k).n;}
+function jobOpen(j){return j.status==='open'&&j.rf!=='general';}
+function vacancies(j){return Math.max(0,j.head-(j.filled||0));}
+function median(a){if(!a.length)return 0;const s=[...a].sort((x,y)=>x-y),m=Math.floor(s.length/2);return s.length%2?s[m]:Math.round((s[m-1]+s[m])/2);}
+function pct(a,b){return b?Math.round(a/b*100):0;}
+function initials(n){const p=n.split(' ');return (p[0][0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
+const AVC=["#2F7D4F","#2466C9","#B4620E","#7B4FB0","#B3352F","#1F7A8C","#8A6D1F","#5B6B2E"];
+
+/* fit score: skills 50 + assessment 30 + location 20 */
+function fitParts(c){const j=job(c.job);const js=j.skills||[];
+  const sk=js.length?Math.round(js.filter(s=>c.skills.includes(s)).length/js.length*50):0;
+  const as=c.quad?Math.max(0,Math.min(30,Math.round(((c.quad.A+c.quad.B+c.quad.C+c.quad.D)-60)/68*30))):0;
+  const lo=c.prov&&j.prov?(c.prov===j.prov?(c.city===j.br.replace(' farm','')?20:14):0):0;
+  return {sk,as,lo,total:sk+as+lo};}
+function fitCol(p){return p<35?'#C2412D':p<55?'#D07A12':p<70?'#7F9A12':'#2F9E44';}
+
+/* scope by business unit filter */
+let buF='';
+function scopedJobs(){return JOBS.filter(j=>!buF||j.bu===buF);}
+function scopedCands(){return CANDS.filter(c=>c.stage!=='draft'&&(!buF||job(c.job).bu===buF));}
+function scopedHist(){return HIST.filter(h=>!buF||h.bu===buF);}
+
+/* ---------- pending actions (feeds dashboard + bell) ---------- */
+function pendingActions(){
+  const A=[], cs=scopedCands();
+  cs.filter(c=>c.late&&ACTIVE.includes(c.stage)).sort((a,b)=>b.days-a.days).forEach(c=>A.push({lvl:'crit',ic:'clock',t:`${c.n} is ${c.days-stg(c.stage).sla}d over SLA at ${stg(c.stage).n}`,s:`${job(c.job).t} · ${BU[job(c.job).bu]}`,a:`openCand(${c.id})`,b:'Open'}));
+  MPR.filter(m=>m.status==='pending'&&(!buF||m.bu===buF)).forEach(m=>A.push({lvl:'warn',ic:'req',t:`Manpower request ${m.id} awaiting approval`,s:`${m.head} × ${m.pos} · ${BU[m.bu]}`,a:`go('s-mpr')`,b:'Review'}));
+  INTV.filter(i=>i.status==='done'&&!i.result).forEach(i=>{const c=cand(i.cid);if(c&&(!buF||job(c.job).bu===buF))A.push({lvl:'warn',ic:'cal',t:`Record result: ${i.type} with ${c.n}`,s:`${fmtDT(i.when)} · ${i.interviewer}`,a:`go('s-int');intTab='await'`,b:'Record'});});
+  INTV.filter(i=>i.status==='scheduled'&&localISO(new Date(i.when))===todayKey).forEach(i=>{const c=cand(i.cid);if(c)A.push({lvl:'info',ic:'cal',t:`Interview today: ${c.n}`,s:`${i.type} · ${fmtDT(i.when)}`,a:`go('s-int')`,b:'View'});});
+  cs.filter(c=>!c.owner).forEach(c=>A.push({lvl:'info',ic:'cands',t:`Unclaimed general application: ${c.n}`,s:`${c.city} · ${c.days}d waiting`,a:`claim(${c.id})`,b:'Claim'}));
+  cs.filter(c=>c.stage==='onboarding'&&c.onb&&c.onb.some(x=>!x)&&c.days>7).forEach(c=>A.push({lvl:'warn',ic:'onb',t:`Onboarding incomplete: ${c.n}`,s:`${c.onb.filter(Boolean).length}/${ONB_ITEMS.length} requirements done`,a:`go('s-onb')`,b:'Open'}));
+  const unsent=MSGS.filter(m=>m.status==='pending').length; if(unsent)A.push({lvl:'info',ic:'msg',t:`${unsent} feedback message${unsent>1?'s':''} not yet sent`,s:'Candidates are waiting to hear back',a:`go('s-msg')`,b:'Send'});
+  JOBS.filter(j=>j.status==='pending_approval'&&(!buF||j.bu===buF)).forEach(j=>A.push({lvl:'warn',ic:'jobs',t:`Job ${j.id} pending approval`,s:`${j.t} · ${BU[j.bu]}`,a:`go('s-mpr')`,b:'Review'}));
+  return A;
 }
+const LVL={crit:['#B3352F','Overdue'],warn:['#B4620E','Needs action'],info:['#2466C9','FYI']};
+
+/* ---------- tooltip ---------- */
+document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');const tip=document.getElementById('tip');if(!tip)return;
+  if(t){tip.innerHTML=t.getAttribute('data-tip');tip.classList.add('on');}else tip.classList.remove('on');});
+document.addEventListener('mousemove',e=>{const tip=document.getElementById('tip');if(tip&&tip.classList.contains('on')){const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px';}});
+
+/* ---------- charts (plain HTML/SVG, single brand hue unless status) ---------- */
+function hbars(rows,o={}){const max=o.max||Math.max(1,...rows.map(r=>r.v));
+  return `<div class="hb">${rows.map(r=>`<div class="hbr ${r.on?'clk':''}" ${r.on?`onclick="${r.on}"`:''} data-tip="${esc(r.tip||(r.l+': '+r.v))}">
+    <span class="hbl" title="${esc(r.l)}">${esc(r.l)}</span><span class="hbt"><i style="width:${Math.max(r.v?3:0,r.v/max*100)}%;${r.c?`background:${r.c}`:''}"></i></span><b>${o.fmt?o.fmt(r.v):r.v}</b>${r.x?`<em>${r.x}</em>`:''}</div>`).join('')}</div>`;}
+function monthChart(){const hs=scopedHist().filter(h=>h.out==='hired');const months=[...new Set(HIST.map(h=>h.month))].sort();
+  const cur=scopedCands().filter(c=>c.stage==='hired'||c.stage==='onboarding').length;
+  const vals=months.map((m,i)=>hs.filter(h=>h.month===m).length+(i===months.length-1?cur:0));
+  const W=560,H=200,pl=28,pb=26,pt=12,max=Math.max(TARGET,...vals)+2,bw=(W-pl-10)/months.length;
+  const y=v=>pt+(H-pt-pb)*(1-v/max);
+  const ticks=[0,Math.round(max/2),max];
+  return `<svg viewBox="0 0 ${W} ${H}" class="mc" role="img" aria-label="Hires per month versus target">
+    ${ticks.map(t=>`<line x1="${pl}" x2="${W-6}" y1="${y(t)}" y2="${y(t)}" class="grid"/><text x="${pl-6}" y="${y(t)+4}" class="ax" text-anchor="end">${t}</text>`).join('')}
+    ${vals.map((v,i)=>{const x=pl+i*bw+bw*.22,w=bw*.56,lab=new Date(months[i]+'-01').toLocaleDateString('en-PH',{month:'short'});
+      return `<g data-tip="<b>${lab}</b><br>${v} hired · target ${TARGET}<br>${v>=TARGET?'On target':'Below target by '+(TARGET-v)}"><rect x="${pl+i*bw}" y="${pt}" width="${bw}" height="${H-pt-pb}" fill="transparent"/>
+      <path d="M${x},${y(0)} V${y(v)+4} q0,-4 4,-4 h${w-8} q4,0 4,4 V${y(0)} Z" class="bar ${i===vals.length-1?'cur':''}"/>
+      <text x="${x+w/2}" y="${y(v)-5}" class="val" text-anchor="middle">${v}</text>
+      <text x="${x+w/2}" y="${H-8}" class="ax" text-anchor="middle">${lab}</text></g>`;}).join('')}
+    <line x1="${pl}" x2="${W-6}" y1="${y(TARGET)}" y2="${y(TARGET)}" class="tgt"/>
+  </svg><div class="lgd"><span><i class="sw bar"></i>Hired</span><span><i class="sw tgt"></i>Monthly target (${TARGET})</span></div>`;}
+
+/* ---------- global search ---------- */
+function gsearch(q){const box=document.querySelector('.screen.on .gres');if(!box)return;q=q.trim().toLowerCase();
+  if(q.length<2){box.innerHTML='';box.classList.remove('on');return;}
+  const cs=CANDS.filter(c=>[c.n,c.mob,c.em,c.city,c.skills.join(' ')].join(' ').toLowerCase().includes(q)).slice(0,6);
+  const js=JOBS.filter(j=>[j.id,j.t,BU[j.bu],j.dept,j.br].join(' ').toLowerCase().includes(q)).slice(0,5);
+  box.innerHTML=(cs.length||js.length)?`${cs.length?`<div class="gh">Candidates</div>${cs.map(c=>`<a onclick="openCand(${c.id})"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><small>${esc(job(c.job).t)} · ${stageName(c.stage)}</small></span></a>`).join('')}`:''}
+    ${js.length?`<div class="gh">Jobs</div>${js.map(j=>`<a onclick="openJob('${j.id}')"><span class="cav s" style="background:#256B12">${ic('jobs','width="14" height="14"')}</span><span><b>${esc(j.t)}</b><small>${j.id} · ${BU[j.bu]}</small></span></a>`).join('')}`:''}`
+    :`<div class="gh">No matches for “${esc(q)}”</div>`;
+  box.classList.add('on');}
+document.addEventListener('click',e=>{if(!e.target.closest('.gsearch'))document.querySelectorAll('.gres').forEach(b=>b.classList.remove('on'));
+  if(!e.target.closest('.bellw'))document.querySelectorAll('.notif').forEach(b=>b.classList.remove('on'));});
+function toggleNotif(ev){ev.stopPropagation();const p=document.querySelector('.screen.on .notif');if(p)p.classList.toggle('on');}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+let RECENT=[];
+function toggleSide(){document.body.classList.toggle('sidecol');}
+function shell(active, body, extra){
+  const nm=ME(), acts=buF?(()=>{const b=buF;buF='';const a=pendingActions();buF=b;return a;})():pendingActions();
+  const overdue=CANDS.filter(c=>c.late&&ACTIVE.includes(c.stage)).length;
+  const L=(key,screen,icon,label,badge)=>`<a href="#" class="${active===key?'on':''}" title="${label}" onclick="go('${screen}');return false">${ic(icon)}<span>${label}</span>${badge?`<em class="sb">${badge}</em>`:''}</a>`;
+  const pendMpr=MPR.filter(m=>m.status==='pending').length, awaitInt=INTV.filter(i=>i.status==='done'&&!i.result).length, onbN=CANDS.filter(c=>c.stage==='onboarding'||c.stage==='hired').length;
+  return `<div class="app">
+    <div class="top">
+      <button class="burger" onclick="toggleSide()" aria-label="Toggle menu">${ic('menu','width="20" height="20"')}</button>
+      <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
+      <div class="gsearch">${ic('search')}<input placeholder="Search by name, mobile, skill, job or business unit" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
+      <span class="spacer"></span>
+      ${overdue?`<span class="pill red" style="cursor:pointer" onclick="go('s-dash')">${overdue} overdue</span>`:''}
+      <span class="bellw"><button class="bell" onclick="toggleNotif(event)" aria-label="Notifications">🔔${acts.length?`<span>${acts.length}</span>`:''}</button>
+        <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention</small></div>
+        ${acts.slice(0,8).map(a=>`<a onclick="${a.a};render()"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
+        ${acts.length>8?`<a class="more" onclick="go('s-dash')">See all ${acts.length} on the dashboard →</a>`:''}</div></span>
+      <span class="who"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
+      <button class="logout" onclick="logout()">Sign out</button>
+    </div>
+    <div class="row">
+      <nav class="side">
+        <div class="grp">
+          ${L('dash','s-dash','home','Dashboard')}
+          ${L('bu','s-bu','bu','Business units')}
+          ${L('jobs','s-jobs','jobs','Jobs')}
+          ${L('pipe','s-pipe','cands','Candidates')}
+        </div>
+        <div class="grp">
+          ${L('mpr','s-mpr','req','Manpower requests',pendMpr)}
+          ${L('int','s-int','cal','Interviews',awaitInt)}
+          ${L('pool','s-pool','pool','Talent pool')}
+          ${L('onb','s-onb','onb','Onboarding',onbN)}
+          ${L('msg','s-msg','msg','Messages',MSGS.filter(m=>m.status==='pending').length)}
+        </div>
+        <div class="grp">
+          ${L('rep','s-rep','rep','Reports')}
+          ${L('car','s-careers','web','Career page')}
+          ${L('set','s-set','set','Settings')}
+          ${L('adm','s-adm','lock','Administration')}
+        </div>
+        ${RECENT.length?`<div class="rv">Recently visited</div>${RECENT.map(id=>{const c=cand(id);return c?`<a class="rvi" onclick="openCand(${id})">${esc(c.n)}</a>`:''}).join('')}`:''}
+      </nav>
+      <div class="main">${body}${body.startsWith('<div class="pad">')?'</div>':''}</div>
+    </div>
+  </div>${extra||''}`;
+}
+
+/* ============================================================
+   DASHBOARD — company-wide overview
+   ============================================================ */
+function rDash(){
+  const js=scopedJobs(), open=js.filter(jobOpen), cs=scopedCands(), hs=scopedHist();
+  const act=cs.filter(c=>ACTIVE.includes(c.stage));
+  const n=k=>cs.filter(c=>(Array.isArray(k)?k:[k]).includes(c.stage)).length;
+  const awaitRes=INTV.filter(i=>i.status==='done'&&!i.result&&cs.some(c=>c.id===i.cid)).length;
+  const thisMonth=todayKey.slice(0,7);
+  const hiredMTD=hs.filter(h=>h.out==='hired'&&h.month===thisMonth).length+n('hired')+n('onboarding');
+  const KPI=[
+    ['Total vacancies',open.reduce((s,j)=>s+vacancies(j),0),`across ${open.length} open jobs`,'jobs',"go('s-jobs')"],
+    ['Active applicants',act.length,`${cs.filter(c=>daysSince(c.applied||c.since)<=7).length} applied this week`,'cands',"go('s-pipe')"],
+    ['For interview',n(INTERVIEW_STAGES),`${INTV.filter(i=>i.status==='scheduled').length} interviews scheduled`,'cal',"go('s-int')"],
+    ['For evaluation',n('exam')+awaitRes,`${n('exam')} assessments · ${awaitRes} results due`,'req',"pf.stage='exam';go('s-pipe')"],
+    ['Job offers',n('offer'),`${cs.filter(c=>c.stage==='offer'&&c.days>3).length} waiting > 3 days`,'doc',"pf.stage='offer';go('s-pipe')"],
+    ['Hired',hiredMTD,'this month','onb',"go('s-onb')"],
+    ['Onboarding',n('onboarding')+n('hired'),`${n('hired')} starting soon`,'team',"go('s-onb')"]
+  ];
+  const H=hs.filter(h=>h.out==='hired'), closed=hs.length;
+  const tth=median(H.map(h=>h.tth)), ttf=median(H.map(h=>h.ttf));
+  const srcs=[...new Set(HIST.map(h=>h.src))];
+  const srcStats=srcs.map(s=>{const a=hs.filter(h=>h.src===s).length+cs.filter(c=>c.src===s).length, h=H.filter(x=>x.src===s).length;return {s,a,h,r:pct(h,a)};}).sort((a,b)=>b.a-a.a);
+  const best=[...srcStats].sort((a,b)=>b.r-a.r)[0]||{s:'—',r:0};
+  const acts=pendingActions();
+  const aging=[['0–2 days',c=>c.days<=2,'#2F9E44'],['3–5 days',c=>c.days>=3&&c.days<=5,'#D6A21A'],['6–10 days',c=>c.days>=6&&c.days<=10,'#D07A12'],['Over 10 days',c=>c.days>10,'#B3352F']];
+  const positions={};act.forEach(c=>{const t=job(c.job).t;positions[t]=(positions[t]||0)+1;});
+  const posRows=Object.entries(positions).sort((a,b)=>b[1]-a[1]).slice(0,8);
+  const buRows=Object.keys(BU).filter(b=>!buF||b===buF).map(b=>{const bj=JOBS.filter(j=>j.bu===b&&jobOpen(j)), bc=CANDS.filter(c=>c.stage!=='draft'&&job(c.job).bu===b);
+    return {b,jobs:bj.length,vac:bj.reduce((s,j)=>s+vacancies(j),0),act:bc.filter(c=>ACTIVE.includes(c.stage)).length,int:bc.filter(c=>INTERVIEW_STAGES.includes(c.stage)).length,off:bc.filter(c=>c.stage==='offer').length,
+      hired:HIST.filter(h=>h.bu===b&&h.out==='hired'&&h.month===thisMonth).length+bc.filter(c=>['hired','onboarding'].includes(c.stage)).length,age:bj.length?Math.round(bj.reduce((s,j)=>s+daysSince(j.open),0)/bj.length):0};});
+  const slow=open.map(j=>({j,d:daysSince(j.open)})).sort((a,b)=>b.d-a.d).slice(0,5);
+  const status=[['In process',act.length],['Hired',H.length+n('hired')+n('onboarding')],['Rejected',hs.filter(h=>h.out==='rejected').length],['Withdrew',hs.filter(h=>h.out==='withdrew').length]];
+  const hrs=new Date().getHours();
+
+  document.getElementById('s-dash').innerHTML = shell('dash',`<div class="pad">
+    <div class="dhead">
+      <div><h2>${greet()}, ${SESSION?esc(SESSION.first):"Rhea"}</h2>
+        <p class="sub" style="margin:0">${TODAY.toLocaleDateString('en-PH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · recruitment overview${buF?' · '+BU[buF]:' · all business units'}</p></div>
+      <span style="flex:1"></span>
+      <select class="inp" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
+      <button class="btn" onclick="go('s-rep');setTimeout(()=>window.print(),300)">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Management report</button>
+    </div>
+
+    <div class="kpi7">${KPI.map(([l,v,s,i,a])=>`<button class="k7" onclick="${a}"><span class="k7i">${ic(i)}</span><span class="k7l">${l}</span><b>${v}</b><small>${s}</small></button>`).join('')}</div>
+
+    <div class="measures">
+      <div data-tip="Median days from application to hire, last 8 months"><span>Time to hire</span><b>${tth}<small> days</small></b></div>
+      <div data-tip="Median days from job opening to position filled, last 8 months"><span>Time to fill</span><b>${ttf}<small> days</small></b></div>
+      <div data-tip="Hires as a share of all closed applications"><span>Hiring rate</span><b>${pct(H.length,closed)}<small>%</small></b></div>
+      <div data-tip="Rejections as a share of all closed applications"><span>Rejection rate</span><b>${pct(hs.filter(h=>h.out==='rejected').length,closed)}<small>%</small></b></div>
+      <div data-tip="Source with the highest applicant-to-hire rate"><span>Most effective source</span><b style="font-size:17px">${esc(best.s)}<small> · ${best.r}% hire rate</small></b></div>
+    </div>
+
+    <div class="dg2">
+      <div class="card"><div class="ch"><h3>Recruitment pipeline</h3><small>Candidates currently at each stage</small></div>
+        ${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length,on:`pf.stage='${s.k}';go('s-pipe')`,tip:`<b>${s.n}</b><br>${cs.filter(c=>c.stage===s.k).length} candidates · SLA ${s.sla||'—'} days`})))}</div>
+      <div class="card"><div class="ch"><h3>Pending actions</h3><small>${acts.length} item${acts.length===1?'':'s'} need HR</small></div>
+        <div class="pa">${acts.slice(0,9).map(a=>`<div class="pai"><i style="background:${LVL[a.lvl][0]}" data-tip="${LVL[a.lvl][1]}"></i><span class="pat"><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span><button class="btn sm" onclick="${a.a};render()">${a.b}</button></div>`).join('')||'<div class="empty">Nothing pending. Nice work.</div>'}
+        ${acts.length>9?`<div class="sub" style="margin:8px 0 0">+ ${acts.length-9} more</div>`:''}</div></div>
+    </div>
+
+    <div class="dg3">
+      <div class="card"><div class="ch"><h3>Vacancies by business unit</h3></div>
+        ${hbars(buRows.map(r=>({l:BU[r.b],v:r.vac,on:`buF='${r.b}';render()`,tip:`<b>${BU[r.b]}</b><br>${r.vac} vacancies in ${r.jobs} open jobs`})))}</div>
+      <div class="card"><div class="ch"><h3>Applicants by position</h3><small>Active only</small></div>
+        ${posRows.length?hbars(posRows.map(([t,v])=>({l:t,v}))):'<div class="empty">No active applicants</div>'}</div>
+      <div class="card"><div class="ch"><h3>Applicant sources</h3><small>Applicants · hire rate</small></div>
+        ${hbars(srcStats.map(s=>({l:s.s,v:s.a,x:s.r+'%',tip:`<b>${s.s}</b><br>${s.a} applicants · ${s.h} hired · ${s.r}% hire rate`})))}</div>
+    </div>
+
+    <div class="dg2">
+      <div class="card"><div class="ch"><h3>Monthly hiring performance</h3><small>Hires vs target, last 8 months</small></div>${monthChart()}</div>
+      <div class="card"><div class="ch"><h3>Aging of pending applications</h3><small>Days in current stage</small></div>
+        ${hbars(aging.map(([l,f,c])=>({l,v:act.filter(f).length,c})))}
+        <div class="ch" style="margin-top:16px"><h3>Recruitment status</h3><small>Last 8 months + in process</small></div>
+        ${hbars(status.map(([l,v])=>({l,v})))}</div>
+    </div>
+
+    <div class="card" style="margin-top:14px"><div class="ch"><h3>Department monitoring</h3><small>By business unit · click a row to filter the dashboard</small></div>
+      <div class="tw"><table><thead><tr><th>Business unit</th><th>Open jobs</th><th>Vacancies</th><th>Active applicants</th><th>For interview</th><th>Offers</th><th>Hired (month)</th><th>Avg days open</th></tr></thead><tbody>
+      ${buRows.map(r=>`<tr class="clk" onclick="buF=buF==='${r.b}'?'':'${r.b}';render()"><td><b>${BU[r.b]}</b></td><td>${r.jobs}</td><td>${r.vac}</td><td>${r.act}</td><td>${r.int}</td><td>${r.off}</td><td>${r.hired}</td><td>${r.age>45?`<span class="pill red">${r.age}</span>`:r.age}</td></tr>`).join('')}
+      </tbody></table></div></div>
+
+    <div class="card" style="margin-top:14px"><div class="ch"><h3>Positions taking longest to fill</h3><small>Open jobs, oldest first</small></div>
+      <div class="tw"><table><thead><tr><th>Position</th><th>Business unit</th><th>Days open</th><th>Vacancies</th><th>In pipeline</th><th>Furthest stage</th><th></th></tr></thead><tbody>
+      ${slow.map(({j,d})=>{const jc=CANDS.filter(c=>c.job===j.id&&c.stage!=='draft');const far=jc.reduce((m,c)=>Math.max(m,STAGES.findIndex(s=>s.k===c.stage)),-1);
+        return `<tr class="clk" onclick="openJob('${j.id}')"><td><b>${esc(j.t)}</b><div class="mut">${j.id} · ${esc(j.dept)}</div></td><td>${BU[j.bu]}</td><td>${d>45?`<span class="pill red">${d} days</span>`:d>30?`<span class="pill amber">${d} days</span>`:d+' days'}</td><td>${vacancies(j)}/${j.head}</td><td>${jc.length}</td><td>${far>=0?STAGES[far].n:'<span class="pill mute">no applicants</span>'}</td><td><button class="btn sm">Open board</button></td></tr>`;}).join('')}
+      </tbody></table></div></div>
+  `);
+}
+
+/* ============================================================
+   JOB BOARD — drag & drop pipeline for one job
+   ============================================================ */
+let curJob="SF-114", jobTab="cands", jf={q:'',src:'',late:false,sort:'days'}, dragId=null;
+function openJob(id){curJob=id;jobTab='cands';go('s-job');}
+function moveTo(id,stage){const c=cand(id);if(!c||c.stage===stage)return;const from=stageName(c.stage);
+  if(stage==='hired'&&!['hired','onboarding'].includes(c.stage)){const j=job(c.job);j.filled=(j.filled||0)+1;c.start=localISO(new Date(isoIn(7)));c.onb=ONB_ITEMS.map(()=>false);if(j.filled>=j.head&&j.rf!=='general'){j.status='filled';toast(`${j.id} is now fully staffed`);}}
+  if(stage==='onboarding'&&!c.onb){c.onb=ONB_ITEMS.map(()=>false);c.start=isoAgo(0);}
+  c.stage=stage;c.since=isoAgo(0);log(`Moved ${c.n} from ${from} to ${stageName(stage)}`,c.job);
+  toast(`${c.nick||c.n} → ${stageName(stage)} · SLA clock reset`);render();}
+function ccard(c){const f=fitParts(c), role=(c.exp||'—').split(/[;(]/)[0].trim(), at=role.includes('–')?role.split('–'):[role,''];
+  return `<div class="ccard ${c.late?'late':''}" draggable="true" ondragstart="dragId=${c.id};this.classList.add('drag')" ondragend="this.classList.remove('drag')" onclick="openCand(${c.id})">
+    <div class="ctop"><div class="cav" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</div>
+      <div style="min-width:0;flex:1"><div class="cnm">${esc(c.n)}</div>
+        <div class="cttl">${esc(at[0].trim())}${at[1]?`<br><span class="mut">@ ${esc(at[1].trim())}</span>`:''}</div></div>
+      <div class="cico"><span data-tip="Expected salary within range">${ic('peso')}</span><span class="${c.docs?'has':''}" data-tip="${c.docs?'Documents submitted':'Resume on file'}">${ic('doc')}</span></div></div>
+    <div class="cfoot"><span class="match" style="background:${fitCol(f.total)}" data-tip="<b>Fit score ${f.total}/100</b><br>Skills ${f.sk}/50 · Assessment ${f.as}/30 · Location ${f.lo}/20">${f.total}%</span>
+      <span data-tip="Days in this stage${c.late?' — over SLA':''}" ${c.late?'style="color:#B3352F;font-weight:600"':''}>${ic('clock')} ${c.days}d</span>
+      <span data-tip="Source">${ic('bolt')} ${esc(c.src)}</span><span class="eye">${ic('eye')}</span></div></div>`;}
+function rJob(){
+  const j=job(curJob), all=CANDS.filter(c=>c.job===curJob&&c.stage!=='draft');
+  let cs=all.filter(c=>(!jf.src||c.src===jf.src)&&(!jf.late||c.late)&&(!jf.q||(c.n+' '+c.skills.join(' ')+' '+c.city).toLowerCase().includes(jf.q.toLowerCase())));
+  const sorter={days:(a,b)=>b.days-a.days,fit:(a,b)=>fitParts(b).total-fitParts(a).total,name:(a,b)=>a.n.localeCompare(b.n)}[jf.sort];cs.sort(sorter);
+  const st={open:'<span class="bdg g">Published</span>',pending_approval:'<span class="bdg a">Pending approval</span>',filled:'<span class="bdg b">Filled</span>',on_hold:'<span class="bdg gr">On hold</span>'}[j.status]||'';
+  const board=`<div class="jbar">
+      <input class="inp" placeholder="Filter by name, skill, city…" value="${esc(jf.q)}" onchange="jf.q=this.value;render()">
+      <select class="inp" onchange="jf.src=this.value;render()"><option value="">All sources</option>${[...new Set(all.map(c=>c.src))].map(s=>`<option ${jf.src===s?'selected':''}>${esc(s)}</option>`).join('')}</select>
+      <label class="tgl"><input type="checkbox" ${jf.late?'checked':''} onchange="jf.late=this.checked;render()"> Overdue only</label>
+      <span style="flex:1"></span><span class="mut">Sort</span>
+      <select class="inp" onchange="jf.sort=this.value;render()"><option value="days" ${jf.sort==='days'?'selected':''}>Days in stage</option><option value="fit" ${jf.sort==='fit'?'selected':''}>Fit score</option><option value="name" ${jf.sort==='name'?'selected':''}>Name</option></select>
+      <span class="mut">Drag cards between columns to move a candidate</span></div>
+    <div class="board">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')">
+      <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${s.n}<span class="n">${l.length}</span></div>
+      ${l.map(ccard).join('')||'<div class="bempty">Drop here</div>'}</div>`}).join('')}</div>`;
+  const summary=`<div class="pad"><div class="dg2">
+      <div class="card"><div class="ch"><h3>Funnel for this job</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:all.filter(c=>STAGES.findIndex(x=>x.k===c.stage)>=STAGES.findIndex(x=>x.k===s.k)).length,tip:`Reached ${s.n}`})))}</div>
+      <div class="card"><div class="ch"><h3>Key facts</h3></div><dl class="kv">
+        <dt>Opened</dt><dd>${fmtD(j.open)} · ${daysSince(j.open)} days ago</dd><dt>Headcount</dt><dd>${j.filled||0} of ${j.head} filled</dd>
+        <dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
+        <dt>Required skills</dt><dd>${(j.skills||[]).map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join('')||'—'}</dd>
+        <dt>Sources</dt><dd>${[...new Set(all.map(c=>c.src))].map(s=>`${esc(s)} (${all.filter(c=>c.src===s).length})`).join(' · ')||'—'}</dd></dl></div></div></div>`;
+  const team=`<div class="pad"><div class="card" style="max-width:640px"><div class="ch"><h3>Hiring team</h3></div>
+      ${(j.team||[]).map((m,i)=>`<div class="doc"><span><span class="chip"><span class="mini">${initials(m)}</span>${esc(m)}</span> <span class="mut">${i===0?'Recruiter (owner)':'Interviewer'}</span></span>${i?`<button class="btn sm" onclick="job('${j.id}').team.splice(${i},1);render()">Remove</button>`:''}</div>`).join('')}
+      <div class="bar" style="margin:12px 0 0"><input class="inp" id="tmIn" placeholder="Name and role, e.g. Branch Manager – Lipa"><button class="btn pri" onclick="const v=document.getElementById('tmIn').value.trim();if(v){job('${j.id}').team.push(v);log('Added '+v+' to hiring team','${j.id}');render();}">Add interviewer</button></div></div></div>`;
+  const acts=ACT.filter(a=>a.job===j.id);
+  const activity=`<div class="pad"><div class="card"><div class="tl">${acts.map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtD(a.at)} · ${esc(a.by)}</div></div>`).join('')||'<div class="mut">No activity yet. Moves, notes and team changes will appear here.</div>'}</div></div></div>`;
+  const nts=NOTES[j.id]||[];
+  const notes=`<div class="pad"><div class="card" style="max-width:720px"><textarea class="inp" id="ntIn" rows="3" style="width:100%" placeholder="Add a note for the hiring team…"></textarea>
+      <div class="bar" style="margin:8px 0 14px"><button class="btn pri" onclick="const v=document.getElementById('ntIn').value.trim();if(v){(NOTES['${j.id}']=NOTES['${j.id}']||[]).unshift({by:ME(),at:new Date().toISOString(),text:v});log('Added a note','${j.id}');render();}">Save note</button></div>
+      ${nts.map(n=>`<div class="doc" style="display:block"><div>${esc(n.text)}</div><div class="mut" style="font-size:11.5px">${esc(n.by)} · ${fmtD(n.at)}</div></div>`).join('')||'<div class="mut">No notes yet.</div>'}</div></div>`;
+  const TABS=[["cands","list","Candidates",all.length],["summary","doc","Summary",null],["team","team","Team",(j.team||[]).length],["act","act","Activities",acts.length||null],["notes","note","Notes",nts.length||null]];
+  document.getElementById('s-job').innerHTML = shell('jobs',`
+    <div class="jhead">
+      <div class="jicon"><div class="ci">${ic('bulb')}</div><div class="jstat"><i style="${j.status==='open'?'':'background:#D48A1B'}"></i>${j.status==='open'?'Active':j.status==='filled'?'Filled':'Pending'}</div></div>
+      <div style="min-width:0">
+        <div class="jt"><button class="btn sm" onclick="go('s-jobs')">← Jobs</button><h2>${esc(j.t)}</h2>${st}<span class="chip"><span class="mini">${j.owner?initials(j.owner):'—'}</span>${esc(j.owner||'Unassigned')}</span>
+          <select class="inp" onchange="openJob(this.value)" title="Switch job">${JOBS.filter(x=>x.rf!=='general').map(x=>`<option value="${x.id}" ${x.id===curJob?'selected':''}>${x.id} — ${esc(x.t)}</option>`).join('')}</select></div>
+        <div class="jmeta"><div>${ic('dept')} ${BU[j.bu]} · ${esc(j.dept)} · ${esc(j.id)}</div><div>${ic('pin')} ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</div>${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}</div>
+        <div class="tags"><span class="tag">${ic('tag','width="12" height="12"')} ${j.head} headcount</span>${j.vac?`<span class="tag red">${ic('flag','width="12" height="12"')} Replacement</span>`:`<span class="tag">${ic('flag','width="12" height="12"')} New position</span>`}<span class="tag">${ic('clock','width="12" height="12"')} Open ${daysSince(j.open)} days</span></div>
+      </div>
+      <div class="jsum"><div><b>${all.filter(c=>ACTIVE.includes(c.stage)).length}</b><span>In process</span></div><div><b>${all.filter(c=>INTERVIEW_STAGES.includes(c.stage)).length}</b><span>For interview</span></div><div><b>${j.filled||0}/${j.head}</b><span>Filled</span></div></div>
+    </div>
+    <div class="jtabs">${TABS.map(([k,i,nm,c])=>`<button class="${jobTab===k?'on':''}" onclick="jobTab='${k}';render()">${ic(i)}${nm}${c!=null?`<span class="cnt ${k!=='cands'?'gr':''}">${c}</span>`:''}</button>`).join('')}</div>
+    ${jobTab==='cands'?board:jobTab==='summary'?summary:jobTab==='team'?team:jobTab==='act'?activity:notes}
+  `);
+}
+
+/* ============================================================
+   CANDIDATES — searchable, filterable, sortable list
+   ============================================================ */
+let pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1};
+function rPipe(){
+  let list=CANDS.filter(c=>(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
+  const key={name:c=>c.n,job:c=>job(c.job).t,stage:c=>STAGES.findIndex(s=>s.k===c.stage),days:c=>c.days,fit:c=>fitParts(c).total,src:c=>c.src};
+  list.sort((a,b)=>{const x=key[pf.sort](a),y=key[pf.sort](b);return (x>y?1:x<y?-1:0)*pf.dir;});
+  const th=(k,n)=>`<th class="srt" onclick="pf.dir=pf.sort==='${k}'?-pf.dir:-1;pf.sort='${k}';render()">${n}${pf.sort===k?(pf.dir<0?' ▾':' ▴'):''}</th>`;
+  document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
+    <h2>Candidates</h2><p class="sub">${list.length} of ${CANDS.length} candidates · click a column to sort</p>
+    <div class="bar">
+      <input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
+      <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
+      <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
+      <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
+      ${pf.job||pf.bu||pf.stage||pf.q?`<button class="btn sm" onclick="pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1};render()">Clear filters</button>`:''}
+      <span style="flex:1"></span>
+      ${pf.job?`<button class="btn pri" onclick="openJob('${pf.job}')">Open board view</button>`:''}
+      <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
+    </div>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th></tr></thead><tbody>
+    ${list.map(c=>{const f=fitParts(c);return `<tr class="clk" onclick="openCand(${c.id})">
+      <td><div style="display:flex;gap:10px;align-items:center"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><div class="mut">${esc(c.mob)} · ${esc(c.city)}</div></span></div></td>
+      <td>${esc(job(c.job).t)}<div class="mut">${c.job} · ${BU[job(c.job).bu]}</div></td>
+      <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
+      <td>${c.late?`<span class="pill red">${c.days}d · over SLA</span>`:`<span class="pill mute">${c.days}d</span>`}</td>
+      <td><span class="match" style="background:${fitCol(f.total)}">${f.total}%</span></td>
+      <td>${esc(c.src)}</td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
+    </tbody></table></div></div>`);
+}
+function exportCSV(ids){const rows=[["Name","Mobile","Email","City","Province","Job","Position","Business unit","Stage","Days in stage","Source","Fit","Owner","Applied"]];
+  CANDS.filter(c=>ids.includes(c.id)).forEach(c=>{const j=job(c.job);rows.push([c.n,c.mob,c.em,c.city,c.prov,c.job,j.t,BU[j.bu],stageName(c.stage),c.days,c.src,fitParts(c).total,c.owner||'',c.applied||'']);});
+  const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(',')).join('\r\n');
+  const a=document.createElement('a');a.href=URL.createObjectURL(new Blob(['﻿'+csv],{type:'text/csv'}));a.download=`brdc-candidates-${todayKey}.csv`;a.click();
+  log(`Exported ${ids.length} candidate records to CSV`);toast(`Exported ${ids.length} records`);}
+
+/* ============================================================
+   JOBS
+   ============================================================ */
+let jfl={status:'',bu:''};
+function rJobs(){
+  const list=JOBS.filter(j=>(!jfl.status||j.status===jfl.status)&&(!jfl.bu||j.bu===jfl.bu));
+  const stp=j=>({open:'<span class="pill green">open</span>',pending_approval:'<span class="pill amber">pending approval</span>',filled:'<span class="pill">filled</span>',on_hold:'<span class="pill mute">on hold</span>'}[j.status]);
+  document.getElementById('s-jobs').innerHTML = shell('jobs',`<div class="pad">
+    <h2>Jobs</h2><p class="sub">${JOBS.filter(jobOpen).length} open · ${JOBS.filter(j=>jobOpen(j)).reduce((s,j)=>s+vacancies(j),0)} vacancies · click a job to open its pipeline board</p>
+    <div class="bar">
+      <select class="inp" onchange="jfl.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${jfl.bu===k?'selected':''}>${v}</option>`).join('')}</select>
+      <select class="inp" onchange="jfl.status=this.value;render()"><option value="">All statuses</option>${['open','pending_approval','filled','on_hold'].map(s=>`<option value="${s}" ${jfl.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}</select>
+      <span style="flex:1"></span>
+      <button class="btn" onclick="go('s-careers')">View public careers page</button>
+      <button class="btn pri" onclick="go('s-mpr')">+ New job (via manpower request)</button></div>
+    <div class="card" style="padding:0"><div class="tw"><table>
+      <thead><tr><th>Ref</th><th>Position</th><th>Business unit</th><th>Vacancies</th><th>Applicants</th><th>Days open</th><th>Owner</th><th>Status</th><th></th></tr></thead>
+      <tbody>${list.map(j=>{const ap=CANDS.filter(c=>c.job===j.id&&ACTIVE.includes(c.stage)).length,d=daysSince(j.open);return `<tr class="clk" onclick="openJob('${j.id}')">
+        <td><b>${j.id}</b></td><td>${esc(j.t)}<div class="mut">${esc(j.dept)} · ${esc(j.br)}</div></td>
+        <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
+        <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
+        <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
+          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="toast('QR poster PNG generated for ${j.id}')">QR</button>`}</td></tr>`}).join('')}</tbody>
+    </table></div></div>
+    <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten.</div>`);
+}
+
+/* ============================================================
+   BUSINESS UNITS
+   ============================================================ */
+function rBU(){
+  document.getElementById('s-bu').innerHTML = shell('bu',`<div class="pad">
+    <h2>Business units</h2><p class="sub">Hiring requirements and progress for each BRDC business unit</p>
+    <div class="bug">${Object.entries(BU).map(([k,v])=>{const bj=JOBS.filter(j=>j.bu===k&&j.rf!=='general'), op=bj.filter(jobOpen), bc=CANDS.filter(c=>c.stage!=='draft'&&job(c.job).bu===k);
+      const h=HIST.filter(x=>x.bu===k&&x.out==='hired'), mp=MPR.filter(m=>m.bu===k&&m.status==='pending').length;
+      return `<div class="card buc"><div class="buh"><span class="bui">${initials(v)}</span><div><h3 style="margin:0">${v}</h3><div class="mut">${op.length} open job${op.length===1?'':'s'}${mp?` · <span style="color:#B4620E">${mp} request pending</span>`:''}</div></div></div>
+        <div class="bus"><div><b>${op.reduce((s,j)=>s+vacancies(j),0)}</b><span>Vacant</span></div><div><b>${bc.filter(c=>ACTIVE.includes(c.stage)).length}</b><span>Active</span></div><div data-tip='Hired in the last 8 months'><b>${h.length}</b><span>Hired</span></div><div data-tip='Median days to fill a position'><b>${median(h.map(x=>x.ttf))||'—'}</b><span>Fill days</span></div></div>
+        ${bj.map(j=>`<a class="bujob" onclick="openJob('${j.id}')"><span><b>${esc(j.t)}</b><small>${j.id} · ${esc(j.br)}</small></span><span>${j.status==='open'?`${vacancies(j)} open`:`<span class="pill amber">${j.status.replace('_',' ')}</span>`}</span></a>`).join('')||'<div class="mut" style="padding:8px 0">No jobs yet</div>'}
+        <button class="btn sm" style="margin-top:10px" onclick="buF='${k}';go('s-dash')">View on dashboard</button></div>`;}).join('')}</div>`);
+}
+
+/* ============================================================
+   MANPOWER REQUESTS
+   ============================================================ */
+let mprForm=false;
+function rMpr(){
+  const sp=s=>({pending:'<span class="pill amber">pending</span>',approved:'<span class="pill green">approved</span>',rejected:'<span class="pill red">rejected</span>'}[s]);
+  const admin=SESSION&&SESSION.role==='hr_admin';
+  document.getElementById('s-mpr').innerHTML = shell('mpr',`<div class="pad">
+    <h2>Manpower requests</h2><p class="sub">Department requests → approval → job vacancy. Approving a request opens the job automatically.</p>
+    <div class="bar"><button class="btn pri" onclick="mprForm=!mprForm;render()">${mprForm?'Cancel':'+ New request'}</button></div>
+    ${mprForm?`<div class="card" style="margin-bottom:14px"><h3>New manpower request</h3><div class="fg">
+      <label>Business unit<select class="inp" id="mBu">${Object.entries(BU).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label>
+      <label>Department<input class="inp" id="mDept" placeholder="e.g. Front Office"></label>
+      <label>Position<input class="inp" id="mPos" placeholder="e.g. Barista"></label>
+      <label>Headcount<input class="inp" id="mHead" type="number" min="1" value="1"></label>
+      <label>Type<select class="inp" id="mType"><option>New</option><option>Replacement</option></select></label>
+      <label style="grid-column:1/-1">Reason<input class="inp" id="mWhy" placeholder="Why is this needed?"></label></div>
+      <button class="btn pri" style="margin-top:10px" onclick="submitMpr()">Submit for approval</button></div>`:''}
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>Request</th><th>Position</th><th>Business unit</th><th>Type</th><th>Requested by</th><th>Date</th><th>Status</th><th></th></tr></thead><tbody>
+    ${MPR.map(m=>`<tr><td><b>${m.id}</b></td><td>${m.head} × ${esc(m.pos)}<div class="mut">${esc(m.dept)} · ${esc(m.reason)}</div></td><td>${BU[m.bu]}</td><td>${m.type}</td><td>${esc(m.by)}</td><td>${fmtD(m.date)}</td><td>${sp(m.status)}</td>
+      <td>${m.status==='pending'?(admin?`<button class="btn sm pri" onclick="approveMpr('${m.id}')">Approve</button> <button class="btn sm" onclick="rejectMpr('${m.id}')">Reject</button>`:'<span class="mut">awaiting hr_admin</span>'):m.job?`<button class="btn sm" onclick="openJob('${m.job}')">Open job</button>`:esc(m.note||'')}</td></tr>`).join('')}
+    </tbody></table></div></div>`);
+}
+function submitMpr(){const g=id=>document.getElementById(id).value.trim();if(!g('mPos')||!g('mDept')){toast('Position and department are required');return;}
+  const id='MPR-'+(Math.max(...MPR.map(m=>+m.id.slice(4)))+1);
+  MPR.unshift({id,bu:g('mBu'),dept:g('mDept'),pos:g('mPos'),head:Math.max(1,+g('mHead')||1),type:g('mType'),reason:g('mWhy')||'—',by:ME(),date:isoAgo(0),status:'pending',job:null});
+  mprForm=false;log(`Submitted ${id} for approval`);toast(`${id} submitted for approval`);render();}
+function approveMpr(id){const m=MPR.find(x=>x.id===id);m.status='approved';
+  if(m.job){const j=job(m.job);j.status='open';j.open=isoAgo(0);}
+  else{const pre={sf:'SF',nb:'NB',uh:'UH',th:'TH',ex:'EX',pp:'PP',lf:'LF'}[m.bu];const n=Math.max(0,...JOBS.filter(j=>j.id.startsWith(pre+'-')).map(j=>+j.id.split('-')[1]||0))+1;
+    const jid=`${pre}-${String(n).padStart(3,'0')}`;JOBS.push({id:jid,t:m.pos,bu:m.bu,dept:m.dept,br:'To be confirmed',prov:'',rf:m.pos.toLowerCase().replace(/\W+/g,'_'),head:m.head,filled:0,open:isoAgo(0),owner:ME(),status:'open',sal:'',vac:m.type==='Replacement',skills:[],team:[ME()]});m.job=jid;}
+  log(`Approved ${id} — job ${m.job} is now open`,m.job);toast(`${id} approved · job ${m.job} opened`);render();}
+function rejectMpr(id){const why=prompt('Reason for rejecting this request:');if(!why)return;const m=MPR.find(x=>x.id===id);m.status='rejected';m.note=why;if(m.job)job(m.job).status='on_hold';log(`Rejected ${id}: ${why}`);render();}
+
+/* ============================================================
+   INTERVIEWS
+   ============================================================ */
+let intTab='up', intForm=false;
+function rInt(){
+  const up=INTV.filter(i=>i.status==='scheduled').sort((a,b)=>a.when.localeCompare(b.when)), aw=INTV.filter(i=>i.status==='done'&&!i.result), dn=INTV.filter(i=>i.result).sort((a,b)=>b.when.localeCompare(a.when));
+  const rows={up,await:aw,done:dn}[intTab];
+  const elig=CANDS.filter(c=>ACTIVE.includes(c.stage));
+  const people=[...new Set(JOBS.flatMap(j=>j.team||[]).concat(['R. Cruz','J. Tan','M. Lim','BU General Manager']))];
+  document.getElementById('s-int').innerHTML = shell('int',`<div class="pad">
+    <h2>Interviews</h2><p class="sub">Schedule interviews, assign interviewers and record results</p>
+    <div class="bar"><button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button></div>
+    ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3><div class="fg">
+      <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
+      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
+      <label>Interviewer<select class="inp" id="iI">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</select></label>
+      <label>Location<input class="inp" id="iL" value="Video call"></label></div>
+      <button class="btn pri" style="margin-top:10px" onclick="schedInt()">Schedule and queue invitation</button></div>`:''}
+    <div class="tabs">${[['up','Upcoming',up.length],['await','Awaiting results',aw.length],['done','Completed',dn.length]].map(([k,n,c])=>`<button class="${intTab===k?'on':''}" onclick="intTab='${k}';render()">${n} <span class="pill ${k==='await'&&c?'amber':'mute'}">${c}</span></button>`).join('')}</div>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>When</th><th>Candidate</th><th>Type</th><th>Interviewer</th><th>Location</th><th>${intTab==='done'?'Result':''}</th></tr></thead><tbody>
+    ${rows.map(i=>{const c=cand(i.cid);if(!c)return '';const today=localISO(new Date(i.when))===todayKey;
+      return `<tr><td>${today?'<span class="pill green">Today</span> ':''}${fmtDT(i.when)}</td><td><a class="lnk" onclick="openCand(${c.id})"><b>${esc(c.n)}</b></a><div class="mut">${esc(job(c.job).t)} · ${BU[job(c.job).bu]}</div></td><td>${i.type}</td><td>${esc(i.interviewer)}</td><td>${esc(i.loc)}</td>
+      <td>${intTab==='up'?`<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button>`
+        :intTab==='await'?`<div class="rec"><select class="inp" id="sc${i.id}"><option value="">Score</option>${[5,4,3,2,1].map(s=>`<option>${s}</option>`).join('')}</select><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`
+        :`<span class="pill ${i.result==='pass'?'green':i.result==='fail'?'red':'amber'}">${i.result}${i.score?' · '+i.score+'/5':''}</span>${i.remarks?`<div class="mut">${esc(i.remarks)}</div>`:''}`}</td></tr>`;}).join('')||`<tr><td colspan="6"><div class="empty">Nothing here.</div></td></tr>`}
+    </tbody></table></div></div>`);
+}
+function schedInt(){const cid=+document.getElementById('iC').value,w=document.getElementById('iW').value;if(!cid||!w){toast('Pick a candidate and time');return;}
+  const t=document.getElementById('iT').value;INTV.push({id:Math.max(0,...INTV.map(i=>i.id))+1,cid,type:t,when:new Date(w).toISOString(),interviewer:document.getElementById('iI').value,loc:document.getElementById('iL').value,status:'scheduled',score:null,result:null,remarks:''});
+  const c=cand(cid),k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);}
+  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,body:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(new Date(w).toISOString())} (${document.getElementById('iL').value}) for ${job(c.job).t}. Please reply to confirm.`});
+  intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);toast('Interview scheduled · invitation queued in Messages');render();}
+function markDone(id){INTV.find(i=>i.id===id).status='done';intTab='await';render();}
+function noShow(id){const i=INTV.find(x=>x.id===id);i.status='done';i.result='no-show';log(`${cand(i.cid).n} did not attend ${i.type}`,cand(i.cid).job);render();}
+function recInt(id,res){const i=INTV.find(x=>x.id===id),s=document.getElementById('sc'+id).value;if(!s){toast('Add a score first');return;}
+  i.score=+s;i.result=res;i.remarks=document.getElementById('rm'+id).value;const c=cand(i.cid);log(`${i.type} result for ${c.n}: ${res} (${s}/5)`,c.job);
+  if(res==='pass'){const k=STAGES.findIndex(x=>x.k===c.stage);if(k>=0&&k<STAGES.length-1)moveTo(c.id,STAGES[k+1].k);else render();}
+  else{toast('Recorded as fail — reject from the candidate profile to send feedback');render();}}
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+function rOnb(){
+  const list=CANDS.filter(c=>c.stage==='hired'||c.stage==='onboarding');
+  document.getElementById('s-onb').innerHTML = shell('onb',`<div class="pad">
+    <h2>Onboarding</h2><p class="sub">New hires from acceptance through pre-employment requirements to day one · ${list.length} in progress</p>
+    <div class="bug">${list.map(c=>{const d=(c.onb||[]).filter(Boolean).length,p=pct(d,ONB_ITEMS.length),j=job(c.job);
+      return `<div class="card"><div class="buh"><span class="cav" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><div style="flex:1"><a class="lnk" onclick="openCand(${c.id})"><h3 style="margin:0">${esc(c.n)}</h3></a><div class="mut">${esc(j.t)} · ${BU[j.bu]} · start ${c.start?fmtD(c.start):'TBC'}</div></div><span class="pill ${c.stage==='hired'?'amber':'green'}">${stageName(c.stage)}</span></div>
+        <div class="prog"><i style="width:${p}%"></i></div><div class="mut" style="margin:4px 0 8px">${d} of ${ONB_ITEMS.length} complete · ${p}%</div>
+        ${ONB_ITEMS.map((t,i)=>`<label class="chk"><input type="checkbox" ${c.onb&&c.onb[i]?'checked':''} onchange="cand(${c.id}).onb[${i}]=this.checked;${c.stage==='hired'?`cand(${c.id}).stage='onboarding';`:''}render()"> ${t}</label>`).join('')}
+        ${d===ONB_ITEMS.length?`<button class="btn pri" style="margin-top:10px" onclick="completeOnb(${c.id})">Complete onboarding</button>`:''}</div>`;}).join('')||'<div class="empty">No one is onboarding right now.</div>'}</div>`);
+}
+function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),out:'hired',bu:job(c.job).bu,src:c.src,tth:daysSince(c.applied||isoAgo(20)),ttf:daysSince(job(c.job).open)});
+  CANDS=CANDS.filter(x=>x.id!==id);log(`${c.n} completed onboarding`,c.job);toast(`${c.n} onboarding complete — moved to employee records`);render();}
+
+/* ============================================================
+   SETTINGS & ADMINISTRATION
+   ============================================================ */
+function rSet(){
+  document.getElementById('s-set').innerHTML = shell('set',`<div class="pad">
+    <h2>Settings</h2><p class="sub">Service levels, targets and data</p>
+    <div class="dg2"><div class="card"><h3>Stage SLAs (days allowed in each stage)</h3>
+      ${STAGES.map((s,i)=>`<div class="doc"><span><span class="sdot" style="background:${s.c}"></span>${s.n}</span><input class="inp" type="number" min="0" style="width:80px" value="${s.sla}" onchange="STAGES[${i}].sla=+this.value;render()"></div>`).join('')}
+      <p class="mut" style="margin-top:8px">Candidates over these limits are flagged red and listed in Pending actions.</p></div>
+      <div><div class="card"><h3>Hiring target</h3><div class="doc"><span>Hires per month (all business units)</span><input class="inp" type="number" min="1" style="width:80px" value="${TARGET}" onchange="TARGET=+this.value||1;render()"></div></div>
+      <div class="card" style="margin-top:14px"><h3>Data</h3><p class="mut" style="margin-bottom:10px">Changes are saved in this browser only. A shared database is needed before several HR staff can work on the same records.</p>
+        <button class="btn" onclick="exportJSON()">Download backup (JSON)</button> <button class="btn" style="color:var(--danger)" onclick="resetData()">Reset demo data</button></div>
+      <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
+}
+function exportJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
+function rAdm(){
+  document.getElementById('s-adm').innerHTML = shell('adm',`<div class="pad">
+    <h2>Administration</h2><p class="sub">Users, roles and audit trail</p>
+    <div class="card" style="padding:0;margin-bottom:14px"><div class="tw"><table><thead><tr><th>User</th><th>Username</th><th>Role</th><th>Business units</th><th>Status</th></tr></thead><tbody>
+      ${STAFF.map(u=>`<tr><td><span class="chip"><span class="mini">${initials(u.n)}</span>${esc(u.n)}</span></td><td>${esc(u.u)}</td><td><span class="pill ${u.role==='hr_admin'?'green':''}">${u.role}</span></td><td>${esc(u.bu)}</td><td><span class="pill green">${u.st}</span></td></tr>`).join('')}
+    </tbody></table></div></div>
+    <div class="dg2"><div class="card"><h3>Roles</h3>
+      <div class="doc"><span><b>hr_admin</b> — approves manpower requests and jobs, manages users and settings, sees sensitive fields</span></div>
+      <div class="doc"><span><b>hr_staff</b> — runs the pipeline, interviews, messages and onboarding for assigned units</span></div>
+      <div class="doc"><span><b>viewer</b> — BU managers: read-only dashboard for their own unit</span></div>
+      <button class="btn" style="margin-top:10px" onclick="toast('Adding users needs the shared database and secure sign-in — planned for the next phase')">+ Invite user</button></div>
+      <div class="card"><h3>Audit trail</h3><div class="tl">${ACT.slice(0,15).map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtD(a.at)} · ${esc(a.by)}</div></div>`).join('')}</div></div></div>`);
+}
+
+/* ============================================================
+   REPORTS — computed, printable
+   ============================================================ */
+function rRep(){
+  const hs=scopedHist(),H=hs.filter(h=>h.out==='hired'),cs=scopedCands();
+  const srcs=[...new Set(HIST.map(h=>h.src))].map(s=>{const a=hs.filter(h=>h.src===s).length+cs.filter(c=>c.src===s).length,h=H.filter(x=>x.src===s).length;return [s,a,h,pct(h,a)];}).sort((a,b)=>b[3]-a[3]);
+  document.getElementById('s-rep').innerHTML = shell('rep',`<div class="pad">
+    <div class="dhead"><div><h2>Recruitment report</h2><p class="sub" style="margin:0">Generated ${TODAY.toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'})} · ${buF?BU[buF]:'All business units'} · last 8 months</p></div><span style="flex:1"></span>
+      <select class="inp noprint" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
+      <button class="btn noprint" onclick="exportCSV(${JSON.stringify(cs.map(c=>c.id))})">Export CSV</button><button class="btn pri noprint" onclick="window.print()">Print / save as PDF</button></div>
+    <div class="measures" style="margin-top:14px">
+      <div><span>Time to hire (median)</span><b>${median(H.map(h=>h.tth))}<small> days</small></b></div><div><span>Time to fill (median)</span><b>${median(H.map(h=>h.ttf))}<small> days</small></b></div>
+      <div><span>Total hired</span><b>${H.length}</b></div><div><span>Hiring rate</span><b>${pct(H.length,hs.length)}<small>%</small></b></div><div><span>Rejection rate</span><b>${pct(hs.filter(h=>h.out==='rejected').length,hs.length)}<small>%</small></b></div></div>
+    <div class="dg2">
+      <div class="card"><div class="ch"><h3>Monthly hiring performance</h3></div>${monthChart()}</div>
+      <div class="card"><div class="ch"><h3>Source effectiveness</h3></div><table><thead><tr><th>Source</th><th>Applicants</th><th>Hired</th><th>Hire rate</th></tr></thead><tbody>
+        ${srcs.map(r=>`<tr><td>${esc(r[0])}</td><td>${r[1]}</td><td>${r[2]}</td><td><b>${r[3]}%</b></td></tr>`).join('')}</tbody></table></div>
+      <div class="card"><div class="ch"><h3>Current pipeline</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length})))}</div>
+      <div class="card"><div class="ch"><h3>Hires by business unit</h3></div>${hbars(Object.keys(BU).filter(b=>!buF||b===buF).map(b=>({l:BU[b],v:H.filter(h=>h.bu===b).length})))}</div>
+    </div>
+    <div class="card" style="margin-top:14px"><div class="ch"><h3>Open positions</h3></div><div class="tw"><table><thead><tr><th>Ref</th><th>Position</th><th>Business unit</th><th>Vacancies</th><th>Days open</th><th>In pipeline</th></tr></thead><tbody>
+      ${scopedJobs().filter(jobOpen).map(j=>`<tr><td>${j.id}</td><td>${esc(j.t)}</td><td>${BU[j.bu]}</td><td>${vacancies(j)}/${j.head}</td><td>${daysSince(j.open)}</td><td>${CANDS.filter(c=>c.job===j.id&&ACTIVE.includes(c.stage)).length}</td></tr>`).join('')}</tbody></table></div></div>`);
+}
+
+/* ============================================================
+   ACTIONS (overrides) & RENDER
+   ============================================================ */
+function openCand(id){curCand=id;profTab='app';RECENT=[id,...RECENT.filter(x=>x!==id)].slice(0,4);go('s-prof');}
+function claim(id){const c=cand(id);c.owner=ME();log(`${ME()} claimed ${c.n}`,c.job);toast(`${c.nick||c.n} assigned to you`);render();}
+function advance(id){const c=cand(id);if(c.stage==='draft'){c.stage='new';c.since=isoAgo(0);log(`${c.n} submitted application`,c.job);render();return;}
+  const i=STAGES.findIndex(s=>s.k===c.stage);if(i<STAGES.length-1){moveTo(id,STAGES[i+1].k);}else{toast('Already in onboarding — complete it from the Onboarding page');}}
+function render(){
+  refreshDerived();
+  ({'s-dash':rDash,'s-pipe':rPipe,'s-prof':rProf,'s-pool':rPool,'s-msg':rMsg,'s-rep':rRep,'s-jobs':rJobs,'s-job':rJob,'s-bu':rBU,'s-mpr':rMpr,'s-int':rInt,'s-onb':rOnb,'s-set':rSet,'s-adm':rAdm,
+    's-careers':rCareers,'s-apply':rApply,'s-test':rTest,'s-portal':rPortal})[cur]();
+  saveData();
+}
+
 render();
 </script>
 </body>
