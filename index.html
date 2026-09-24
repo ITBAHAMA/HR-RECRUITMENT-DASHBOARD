@@ -398,6 +398,23 @@ body.sidecol .side .sb{position:absolute;left:34px;top:4px;margin:0;padding:0 5p
 @media (max-width:1280px){.kpi7{grid-template-columns:repeat(4,minmax(0,1fr))}.dg3{grid-template-columns:1fr 1fr}}
 @media (max-width:860px){.kpi7{grid-template-columns:repeat(2,minmax(0,1fr))}.measures{grid-template-columns:1fr 1fr}.measures>div{border-right:none;border-bottom:1px solid var(--line)}.dg2,.dg3{grid-template-columns:1fr}.notif{width:300px;right:-60px}}
 @media print{.top,.side,.noprint,.backhr,.toast,.tip{display:none!important}.main{background:#fff}.app{min-height:0}.card,.measures{break-inside:avoid}body{background:#fff}}
+
+/* ============ accounts / modal ============ */
+.mdl{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;padding:16px}
+.mdl.on{display:flex}
+.mdl-bg{position:absolute;inset:0;background:rgba(8,14,8,.45);backdrop-filter:blur(2px)}
+.mdl-card{position:relative;background:#fff;border-radius:14px;padding:22px;width:100%;max-width:560px;box-shadow:0 30px 70px -20px rgba(0,0,0,.5);animation:rise .25s ease both}
+.mdl-card h3{font-size:17px;margin-bottom:6px}
+.mdl-f{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+.err{color:var(--danger);font-size:12.5px;margin-top:8px;min-height:1em}
+.tmp{display:flex;gap:18px;align-items:center;background:#F6F8F4;border:1px dashed #BFD3B4;border-radius:10px;padding:14px 16px;margin-top:10px;flex-wrap:wrap}
+.tmp>div{display:flex;flex-direction:column}.tmp b{font:600 18px ui-monospace,Consolas,monospace;color:#12330D;letter-spacing:.04em}
+.tmp .btn{margin-left:auto}
+.pwm{display:block;height:4px;border-radius:99px;background:#EEF1EB;margin-top:6px;overflow:hidden}.pwm i{display:block;height:100%;transition:width .2s}
+td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
+.btn:disabled{opacity:.5;cursor:not-allowed}
+#lgChg .lg-err.on{display:block}
+.lg-back{display:block;margin:14px auto 0;background:none;border:none;color:#1F5F4E;font-size:13px}
 </style>
 </head>
 <body class="locked">
@@ -447,7 +464,7 @@ body.sidecol .side .sb{position:absolute;left:34px;top:4px;margin:0;padding:0 5p
 
       <div class="lg-row">
         <label><input type="checkbox" id="lgRem" checked> Keep me signed in</label>
-        <a href="#" onclick="lgToast('Contact BRDC IT to reset administrator access.');return false">Forgot password?</a>
+        <a href="#" onclick="lgToast('Ask an hr_admin to reset your password in Administration → Accounts.');return false">Forgot password?</a>
       </div>
 
       <button class="lg-btn" id="lgBtn" type="submit">SIGN IN</button>
@@ -456,6 +473,16 @@ body.sidecol .side .sb{position:absolute;left:34px;top:4px;margin:0;padding:0 5p
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
         Restricted to authorised BRDC personnel. Access is logged.
       </div>
+    </form>
+    <form class="lg-card" id="lgChg" style="display:none" onsubmit="doChange(event)" novalidate>
+      <h2>Set a new password</h2>
+      <p class="lede">You signed in with a temporary password. Choose your own password to continue.</p>
+      <div class="lg-err" id="cgErr" role="alert"></div>
+      <div class="lg-f"><label for="cgNew">New password</label><input id="cgNew" type="password" autocomplete="new-password" placeholder="At least 8 characters" oninput="pwMeter(this,'cgMeter')" style="padding-left:14px"><span class="pwm" id="cgMeter"></span></div>
+      <div class="lg-f"><label for="cgConf">Confirm password</label><input id="cgConf" type="password" autocomplete="new-password" placeholder="Type it again" style="padding-left:14px"></div>
+      <p class="lede" style="font-size:12px;margin:-4px 0 18px">Use uppercase, lowercase and a number.</p>
+      <button class="lg-btn" type="submit">SAVE AND CONTINUE</button>
+      <button type="button" class="lg-back" onclick="cancelChange()">← Back to sign in</button>
     </form>
   </main>
 </div>
@@ -671,20 +698,59 @@ const SECNAMES = {A:"Facts", B:"Form", C:"Feelings", D:"Future"};
 /* ============================================================
    AUTH (prototype only — client-side check, not real security)
    ============================================================ */
-const USERS = {
-  admin:{hash:"ef82e7ef372c17f73480bfd42eefe540662851a0ab6e382a5c4529d69eee9619", name:"Administrator", first:"Admin", role:"hr_admin"}
-};
-let SESSION = null, lgFails = 0, lgLockUntil = 0;
-async function sha256(s){
-  if(window.crypto&&crypto.subtle){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));
-    return [...new Uint8Array(b)].map(x=>x.toString(16).padStart(2,'0')).join('');}
-  return null;
-}
+/* ---------- accounts (stored in this browser; prototype — not real security) ---------- */
+function sha256(ascii){ /* compact synchronous SHA-256 */
+  const rr=(v,a)=>(v>>>a)|(v<<(32-a)); let res='',words=[],i,j;const bl=ascii.length*8;
+  const H=[],K=[];let pc=0;const ic={};
+  for(let c=2;pc<64;c++){if(!ic[c]){for(i=0;i<313;i+=c)ic[i]=c;H[pc]=(Math.pow(c,.5)*4294967296)|0;K[pc++]=(Math.pow(c,1/3)*4294967296)|0;}}
+  let h=H.slice(0,8);
+  ascii=unescape(encodeURIComponent(ascii));const len=ascii.length*8;ascii+='\x80';
+  while(ascii.length%64-56)ascii+='\x00';
+  for(i=0;i<ascii.length;i++){j=ascii.charCodeAt(i);words[i>>2]|=j<<((3-i)%4)*8;}
+  words[words.length]=((len/Math.pow(2,32))|0);words[words.length]=len;
+  for(j=0;j<words.length;){const w=words.slice(j,j+=16),oh=h;h=h.slice(0,8);
+    for(i=0;i<64;i++){const w15=w[i-15],w2=w[i-2],a=h[0],e=h[4];
+      const t1=h[7]+(rr(e,6)^rr(e,11)^rr(e,25))+((e&h[5])^((~e)&h[6]))+K[i]+(w[i]=(i<16)?w[i]:(w[i-16]+(rr(w15,7)^rr(w15,18)^(w15>>>3))+w[i-7]+(rr(w2,17)^rr(w2,19)^(w2>>>10)))|0);
+      const t2=(rr(a,2)^rr(a,13)^rr(a,22))+((a&h[1])^(a&h[2])^(h[1]&h[2]));
+      h=[(t1+t2)|0].concat(h);h[4]=(h[4]+t1)|0;}
+    for(i=0;i<8;i++)h[i]=(h[i]+oh[i])|0;}
+  for(i=0;i<8;i++)for(j=3;j+1;j--){const b=(h[i]>>(j*8))&255;res+=((b<16)?0:'')+b.toString(16);}
+  return res;}
+const pwHash=(u,p)=>sha256(u.toLowerCase()+':'+p);
+const ACC_KEY='brdc-accounts-v1';
+let ACCOUNTS=[
+  {u:"admin",name:"Administrator",first:"Admin",email:"",role:"hr_admin",bu:"All business units",status:"active",hash:null,mustChange:false,created:"",last:null},
+  {u:"rcruz",name:"R. Cruz",first:"R.",email:"",role:"hr_staff",bu:"Smartfuels, Exelhaul Logistics",status:"pending",hash:null,mustChange:true,created:"",last:null},
+  {u:"jtan",name:"J. Tan",first:"J.",email:"",role:"hr_staff",bu:"U Hotels, Toilena Hotel, Neo Bros Ventures",status:"pending",hash:null,mustChange:true,created:"",last:null},
+  {u:"mlim",name:"M. Lim",first:"M.",email:"",role:"hr_staff",bu:"Pan Pacific, La Ferme Organique",status:"pending",hash:null,mustChange:true,created:"",last:null}
+];
+ACCOUNTS[0].hash='b07a5cc71a90351859379d6b5ec82e58a82fd9c74cdaf4af2d950e709584185f'; /* default admin hash — change the password after first sign-in */
+try{const s=JSON.parse(localStorage.getItem(ACC_KEY)||'null');if(Array.isArray(s)&&s.length)ACCOUNTS=s;}catch(e){}
+function saveAccounts(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));}catch(e){}}
+function acct(u){return ACCOUNTS.find(a=>a.u===String(u||'').toLowerCase());}
+const USERS=new Proxy({}, {get:(_,u)=>acct(u)}); /* legacy lookups */
+function pwProblems(p,u){const x=[];if(p.length<8)x.push('at least 8 characters');if(!/[A-Z]/.test(p))x.push('an uppercase letter');if(!/[a-z]/.test(p))x.push('a lowercase letter');if(!/\d/.test(p))x.push('a number');if(u&&p.toLowerCase().includes(u.toLowerCase()))x.push('not containing the username');return x;}
+function pwScore(p){let s=0;if(p.length>=8)s++;if(p.length>=12)s++;if(/[A-Z]/.test(p)&&/[a-z]/.test(p))s++;if(/\d/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;return Math.min(4,s);}
+function genTempPw(){const A='ABCDEFGHJKLMNPQRSTUVWXYZ',a='abcdefghijkmnpqrstuvwxyz',d='23456789',s='@#$%&*!',all=A+a+d;
+  const r=n=>{const b=new Uint32Array(1);(window.crypto||{}).getRandomValues?crypto.getRandomValues(b):(b[0]=Math.random()*4294967296);return b[0]%n;};
+  let p=A[r(A.length)]+a[r(a.length)]+d[r(d.length)]+s[r(s.length)];for(let i=0;i<6;i++)p+=all[r(all.length)];
+  return p.split('').sort(()=>r(3)-1).join('');}
+function audit(text){if(typeof log==='function')log(text);}
+
+let SESSION = null, lgFails = 0, lgLockUntil = 0, pendingChange=null;
 function lgShowErr(t){const e=document.getElementById('lgErr');document.getElementById('lgErrTxt').textContent=t;e.classList.add('on');
   const f=document.getElementById('lgForm');f.classList.remove('shake');void f.offsetWidth;f.classList.add('shake');}
 function lgToast(t){toast(t);}
 function togglePw(){const p=document.getElementById('lgPass');p.type=p.type==='password'?'text':'password';
   document.getElementById('lgEye').setAttribute('aria-label',p.type==='password'?'Show password':'Hide password');p.focus();}
+function enterApp(a){
+  SESSION={user:a.u,name:a.name,first:a.first||a.name.split(' ')[0],role:a.role,at:new Date()};
+  a.last=new Date().toISOString();saveAccounts();audit(`${a.name} signed in`);
+  try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-sess',a.u);else localStorage.removeItem('brdc-sess');}catch(e){}
+  document.title='BRDC Recruit — Dashboard';
+  const L=document.getElementById('login');L.classList.add('out');
+  setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},550);
+}
 async function doLogin(e){
   e.preventDefault();
   const u=document.getElementById('lgUser').value.trim().toLowerCase(), p=document.getElementById('lgPass').value;
@@ -693,24 +759,32 @@ async function doLogin(e){
   if(Date.now()<lgLockUntil){lgShowErr(`Too many attempts. Try again in ${Math.ceil((lgLockUntil-Date.now())/1000)}s.`);return;}
   if(!u||!p){lgShowErr('Enter your username and password.');return;}
   btn.disabled=true;btn.innerHTML='<span class="lg-spin"></span>AUTHENTICATING';
-  const h=await sha256(p);
-  await new Promise(r=>setTimeout(r,850));
-  const acct=USERS[u], ok=acct && (h? h===acct.hash : p==='BRDC@Admin2026');
-  if(!ok){
-    btn.disabled=false;btn.textContent='SIGN IN';lgFails++;
+  await new Promise(r=>setTimeout(r,700));
+  const a=acct(u);
+  const reset=()=>{btn.disabled=false;btn.textContent='SIGN IN';};
+  if(a&&a.status==='disabled'&&a.hash===pwHash(u,p)){reset();lgShowErr('This account is disabled. Contact your administrator.');return;}
+  if(!a||!a.hash||a.status==='disabled'||a.hash!==pwHash(u,p)){
+    reset();lgFails++;
     if(lgFails>=5){lgLockUntil=Date.now()+30000;lgFails=0;lgShowErr('Too many attempts. Sign-in locked for 30 seconds.');}
     else lgShowErr(`Incorrect username or password. ${5-lgFails} attempt${5-lgFails===1?'':'s'} left.`);
     document.getElementById('lgPass').select();return;
   }
-  SESSION={user:u,...acct,at:new Date()};
-  try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-sess',u);else localStorage.removeItem('brdc-sess');}catch(e){}
-  btn.innerHTML='✓ WELCOME';
-  document.title='BRDC Recruit — Dashboard';
-  const L=document.getElementById('login');L.classList.add('out');
-  setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},550);
+  lgFails=0;
+  if(a.mustChange){reset();pendingChange=a.u;document.getElementById('lgForm').style.display='none';document.getElementById('lgChg').style.display='';document.getElementById('cgNew').focus();return;}
+  btn.innerHTML='✓ WELCOME';enterApp(a);
 }
+function pwMeter(inp,barId,u){const s=pwScore(inp.value),el=document.getElementById(barId);if(!el)return;
+  el.innerHTML=`<i style="width:${s*25}%;background:${['#C2412D','#C2412D','#D07A12','#7F9A12','#2F9E44'][s]}"></i>`;el.title=['Very weak','Weak','Fair','Good','Strong'][s];}
+function doChange(e){e.preventDefault();const a=acct(pendingChange),n=document.getElementById('cgNew').value,c=document.getElementById('cgConf').value,er=document.getElementById('cgErr');
+  const bad=pwProblems(n,a.u);if(bad.length){er.textContent='Password needs '+bad.join(', ')+'.';er.classList.add('on');return;}
+  if(n!==c){er.textContent='The two passwords do not match.';er.classList.add('on');return;}
+  if(pwHash(a.u,n)===a.hash){er.textContent='Choose a password different from the temporary one.';er.classList.add('on');return;}
+  a.hash=pwHash(a.u,n);a.mustChange=false;a.status='active';saveAccounts();audit(`${a.name} set a new password`);
+  document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';pendingChange=null;enterApp(a);}
+function cancelChange(){pendingChange=null;document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';document.getElementById('lgPass').value='';}
 function logout(){
   try{localStorage.removeItem('brdc-sess');}catch(e){}
+  if(SESSION)audit(`${SESSION.name} signed out`);
   SESSION=null;lgFails=0;
   const L=document.getElementById('login'),btn=document.getElementById('lgBtn');
   document.getElementById('lgPass').value='';document.getElementById('lgErr').classList.remove('on');
@@ -721,7 +795,7 @@ function logout(){
 ['keydown','keyup'].forEach(ev=>document.getElementById('lgPass').addEventListener(ev,e=>{
   if(e.getModifierState)document.getElementById('lgCaps').classList.toggle('on',e.getModifierState('CapsLock'));}));
 document.getElementById('lgUser').focus();
-(function(){try{const u=localStorage.getItem('brdc-sess');if(u&&USERS[u]){SESSION={user:u,...USERS[u],at:new Date()};const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}catch(e){}})();
+(function(){try{const u=localStorage.getItem('brdc-sess'),a=acct(u);if(a&&a.status==='active'&&!a.mustChange){SESSION={user:a.u,name:a.name,first:a.first||a.name,role:a.role,at:new Date()};const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}catch(e){}})();
 
 /* ============================================================
    PLUMBING
@@ -1200,7 +1274,7 @@ function shell(active, body, extra){
         <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention</small></div>
         ${acts.slice(0,8).map(a=>`<a onclick="${a.a};render()"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
         ${acts.length>8?`<a class="more" onclick="go('s-dash')">See all ${acts.length} on the dashboard →</a>`:''}</div></span>
-      <span class="who"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
+      <span class="who" style="cursor:pointer" title="Change my password" onclick="changeMyPw()"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
       <button class="logout" onclick="logout()">Sign out</button>
     </div>
     <div class="row">
@@ -1221,7 +1295,7 @@ function shell(active, body, extra){
         <div class="grp">
           ${L('rep','s-rep','rep','Reports')}
           ${L('car','s-careers','web','Career page')}
-          ${L('set','s-set','set','Settings')}
+          ${isAdmin()?L('set','s-set','set','Settings'):''}
           ${L('adm','s-adm','lock','Administration')}
         </div>
         ${RECENT.length?`<div class="rv">Recently visited</div>${RECENT.map(id=>{const c=cand(id);return c?`<a class="rvi" onclick="openCand(${id})">${esc(c.n)}</a>`:''}).join('')}`:''}
@@ -1562,6 +1636,7 @@ function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),o
    SETTINGS & ADMINISTRATION
    ============================================================ */
 function rSet(){
+  if(!isAdmin()){cur='s-dash';rDash();return;}
   document.getElementById('s-set').innerHTML = shell('set',`<div class="pad">
     <h2>Settings</h2><p class="sub">Service levels, targets and data</p>
     <div class="dg2"><div class="card"><h3>Stage SLAs (days allowed in each stage)</h3>
@@ -1573,19 +1648,92 @@ function rSet(){
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
+/* ============================================================
+   ADMINISTRATION — accounts, password reset, roles, audit
+   ============================================================ */
+let admTab='acc', admQ='', admForm=false;
+const ROLE_INFO={hr_admin:'Full access: approvals, accounts, settings, sensitive fields',hr_staff:'Runs pipeline, interviews, messages and onboarding',viewer:'Read-only dashboard and reports'};
+function isAdmin(){return SESSION&&SESSION.role==='hr_admin';}
+function modal(html){let m=document.getElementById('modal');if(!m){m=document.createElement('div');m.id='modal';m.className='mdl';document.body.appendChild(m);}
+  m.innerHTML=`<div class="mdl-bg" onclick="closeModal()"></div><div class="mdl-card" role="dialog" aria-modal="true">${html}</div>`;m.classList.add('on');
+  setTimeout(()=>{const f=m.querySelector('input,select,button.pri');f&&f.focus();},30);}
+function closeModal(){const m=document.getElementById('modal');if(m)m.classList.remove('on');}
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal();});
+function stBadge(a){return {active:'<span class="pill green">active</span>',pending:'<span class="pill amber">awaiting password</span>',disabled:'<span class="pill red">disabled</span>'}[a.status]+(a.mustChange&&a.status==='active'?' <span class="pill mute">must change password</span>':'');}
+
 function rAdm(){
-  document.getElementById('s-adm').innerHTML = shell('adm',`<div class="pad">
-    <h2>Administration</h2><p class="sub">Users, roles and audit trail</p>
-    <div class="card" style="padding:0;margin-bottom:14px"><div class="tw"><table><thead><tr><th>User</th><th>Username</th><th>Role</th><th>Business units</th><th>Status</th></tr></thead><tbody>
-      ${STAFF.map(u=>`<tr><td><span class="chip"><span class="mini">${initials(u.n)}</span>${esc(u.n)}</span></td><td>${esc(u.u)}</td><td><span class="pill ${u.role==='hr_admin'?'green':''}">${u.role}</span></td><td>${esc(u.bu)}</td><td><span class="pill green">${u.st}</span></td></tr>`).join('')}
+  if(!isAdmin()){document.getElementById('s-adm').innerHTML=shell('adm',`<div class="pad"><h2>Administration</h2><div class="empty">Only hr_admin accounts can open Administration. <button class="btn sm" onclick="changeMyPw()">Change my password</button></div>`);return;}
+  const list=ACCOUNTS.filter(a=>!admQ||[a.u,a.name,a.email,a.role,a.bu].join(' ').toLowerCase().includes(admQ.toLowerCase()));
+  const nAdmins=ACCOUNTS.filter(a=>a.role==='hr_admin'&&a.status==='active').length;
+  const accTab=`
+    <div class="bar"><input class="inp" placeholder="Search accounts…" value="${esc(admQ)}" onchange="admQ=this.value;render()" style="min-width:220px">
+      <span style="flex:1"></span><button class="btn" onclick="changeMyPw()">Change my password</button><button class="btn pri" onclick="addAccount()">+ Add account</button></div>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>Account</th><th>Username</th><th>Role</th><th>Business units</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead><tbody>
+    ${list.map(a=>{const me=SESSION&&SESSION.user===a.u;return `<tr>
+      <td><span class="chip"><span class="mini">${initials(a.name)}</span>${esc(a.name)}</span>${me?' <span class="pill mute">you</span>':''}${a.email?`<div class="mut">${esc(a.email)}</div>`:''}</td>
+      <td>${esc(a.u)}</td><td><span class="pill ${a.role==='hr_admin'?'green':''}">${a.role}</span></td><td>${esc(a.bu)}</td><td>${stBadge(a)}</td>
+      <td>${a.last?fmtDT(a.last):'<span class="mut">never</span>'}</td>
+      <td class="acts"><button class="btn sm ${a.status==='pending'?'pri':''}" onclick="resetPw('${a.u}')">${a.status==='pending'?'Set temporary password':'Reset password'}</button>
+        <button class="btn sm" onclick="editAccount('${a.u}')">Edit</button>
+        ${me?'':a.status==='disabled'?`<button class="btn sm" onclick="setStatus('${a.u}','active')">Enable</button>`:`<button class="btn sm" onclick="setStatus('${a.u}','disabled')" ${a.role==='hr_admin'&&nAdmins<=1?'disabled title="Keep at least one active admin"':''}>Disable</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No accounts match.</div></td></tr>'}
     </tbody></table></div></div>
-    <div class="dg2"><div class="card"><h3>Roles</h3>
-      <div class="doc"><span><b>hr_admin</b> — approves manpower requests and jobs, manages users and settings, sees sensitive fields</span></div>
-      <div class="doc"><span><b>hr_staff</b> — runs the pipeline, interviews, messages and onboarding for assigned units</span></div>
-      <div class="doc"><span><b>viewer</b> — BU managers: read-only dashboard for their own unit</span></div>
-      <button class="btn" style="margin-top:10px" onclick="toast('Adding users needs the shared database and secure sign-in — planned for the next phase')">+ Invite user</button></div>
-      <div class="card"><h3>Audit trail</h3><div class="tl">${ACT.slice(0,15).map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtD(a.at)} · ${esc(a.by)}</div></div>`).join('')}</div></div></div>`);
+    <div class="hint" style="margin-top:14px">Resetting a password creates a one-time temporary password. The user must choose a new password at their next sign-in. Passwords are stored only as hashes.</div>`;
+  const rolesTab=`<div class="dg2"><div class="card"><h3>Roles</h3>${Object.entries(ROLE_INFO).map(([r,d])=>`<div class="doc"><span><b>${r}</b> — ${d}</span><span class="pill mute">${ACCOUNTS.filter(a=>a.role===r).length} account(s)</span></div>`).join('')}</div>
+    <div class="card"><h3>Password policy</h3><div class="doc"><span>Minimum 8 characters with uppercase, lowercase and a number</span></div><div class="doc"><span>Temporary passwords must be changed at first sign-in</span></div><div class="doc"><span>5 failed attempts lock sign-in for 30 seconds</span></div><div class="doc"><span>Disabled accounts cannot sign in</span></div></div></div>`;
+  const auditTab=`<div class="card"><div class="tl">${ACT.slice(0,40).map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtDT(a.at)} · ${esc(a.by)}</div></div>`).join('')}</div></div>`;
+  document.getElementById('s-adm').innerHTML = shell('adm',`<div class="pad">
+    <h2>Administration</h2><p class="sub">${ACCOUNTS.length} accounts · ${ACCOUNTS.filter(a=>a.status==='active').length} active · ${ACCOUNTS.filter(a=>a.status==='pending').length} awaiting password</p>
+    <div class="tabs">${[['acc','Accounts'],['roles','Roles & policy'],['audit','Audit trail']].map(([k,n])=>`<button class="${admTab===k?'on':''}" onclick="admTab='${k}';render()">${n}</button>`).join('')}</div>
+    ${admTab==='acc'?accTab:admTab==='roles'?rolesTab:auditTab}`);
 }
+function acctForm(a){return `<div class="fg">
+  <label>Full name<input class="inp" id="fN" value="${esc(a?a.name:'')}" placeholder="e.g. Ana Reyes"></label>
+  <label>Username<input class="inp" id="fU" value="${esc(a?a.u:'')}" ${a?'disabled':''} placeholder="e.g. areyes"></label>
+  <label>Email<input class="inp" id="fE" type="email" value="${esc(a?a.email:'')}" placeholder="name@brdc.ph"></label>
+  <label>Role<select class="inp" id="fR">${Object.keys(ROLE_INFO).map(r=>`<option ${a&&a.role===r?'selected':''}>${r}</option>`).join('')}</select></label>
+  <label style="grid-column:1/-1">Business units<input class="inp" id="fB" value="${esc(a?a.bu:'')}" placeholder="e.g. Smartfuels, U Hotels — or All business units"></label></div>
+  <div class="err" id="fErr"></div>`;}
+function addAccount(){modal(`<h3>Add account</h3><p class="sub">A temporary password is created. Give it to the user privately; they must change it when they first sign in.</p>${acctForm(null)}
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveNewAccount()">Create account</button></div>`);}
+function saveNewAccount(){const g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');
+  const u=g('fU').toLowerCase();
+  if(!g('fN')||!u){er.textContent='Name and username are required.';return;}
+  if(!/^[a-z0-9._-]{3,20}$/.test(u)){er.textContent='Username: 3–20 lowercase letters, numbers, dot, dash or underscore.';return;}
+  if(acct(u)){er.textContent='That username is already taken.';return;}
+  const tmp=genTempPw();
+  ACCOUNTS.push({u,name:g('fN'),first:g('fN').split(' ')[0],email:g('fE'),role:g('fR'),bu:g('fB')||'—',status:'active',hash:pwHash(u,tmp),mustChange:true,created:new Date().toISOString(),last:null});
+  saveAccounts();audit(`Created account ${u} (${g('fR')})`);render();showTemp(u,tmp,true);}
+function editAccount(u){const a=acct(u);modal(`<h3>Edit account</h3>${acctForm(a)}
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveEdit('${u}')">Save changes</button></div>`);}
+function saveEdit(u){const a=acct(u),g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');if(!g('fN')){er.textContent='Name is required.';return;}
+  const nr=g('fR');if(a.role==='hr_admin'&&nr!=='hr_admin'&&ACCOUNTS.filter(x=>x.role==='hr_admin'&&x.status==='active').length<=1){er.textContent='Keep at least one active hr_admin.';return;}
+  const ch=[];if(a.role!==nr)ch.push(`role ${a.role} → ${nr}`);
+  Object.assign(a,{name:g('fN'),first:g('fN').split(' ')[0],email:g('fE'),role:nr,bu:g('fB')||'—'});saveAccounts();
+  if(SESSION&&SESSION.user===u){SESSION.name=a.name;SESSION.role=a.role;}
+  audit(`Updated account ${u}${ch.length?' — '+ch.join(', '):''}`);closeModal();toast('Account updated');render();}
+function resetPw(u){const a=acct(u);modal(`<h3>${a.status==='pending'?'Set temporary password':'Reset password'}</h3>
+  <p class="sub">This creates a new one-time password for <b>${esc(a.name)}</b> (${esc(a.u)}). ${a.hash?'Their current password stops working immediately.':''} They must choose their own password at next sign-in.</p>
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="doReset('${u}')">${a.status==='pending'?'Create password':'Reset password'}</button></div>`);}
+function doReset(u){const a=acct(u),tmp=genTempPw();a.hash=pwHash(u,tmp);a.mustChange=true;if(a.status==='pending')a.status='active';saveAccounts();
+  audit(`Reset password for ${u}`);render();showTemp(u,tmp,false);}
+function showTemp(u,tmp,isNew){modal(`<h3>${isNew?'Account created':'Password reset'}</h3>
+  <p class="sub">Share this temporary password with <b>${esc(acct(u).name)}</b> in person or by a private message. It is shown only once.</p>
+  <div class="tmp"><div><span class="mut">Username</span><b>${esc(u)}</b></div><div><span class="mut">Temporary password</span><b id="tmpPw">${esc(tmp)}</b></div>
+  <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText('${u} / ${tmp}');toast('Copied')">Copy</button></div>
+  <div class="mdl-f"><button class="btn pri" onclick="closeModal()">Done</button></div>`);}
+function setStatus(u,s){const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;
+  a.status=a.hash?s:(s==='active'?'pending':s);saveAccounts();audit(`${s==='disabled'?'Disabled':'Enabled'} account ${u}`);toast(`${a.name} ${s==='disabled'?'disabled':'enabled'}`);render();}
+function changeMyPw(){if(!SESSION)return;modal(`<h3>Change my password</h3>
+  <div class="fg" style="grid-template-columns:1fr"><label>Current password<input class="inp" id="mCur" type="password" autocomplete="current-password"></label>
+  <label>New password<input class="inp" id="mNew" type="password" autocomplete="new-password" oninput="pwMeter(this,'mMeter')"><span class="pwm" id="mMeter"></span></label>
+  <label>Confirm new password<input class="inp" id="mConf" type="password" autocomplete="new-password"></label></div>
+  <p class="mut" style="margin-top:6px">At least 8 characters with uppercase, lowercase and a number.</p><div class="err" id="mErr"></div>
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveMyPw()">Update password</button></div>`);}
+function saveMyPw(){const a=acct(SESSION.user),g=id=>document.getElementById(id).value,er=document.getElementById('mErr');
+  if(pwHash(a.u,g('mCur'))!==a.hash){er.textContent='Current password is incorrect.';return;}
+  const bad=pwProblems(g('mNew'),a.u);if(bad.length){er.textContent='Password needs '+bad.join(', ')+'.';return;}
+  if(g('mNew')!==g('mConf')){er.textContent='The two passwords do not match.';return;}
+  a.hash=pwHash(a.u,g('mNew'));a.mustChange=false;saveAccounts();audit(`${a.name} changed their password`);closeModal();toast('Password updated');render();}
 
 /* ============================================================
    REPORTS — computed, printable
