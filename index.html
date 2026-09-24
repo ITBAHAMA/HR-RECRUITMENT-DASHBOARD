@@ -307,6 +307,16 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 .bempty{font-size:12px;color:#8A928B;text-align:center;padding:14px 6px;border:1px dashed #CDD3C9;border-radius:8px}
 .top .logout{white-space:nowrap}
 @media (max-width:860px){.top .logo>span{display:none}.top{gap:8px}.top .logout{padding:5px 8px}.side{display:none}.jsum{display:none}.gsearch{margin-left:0}.top .who b,.top .pill.red{display:none}}
+
+/* ============ FULL SCREEN ============ */
+.wrap{max-width:none;padding:0;margin:0}
+.app{border:none;border-radius:0;box-shadow:none;min-height:100vh;display:flex;flex-direction:column}
+.top{position:sticky;top:0;z-index:40}
+.row{flex:1;min-height:0}
+.side{position:sticky;top:58px;align-self:flex-start;height:calc(100vh - 58px);overflow-y:auto}
+.pub{padding:18px}
+.backhr{position:fixed;top:14px;left:14px;z-index:60;display:none;border:1px solid var(--line);background:#fff;border-radius:99px;padding:7px 14px;font-size:12.5px;color:#1C5A12;box-shadow:0 4px 14px -6px rgba(0,0,0,.2)}
+.backhr.on{display:block}
 </style>
 </head>
 <body class="locked">
@@ -369,11 +379,6 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
   </main>
 </div>
 
-<div class="proto">
-  <b>Prototype</b>
-  <div class="sw" id="sw"></div>
-  <span class="note">dummy data · nothing is saved</span>
-</div>
 
 <div class="wrap">
   <!-- ============ HR SCREENS ============ -->
@@ -392,6 +397,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 </div>
 
 <div class="toast" id="toast"></div>
+<button class="backhr" id="backhr" onclick="go('s-dash')">← Back to HR dashboard</button>
 
 <script>
 /* ============================================================
@@ -531,7 +537,7 @@ const SCREENS = [
 ];
 let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
 
-function go(id){cur=id;document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+function go(id){cur=id;document.getElementById('backhr').classList.toggle('on',['s-careers','s-apply','s-test','s-portal'].includes(id));document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -539,8 +545,6 @@ function job(id){return JOBS.find(j=>j.id===id)||{t:"—",bu:"co",br:"—"};}
 function cand(id){return CANDS.find(c=>c.id===id);}
 function stageName(k){return k==="draft"?"Draft":(STAGES.find(s=>s.k===k)||{n:k}).n;}
 
-document.getElementById('sw').innerHTML = SCREENS.map(([id,n])=>
-  `<button data-s="${id}" class="${id===cur?'on':''}" onclick="go('${id}')">${n}</button>`).join('');
 
 
 const IC={
