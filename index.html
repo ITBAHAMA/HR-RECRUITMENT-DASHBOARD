@@ -430,7 +430,7 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
       <p>Manpower requests, candidate pipeline, interviews, offers and onboarding across all BRDC business units — in one secure workspace.</p>
     </div>
     <div class="lg-stats">
-      <div><b>7</b><span>Business units</span></div>
+      <div><b>8</b><span>Business units</span></div>
       <div><b>10</b><span>Pipeline stages</span></div>
       <div><b>1</b><span>Source of truth</span></div>
     </div>
@@ -522,7 +522,7 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 /* ============================================================
    DATA (v2) — BRDC business units, full workflow, dates relative to today
    ============================================================ */
-const BU = {sf:"Smartfuels", nb:"Neo Bros Ventures", uh:"U Hotels", th:"Toilena Hotel", ex:"Exelhaul Logistics", pp:"Pan Pacific", lf:"La Ferme Organique"};
+const BU = {br:"BRDC", sf:"Smartfuels", nb:"Neo Bros Ventures", uh:"U Hotels", th:"Toilena Hotel", ex:"Exelhaul Logistics", pp:"Pan Pacific", lf:"La Ferme Organique"};
 const STAGES = [
   {k:"new",        n:"New",                  sla:2,  c:"#2F9E44"},
   {k:"screening",  n:"Initial screening",    sla:3,  c:"#2466C9"},
@@ -571,6 +571,9 @@ let JOBS = [
   {id:"PP-005", t:"Accounting Staff", bu:"pp", dept:"Finance", br:"Quezon City", prov:"NCR", rf:"accounting", head:1, filled:0, open:isoAgo(70), owner:"M. Lim", status:"open", sal:"₱18,000–21,000", vac:true, skills:["Basic bookkeeping","Basic Excel","Records management"], team:["M. Lim","Finance Manager"]},
   {id:"LF-003", t:"Farm Supervisor", bu:"lf", dept:"Farm Operations", br:"Batangas farm", prov:"Batangas", rf:"farm_sup", head:1, filled:0, open:isoAgo(48), owner:"M. Lim", status:"open", sal:"₱18,000–22,000", vac:false, skills:["Organic farming","Leadership","Records management"], team:["M. Lim","Farm Manager"]},
   {id:"LF-006", t:"Farm Hand", bu:"lf", dept:"Farm Operations", br:"Batangas farm", prov:"Batangas", rf:"farm_hand", head:4, filled:2, open:isoAgo(20), owner:"M. Lim", status:"open", sal:"₱12,000–13,500", vac:false, skills:["Manual labor","Teamwork","Organic farming"], team:["M. Lim","Farm Manager"]},
+  {id:"BR-001", t:"IT Support Specialist", bu:"br", dept:"Information Technology", br:"Head Office", prov:"NCR", rf:"it_support", head:1, filled:0, open:isoAgo(18), owner:"R. Cruz", status:"open", sal:"₱20,000–25,000", vac:false, skills:["Troubleshooting","Networking","Communication","Records management"], team:["R. Cruz","IT Manager"]},
+  {id:"BR-002", t:"HR Assistant", bu:"br", dept:"Human Resources", br:"Head Office", prov:"NCR", rf:"hr_assistant", head:1, filled:0, open:isoAgo(9), owner:"J. Tan", status:"open", sal:"₱18,000–21,000", vac:true, skills:["Records management","Communication","Basic Excel","Data entry"], team:["J. Tan","HR Manager"]},
+  {id:"BR-003", t:"Executive Assistant", bu:"br", dept:"Office of the President", br:"Head Office", prov:"NCR", rf:"exec_asst", head:1, filled:0, open:isoAgo(33), owner:"M. Lim", status:"open", sal:"₱25,000–30,000", vac:true, skills:["Communication","Basic Excel","Records management","English"], team:["M. Lim","Office of the President"]},
   {id:"GEN-SF", t:"Any available position", bu:"sf", dept:"—", br:"—", prov:"", rf:"general", head:0, filled:0, open:isoAgo(260), owner:null, status:"open", sal:"", vac:false, skills:[], team:[]}
 ];
 let CANDS = [
@@ -1174,6 +1177,12 @@ function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
 function resetData(){if(!confirm('Reset all demo data? Every change you made will be lost.'))return;try{localStorage.removeItem(STORE);}catch(e){}location.reload();}
 loadData();
+(function(){ /* add BRDC corporate jobs to data saved before BRDC was added */
+  if(!JOBS.some(j=>j.bu==='br')){JOBS.splice(JOBS.length-1,0,
+    {id:"BR-001",t:"IT Support Specialist",bu:"br",dept:"Information Technology",br:"Head Office",prov:"NCR",rf:"it_support",head:1,filled:0,open:isoAgo(18),owner:"R. Cruz",status:"open",sal:"₱20,000–25,000",vac:false,skills:["Troubleshooting","Networking","Communication","Records management"],team:["R. Cruz","IT Manager"]},
+    {id:"BR-002",t:"HR Assistant",bu:"br",dept:"Human Resources",br:"Head Office",prov:"NCR",rf:"hr_assistant",head:1,filled:0,open:isoAgo(9),owner:"J. Tan",status:"open",sal:"₱18,000–21,000",vac:true,skills:["Records management","Communication","Basic Excel","Data entry"],team:["J. Tan","HR Manager"]},
+    {id:"BR-003",t:"Executive Assistant",bu:"br",dept:"Office of the President",br:"Head Office",prov:"NCR",rf:"exec_asst",head:1,filled:0,open:isoAgo(33),owner:"M. Lim",status:"open",sal:"₱25,000–30,000",vac:true,skills:["Communication","Basic Excel","Records management","English"],team:["M. Lim","Office of the President"]});}
+})();
 function ME(){return SESSION?SESSION.name:"R. Cruz";}
 function log(text,jobId){ACT.unshift({at:new Date().toISOString(),by:ME(),text,job:jobId||null});ACT=ACT.slice(0,200);}
 function refreshDerived(){CANDS.forEach(c=>{c.days=daysSince(c.since||isoAgo(0));const s=STAGES.find(x=>x.k===c.stage);c.late=!!(s&&s.sla&&ACTIVE.concat('onboarding').includes(c.stage)&&c.days>s.sla);});}
@@ -1571,7 +1580,7 @@ function submitMpr(){const g=id=>document.getElementById(id).value.trim();if(!g(
   mprForm=false;log(`Submitted ${id} for approval`);toast(`${id} submitted for approval`);render();}
 function approveMpr(id){const m=MPR.find(x=>x.id===id);m.status='approved';
   if(m.job){const j=job(m.job);j.status='open';j.open=isoAgo(0);}
-  else{const pre={sf:'SF',nb:'NB',uh:'UH',th:'TH',ex:'EX',pp:'PP',lf:'LF'}[m.bu];const n=Math.max(0,...JOBS.filter(j=>j.id.startsWith(pre+'-')).map(j=>+j.id.split('-')[1]||0))+1;
+  else{const pre={br:'BR',sf:'SF',nb:'NB',uh:'UH',th:'TH',ex:'EX',pp:'PP',lf:'LF'}[m.bu];const n=Math.max(0,...JOBS.filter(j=>j.id.startsWith(pre+'-')).map(j=>+j.id.split('-')[1]||0))+1;
     const jid=`${pre}-${String(n).padStart(3,'0')}`;JOBS.push({id:jid,t:m.pos,bu:m.bu,dept:m.dept,br:'To be confirmed',prov:'',rf:m.pos.toLowerCase().replace(/\W+/g,'_'),head:m.head,filled:0,open:isoAgo(0),owner:ME(),status:'open',sal:'',vac:m.type==='Replacement',skills:[],team:[ME()]});m.job=jid;}
   log(`Approved ${id} — job ${m.job} is now open`,m.job);toast(`${id} approved · job ${m.job} opened`);render();}
 function rejectMpr(id){const why=prompt('Reason for rejecting this request:');if(!why)return;const m=MPR.find(x=>x.id===id);m.status='rejected';m.note=why;if(m.job)job(m.job).status='on_hold';log(`Rejected ${id}: ${why}`);render();}
