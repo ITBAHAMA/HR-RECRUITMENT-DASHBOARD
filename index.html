@@ -10,7 +10,7 @@
 <style>
 :root{
   --bg:#F4F5F3; --card:#FFFFFF; --ink:#1B1D1F; --muted:#6B7178; --line:#DFE2E5;
-  --accent:#1F5F4E; --accent-soft:#E7F1ED; --warn:#B4620E; --warn-soft:#FDF0E3;
+  --accent:#256B12; --accent-soft:#E8F1E3; --warn:#B4620E; --warn-soft:#FDF0E3;
   --danger:#B3352F; --danger-soft:#FBEBEA; --ok:#1F6B45; --ok-soft:#E6F2EA;
   --r:8px;
 }
@@ -59,7 +59,7 @@ h3{font-size:13px;font-weight:600;margin-bottom:10px}
 .btn{border:1px solid var(--line);background:#fff;border-radius:6px;padding:7px 12px;font-size:12.5px}
 .btn:hover{border-color:#B9BFC5}
 .btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
-.btn.pri:hover{background:#194E40}
+.btn.pri:hover{background:#1C5A12}
 .btn.sm{padding:4px 8px;font-size:11.5px}
 .bar{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
 .inp,select{border:1px solid var(--line);border-radius:6px;padding:7px 9px;font:inherit;font-size:13px;background:#fff}
@@ -209,6 +209,104 @@ body.locked .proto,body.locked .wrap{display:none}
   .lg-logo{width:170px}.lg-plate{padding:14px 18px}.lg-shine{inset:14px 18px}.lg-hero h1{font-size:34px}.lg-hero p,.lg-stats{display:none}.lg-hero{margin-top:26px}
   .lg-panel{padding:32px 16px 40px}
 }
+
+/* ============ APP SHELL v2 (ATS layout) ============ */
+.wrap{max-width:1480px;padding:14px}
+.app{border-radius:12px;box-shadow:0 1px 2px rgba(16,24,16,.04),0 12px 32px -18px rgba(16,40,16,.18)}
+.top{background:linear-gradient(90deg,#0F2E0A,#1C4F12 60%,#23601A);border-bottom:none;padding:0 14px 0 0;height:58px;gap:14px;color:#EAF2E4}
+.top .burger{width:58px;height:58px;display:grid;place-items:center;background:rgba(0,0,0,.18);border:none;color:#fff}
+.top .burger:hover{background:rgba(0,0,0,.3)}
+.top .logo{color:#F4EEDF;font-size:13px;letter-spacing:.12em}
+.top .logo img{height:26px}
+.top .logo small{display:block;font-size:10px;letter-spacing:.08em;color:#B9CBB2;font-weight:500;text-transform:none}
+.gsearch{flex:1;max-width:620px;margin-left:18px;position:relative}
+.gsearch input{width:100%;height:36px;border-radius:8px;border:1px solid rgba(255,255,255,.14);background:rgba(255,255,255,.12);color:#fff;padding:0 12px 0 36px;font:13px inherit;outline:none;transition:background .2s}
+.gsearch input::placeholder{color:#C8D8C0}
+.gsearch input:focus{background:#fff;color:var(--ink)}
+.gsearch input:focus::placeholder{color:var(--muted)}
+.gsearch svg{position:absolute;left:11px;top:10px;width:16px;height:16px;color:#C8D8C0;pointer-events:none}
+.top .bell{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.16);color:#fff}
+.top .pill.red{background:#FBEBEA}
+.top .who{color:#C8D8C0;display:flex;align-items:center;gap:8px}
+.top .who b{color:#fff}
+.uav{width:30px;height:30px;border-radius:50%;background:linear-gradient(145deg,#E3C47E,#A9803A);color:#0B1F1A;display:grid;place-items:center;font-weight:700;font-size:12px}
+.top .logout{background:transparent;border-color:rgba(255,255,255,.22);color:#DDE8D6}
+.top .logout:hover{background:#fff;color:var(--danger)}
+.row{min-height:calc(100vh - 150px)}
+.side{width:220px;background:#F6F7F4;padding:10px 0;transition:width .2s}
+.side .grp{padding:6px 0;border-bottom:1px solid var(--line)}
+.side .grp:last-of-type{border-bottom:none}
+.side a{display:flex;align-items:center;gap:12px;padding:8px 18px;font-size:13px;color:#3B423C;border-left:3px solid transparent;white-space:nowrap;overflow:hidden}
+.side a svg{width:18px;height:18px;flex:none;color:#4A554B}
+.side a:hover{background:#ECEFE8}
+.side a.on{background:#E3EADD;color:#12330D;font-weight:600;border-left-color:#256B12}
+.side a.on svg{color:#256B12}
+.side .rv{padding:12px 18px 4px;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:#8A928B;font-weight:600}
+.side .rvi{display:block;padding:5px 18px 5px 48px;font-size:12px;color:#5B645C;text-decoration:none;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}
+.side .rvi:hover{color:#256B12}
+body.sidecol .side{width:58px}
+body.sidecol .side a{padding:9px 0 9px 17px}
+body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display:none}
+.main{background:#F3F5F1;padding:0}
+.main>.pad{padding:18px}
+
+/* job header */
+.jhead{display:flex;gap:18px;align-items:flex-start;background:#fff;padding:20px 22px 14px;border-bottom:1px solid var(--line)}
+.jicon{position:relative;flex:none;text-align:center}
+.jicon .ci{width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:radial-gradient(circle at 30% 25%,#3E9E2A,#1C5A12);box-shadow:0 8px 20px -8px rgba(28,90,18,.55)}
+.jicon .ci svg{width:40px;height:40px;color:#FFE7A3}
+.jstat{margin-top:8px;display:inline-flex;align-items:center;gap:6px;border:1px solid var(--line);border-radius:99px;padding:2px 10px;font-size:12px;background:#fff;cursor:pointer}
+.jstat i{width:8px;height:8px;border-radius:50%;background:#2F9E44;display:block}
+.jt{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.jt h2{font-size:20px;margin:0;display:flex;align-items:center;gap:8px}
+.jt select{font-size:12px;padding:3px 6px;border-radius:6px;color:var(--muted)}
+.bdg{font-size:10.5px;font-weight:700;letter-spacing:.04em;text-transform:uppercase;padding:3px 9px;border-radius:99px;color:#fff}
+.bdg.g{background:#2F9E44}.bdg.b{background:#2466C9}.bdg.a{background:#D48A1B}.bdg.gr{background:#8A928B}
+.chip{display:inline-flex;align-items:center;gap:5px;background:#F0F2EE;border-radius:99px;padding:2px 9px 2px 3px;font-size:12px}
+.chip .mini{width:18px;height:18px;border-radius:50%;background:#C9A45C;color:#0B1F1A;font-size:9px;font-weight:700;display:grid;place-items:center}
+.jmeta{margin-top:8px;display:grid;gap:4px;font-size:12.5px;color:#4B544C}
+.jmeta div{display:flex;align-items:center;gap:8px}
+.jmeta svg{width:14px;height:14px;color:#7A847B}
+.tags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap;align-items:center}
+.tag{display:inline-flex;align-items:center;gap:5px;font-size:12px;border-radius:6px;padding:3px 9px;background:#F0F2EE;color:#374037}
+.tag.red{background:#FBEBEA;color:#9C2D28}
+.tag.add{background:none;color:#256B12;cursor:pointer}
+.jsum{margin-left:auto;display:grid;grid-template-columns:repeat(3,auto);gap:4px 22px;text-align:right}
+.jsum b{display:block;font-size:22px;font-weight:600;color:#12330D;line-height:1.1}
+.jsum span{font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.jtabs{display:flex;gap:4px;background:#fff;border-bottom:1px solid var(--line);padding:0 18px;overflow-x:auto}
+.jtabs button{display:flex;align-items:center;gap:7px;border:none;background:none;padding:11px 12px;font-size:13px;color:#5B645C;border-bottom:2px solid transparent;white-space:nowrap}
+.jtabs button svg{width:15px;height:15px}
+.jtabs button.on{color:#12330D;font-weight:600;border-bottom-color:#256B12}
+.jtabs .cnt{background:#2F9E44;color:#fff;border-radius:99px;font-size:10.5px;padding:0 7px;font-weight:700}
+.jtabs .cnt.gr{background:#9AA39B}
+
+/* board */
+.board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
+.bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
+.bcolh{display:flex;align-items:center;gap:8px;padding:10px 4px 9px;font-size:13px;font-weight:600;color:#26302A;border-top:3px solid var(--c,#2F9E44);margin:0 -8px 8px;padding-left:12px;padding-right:10px;border-radius:10px 10px 0 0;background:#fff;box-shadow:0 1px 0 var(--line)}
+.bcolh .dot{width:16px;height:16px;border-radius:50%;background:var(--c,#2F9E44);color:#fff;font-size:10px;display:grid;place-items:center}
+.bcolh .n{margin-left:auto;background:var(--c,#2F9E44);color:#fff;border-radius:99px;font-size:10.5px;padding:0 7px}
+.bcolh .kb3{color:#8A928B;cursor:pointer;padding:0 2px}
+.ccard{background:#fff;border-radius:8px;padding:11px 11px 9px;margin-bottom:8px;box-shadow:0 1px 2px rgba(16,24,16,.06);border:1px solid #E1E5DE;cursor:pointer;transition:box-shadow .15s,transform .15s;position:relative}
+.ccard:hover{box-shadow:0 6px 16px -8px rgba(16,40,16,.28);transform:translateY(-1px)}
+.ccard.late{border-left:3px solid var(--danger)}
+.ctop{display:flex;gap:10px}
+.cav{width:42px;height:42px;border-radius:50%;flex:none;display:grid;place-items:center;color:#fff;font-weight:600;font-size:14px;letter-spacing:.02em}
+.cnm{font-weight:600;color:#1C5A12;font-size:13.5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.cnm:hover{text-decoration:underline}
+.cttl{font-size:12px;color:#4B544C;line-height:1.35;margin-top:1px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.cico{margin-left:auto;display:flex;gap:6px;color:#8A928B;align-self:flex-start}
+.cico svg{width:14px;height:14px}
+.cico .has{color:#2F9E44}
+.cfoot{display:flex;align-items:center;gap:10px;margin-top:9px;font-size:11.5px;color:#6B726E}
+.cfoot span{display:inline-flex;align-items:center;gap:4px}
+.cfoot svg{width:13px;height:13px}
+.cfoot .eye{margin-left:auto;color:#5B645C}
+.match{font-size:11px;font-weight:700;color:#fff;border-radius:4px;padding:1px 6px;min-width:36px;text-align:center}
+.bempty{font-size:12px;color:#8A928B;text-align:center;padding:14px 6px;border:1px dashed #CDD3C9;border-radius:8px}
+.top .logout{white-space:nowrap}
+@media (max-width:860px){.top .logo>span{display:none}.top{gap:8px}.top .logout{padding:5px 8px}.side{display:none}.jsum{display:none}.gsearch{margin-left:0}.top .who b,.top .pill.red{display:none}}
 </style>
 </head>
 <body class="locked">
@@ -444,30 +542,82 @@ function stageName(k){return k==="draft"?"Draft":(STAGES.find(s=>s.k===k)||{n:k}
 document.getElementById('sw').innerHTML = SCREENS.map(([id,n])=>
   `<button data-s="${id}" class="${id===cur?'on':''}" onclick="go('${id}')">${n}</button>`).join('');
 
+
+const IC={
+ menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',
+ home:'<path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/>',
+ bu:'<path d="M3 21h18"/><path d="M5 21V7l7-4 7 4v14"/><path d="M9 21v-5h6v5"/>',
+ jobs:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+ cands:'<circle cx="9" cy="8" r="3.5"/><path d="M2.5 20c0-3.6 2.9-6 6.5-6s6.5 2.4 6.5 6"/><circle cx="17" cy="9" r="2.5"/><path d="M16 14.2c3.2.2 5.5 2.4 5.5 5.8"/>',
+ pipe:'<rect x="3" y="4" width="5" height="16" rx="1"/><rect x="10" y="4" width="5" height="10" rx="1"/><rect x="17" y="4" width="4" height="6" rx="1"/>',
+ pool:'<circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4"/>',
+ cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/>',
+ req:'<path d="M9 4h6v3H9z"/><rect x="5" y="5" width="14" height="16" rx="2"/><path d="M9 12h6M9 16h4"/>',
+ onb:'<path d="M20 6L9 17l-5-5"/>',
+ msg:'<path d="M4 5h16v11H8l-4 4z"/>',
+ rep:'<path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/>',
+ web:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.5 3 14.5 0 18M12 3c-3 3.5-3 14.5 0 18"/>',
+ set:'<circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/>',
+ lock:'<rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/>',
+ search:'<circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/>',
+ bulb:'<path d="M9 18h6M10 21h4"/><path d="M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2V17h5v-1.1c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"/>',
+ pin:'<path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/>',
+ peso:'<path d="M7 20V4h6a4 4 0 0 1 0 8H7M4 8h14M4 11h14"/>',
+ dept:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+ tag:'<path d="M20.6 13.4L13.4 20.6a2 2 0 0 1-2.8 0L3 13V3h10l7.6 7.6a2 2 0 0 1 0 2.8z"/><circle cx="7.5" cy="7.5" r="1.5"/>',
+ flag:'<path d="M4 21V4h13l-2 4 2 4H4"/>',
+ doc:'<path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z"/><path d="M14 3v6h6"/>',
+ clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+ bolt:'<path d="M13 2L4 14h7l-1 8 9-12h-7z"/>',
+ eye:'<path d="M1 12s4-7 11-7 11 7 11 7-4 7-11 7S1 12 1 12z"/><circle cx="12" cy="12" r="3"/>',
+ list:'<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+ team:'<circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 3.6-7 8-7s8 3 8 7"/>',
+ act:'<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>',
+ note:'<path d="M4 4h16v12l-4 4H4z"/><path d="M16 20v-4h4"/>'
+};
+function ic(n,extra){return `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" ${extra||''}>${IC[n]||''}</svg>`;}
+let RECENT=[];
+function toggleSide(){document.body.classList.toggle('sidecol');}
 function greet(){const h=new Date().getHours();return h<12?"Good morning":h<18?"Good afternoon":"Good evening";}
 function shell(active, body, extra){
   const late = CANDS.filter(c=>c.late).length;
+  const nm = SESSION?SESSION.name:"R. Cruz";
+  const L=(key,screen,icon,label)=>`<a href="#" class="${active===key?'on':''}" title="${label}" onclick="${screen?`go('${screen}')`:`toast('${label}: coming in the next build')`};return false">${ic(icon)}<span>${label}</span></a>`;
   return `<div class="app">
     <div class="top">
-      <span class="logo"><img src="assets/brdc-mark.png" alt="">BRDC Recruit</span>
-      <span class="pill mute">Shared Services HR</span>
+      <button class="burger" onclick="toggleSide()" aria-label="Toggle menu">${ic('menu','width="20" height="20"')}</button>
+      <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
+      <div class="gsearch">${ic('search')}<input placeholder="Search by name, job, email or business unit" onkeyup="if(event.key==='Enter')toast('Search: '+this.value)"></div>
       <span class="spacer"></span>
       ${late?`<span class="pill red">${late} overdue</span>`:''}
       <button class="bell" onclick="toast('3 unread notifications')">🔔<span>3</span></button>
-      <span class="who"><b>${SESSION?esc(SESSION.name):"R. Cruz"}</b> · ${SESSION?SESSION.role:"hr_staff"}</span>
+      <span class="who"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
       <button class="logout" onclick="logout()">Sign out</button>
     </div>
     <div class="row">
       <nav class="side">
-        <a href="#" class="${active==='dash'?'on':''}" onclick="go('s-dash');return false">Dashboard</a>
-        <a href="#" class="${active==='pipe'?'on':''}" onclick="go('s-pipe');return false">Pipeline</a>
-        <a href="#" class="${active==='pool'?'on':''}" onclick="go('s-pool');return false">Talent pool</a>
-        <a href="#" class="${active==='msg'?'on':''}" onclick="go('s-msg');return false">Messages</a>
-        <a href="#" class="${active==='jobs'?'on':''}" onclick="go('s-jobs');return false">Jobs</a>
-        <a href="#" class="${active==='rep'?'on':''}" onclick="go('s-rep');return false">Reports</a>
-        <a href="#" onclick="toast('Settings: templates, reasons, SLAs, tests, users');return false">Settings</a>
+        <div class="grp">
+          ${L('dash','s-dash','home','Home')}
+          ${L('bu',null,'bu','Business units')}
+          ${L('jobs','s-jobs','jobs','Jobs')}
+          ${L('pipe','s-pipe','cands','Candidates')}
+        </div>
+        <div class="grp">
+          ${L('req',null,'req','Manpower requests')}
+          ${L('int',null,'cal','Interviews')}
+          ${L('pool','s-pool','pool','Talent pool')}
+          ${L('onb',null,'onb','Onboarding')}
+          ${L('msg','s-msg','msg','Messages')}
+        </div>
+        <div class="grp">
+          ${L('rep','s-rep','rep','Reports')}
+          ${L('car','s-careers','web','Career page')}
+          ${L('set',null,'set','Settings')}
+          ${L('adm',null,'lock','Administration')}
+        </div>
+        ${RECENT.length?`<div class="rv">Recently visited</div>${RECENT.map(id=>{const c=cand(id);return c?`<a class="rvi" onclick="openCand(${id})">${esc(c.n)}</a>`:''}).join('')}`:''}
       </nav>
-      <div class="main">${body}</div>
+      <div class="main">${body}${body.startsWith('<div class="pad">')?'</div>':''}</div>
     </div>
   </div>${extra||''}`;
 }
@@ -475,12 +625,45 @@ function shell(active, body, extra){
 /* ============================================================
    SCREENS
    ============================================================ */
+let dashJob="SF-114", dashTab="cands";
+const AVC=["#2F7D4F","#2466C9","#B4620E","#7B4FB0","#B3352F","#1F7A8C","#8A6D1F","#5B6B2E"];
+function initials(n){const p=n.split(' ');return (p[0][0]+(p.length>1?p[p.length-1][0]:'')).toUpperCase();}
+function matchPct(c){if(!c.quad)return 8+((c.id*17)%30);const t=c.quad.A+c.quad.B+c.quad.C+c.quad.D;return Math.min(95,Math.round((t-60)*0.9));}
+function matchCol(p){return p<20?'#D9412E':p<35?'#E07B1F':p<50?'#9BB51F':'#2F9E44';}
+function ccard(c){
+  const p=matchPct(c), role=(c.exp||'—').split(/[;(]/)[0].trim(), at=role.includes('–')?role.split('–'):[role,''];
+  return `<div class="ccard ${c.late?'late':''}" onclick="openCand(${c.id})">
+    <div class="ctop">
+      <div class="cav" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</div>
+      <div style="min-width:0;flex:1">
+        <div class="cnm">${esc(c.n)}</div>
+        <div class="cttl">${esc(at[0].trim())}${at[1]?`<br><span style="color:#7A847B">@ ${esc(at[1].trim())}</span>`:''}</div>
+      </div>
+      <div class="cico"><span title="Expected salary">${ic('peso')}</span><span class="${c.docs?'has':''}" title="${c.docs?'Documents started':'Resume on file'}">${ic('doc')}</span></div>
+    </div>
+    <div class="cfoot">
+      <span class="match" style="background:${matchCol(p)}" title="Assessment match">${p}%</span>
+      <span title="Days in stage">${ic('clock')} ${c.days}d</span>
+      <span title="Source">${ic('bolt')} ${esc(c.src)}</span>
+      <span class="eye" title="View profile">${ic('eye')}</span>
+    </div>
+  </div>`;
+}
 function rDash(){
+  const j=job(dashJob);
+  const cs=CANDS.filter(c=>c.job===dashJob && c.stage!=='draft');
   const late = CANDS.filter(c=>c.late);
   const pend = MSGS.filter(m=>m.status==='pending');
   const unclaimed = CANDS.filter(c=>!c.owner && c.stage!=='draft');
   const sentPct = Math.round(MSGS.filter(m=>m.status==='sent').length/MSGS.length*100);
-  document.getElementById('s-dash').innerHTML = shell('dash',`
+  const COLS=[["new","New candidate","#2F9E44"],["screening","Screening","#2466C9"],["exam","Assessment","#7B4FB0"],["interview","Interview","#1F7A8C"],["final","Final interview","#B4620E"],["offer","Job offer","#C9A04E"]];
+  const st=j.status==='open'?'<span class="bdg g">Published</span>':'<span class="bdg a">Pending approval</span>';
+  const filled=j.id==='UH-021'?1:0;
+  const board=`<div class="board">${COLS.map(([k,n,col])=>{const l=cs.filter(c=>c.stage===k);return `<div class="bcol" style="--c:${col}">
+      <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${n}<span class="n">${l.length}</span><span class="kb3" onclick="toast('Column options')">⋮</span></div>
+      ${l.map(ccard).join('')||'<div class="bempty">No candidates</div>'}
+    </div>`}).join('')}</div>`;
+  const summary=`<div class="pad">
     <h2>${greet()}, ${SESSION?esc(SESSION.first):"Rhea"}</h2>
     <p class="sub">Daily digest · 28 August 2026, 8:00 AM · sent to all HR</p>
     <div class="grid kpis" style="margin-bottom:18px">
@@ -489,30 +672,36 @@ function rDash(){
       <div class="card kpi"><div class="n">${sentPct}%</div><div class="l">Feedback rate</div></div>
       <div class="card kpi"><div class="n">${POOL.length}</div><div class="l">In talent pool</div></div>
     </div>
-
-    ${unclaimed.length?`<h3>Unclaimed — general applications</h3>
-    <div class="card" style="margin-bottom:18px">
-      ${unclaimed.map(c=>`<div class="doc"><span><b>${esc(c.n)}</b> · ${esc(c.city)} · ${c.days}d in New</span>
-        <button class="btn sm" onclick="claim(${c.id})">Claim</button></div>`).join('')}
-    </div>`:''}
-
+    ${unclaimed.length?`<h3>Unclaimed — general applications</h3><div class="card" style="margin-bottom:18px">
+      ${unclaimed.map(c=>`<div class="doc"><span><b>${esc(c.n)}</b> · ${esc(c.city)} · ${c.days}d in New</span><button class="btn sm" onclick="claim(${c.id})">Claim</button></div>`).join('')}</div>`:''}
     <h3>Overdue — needs action today</h3>
-    <div class="card" style="margin-bottom:18px">
-      <table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>Days over</th><th>Owner</th></tr></thead><tbody>
-      ${late.length?late.map(c=>`<tr class="clk" onclick="openCand(${c.id})">
-        <td><b>${esc(c.n)}</b></td><td>${c.job} · ${BU[job(c.job).bu]}</td><td>${stageName(c.stage)}</td>
-        <td><span class="pill red">${c.days - (STAGES.find(s=>s.k===c.stage)||{sla:0}).sla}d over</span></td>
-        <td>${c.owner||'<span class="pill mute">unassigned</span>'}</td></tr>`).join('')
+    <div class="card" style="margin-bottom:18px"><table><thead><tr><th>Candidate</th><th>Job</th><th>Stage</th><th>Days over</th><th>Owner</th></tr></thead><tbody>
+      ${late.length?late.map(c=>`<tr class="clk" onclick="openCand(${c.id})"><td><b>${esc(c.n)}</b></td><td>${c.job} · ${BU[job(c.job).bu]}</td><td>${stageName(c.stage)}</td>
+        <td><span class="pill red">${c.days-(STAGES.find(s=>s.k===c.stage)||{sla:0}).sla}d over</span></td><td>${c.owner||'<span class="pill mute">unassigned</span>'}</td></tr>`).join('')
         :`<tr><td colspan="5" style="color:var(--ok)">Nothing overdue. Every candidate is within SLA.</td></tr>`}
-      </tbody></table>
-    </div>
-
+    </tbody></table></div>
     <h3>Pending messages</h3>
-    <div class="card">
-      ${pend.length?pend.map(m=>`<div class="doc"><span><b>${esc(m.cand)}</b> · ${esc(m.tpl)}${m.age?` · <span class="pill amber">${m.age}d waiting</span>`:''}</span>
-        <button class="btn sm" onclick="go('s-msg')">Open</button></div>`).join('')
-        :'<span style="color:var(--ok)">All feedback sent.</span>'}
+    <div class="card">${pend.length?pend.map(m=>`<div class="doc"><span><b>${esc(m.cand)}</b> · ${esc(m.tpl)}${m.age?` · <span class="pill amber">${m.age}d waiting</span>`:''}</span><button class="btn sm" onclick="go('s-msg')">Open</button></div>`).join(''):'<span style="color:var(--ok)">All feedback sent.</span>'}</div>
+  </div>`;
+  const other=t=>`<div class="pad"><div class="empty">${t}</div></div>`;
+  const TABS=[["cands","list","Candidates",cs.length],["summary","doc","Summary",null],["team","team","Team",2],["act","act","Activities",null],["notes","note","Notes",null]];
+  document.getElementById('s-dash').innerHTML = shell('dash',`
+    <div class="jhead">
+      <div class="jicon"><div class="ci">${ic('bulb')}</div><div class="jstat" onclick="toast('Change job status')"><i></i>${j.status==='open'?'Active':'On hold'} ▾</div></div>
+      <div style="min-width:0">
+        <div class="jt"><h2>${esc(j.t)}</h2>${st}${filled?'<span class="bdg b">Hired</span>':''}<span class="chip"><span class="mini">${j.owner?initials(j.owner):'—'}</span>${esc(j.owner||'Unassigned')}</span>
+          <select class="inp" onchange="dashJob=this.value;render()" title="Switch job">${JOBS.filter(x=>x.rf!=='general').map(x=>`<option value="${x.id}" ${x.id===dashJob?'selected':''}>${x.id} — ${esc(x.t)}</option>`).join('')}</select></div>
+        <div class="jmeta">
+          <div>${ic('dept')} ${BU[j.bu]} · ${esc(j.id)}</div>
+          <div>${ic('pin')} ${esc(j.br)}, Philippines</div>
+          ${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}
+        </div>
+        <div class="tags"><span class="tag">${ic('tag','width="12" height="12"')} ${j.head} headcount</span>${j.vac?`<span class="tag red">${ic('flag','width="12" height="12"')} Replacement</span>`:`<span class="tag">${ic('flag','width="12" height="12"')} New position</span>`}<span class="tag add" onclick="toast('Add tag')">+ Tags</span></div>
+      </div>
+      <div class="jsum"><div><b>${cs.length}</b><span>In process</span></div><div><b>${cs.filter(c=>['interview','final'].includes(c.stage)).length}</b><span>For interview</span></div><div><b>${filled}/${j.head}</b><span>Filled</span></div></div>
     </div>
+    <div class="jtabs">${TABS.map(([k,i,n,c])=>`<button class="${dashTab===k?'on':''}" onclick="dashTab='${k}';render()">${ic(i)}${n}${c!=null?`<span class="cnt ${k==='team'?'gr':''}">${c}</span>`:''}</button>`).join('')}</div>
+    ${dashTab==='cands'?board:dashTab==='summary'?summary:dashTab==='team'?other('Hiring team: '+esc(j.owner||'—')+' (recruiter) · Branch manager (interviewer)'):dashTab==='act'?other('Activity log for this job appears here.'):other('No notes yet.')}
   `);
 }
 
@@ -538,7 +727,7 @@ function rPipe(){
   }).join('') + `<div class="col"><div class="colh">Closed <i>(—)</i></div>
       <div class="card" style="font-size:11.5px;color:var(--muted);padding:10px">Hired · Rejected–Qualified · Rejected–Not qualified · Withdrew · No-show · Did not report</div></div>`;
 
-  document.getElementById('s-pipe').innerHTML = shell('pipe',`
+  document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
     <h2>Pipeline</h2>
     <p class="sub">All business units · sorted overdue first</p>
     <div class="bar">
@@ -566,7 +755,7 @@ function rProf(){
   const c = cand(curCand); const j = job(c.job);
   const q = c.quad;
   const tab = (k,n)=>`<button class="${profTab===k?'on':''}" onclick="profTab='${k}';render()">${n}</button>`;
-  document.getElementById('s-prof').innerHTML = shell('pipe',`
+  document.getElementById('s-prof').innerHTML = shell('pipe',`<div class="pad">
     <div class="bar"><button class="btn sm" onclick="go('s-pipe')">← Pipeline</button></div>
     <div class="phead">
       <div class="avatar">2×2</div>
@@ -652,7 +841,7 @@ SKILLS: ${esc(c.skills.join(", ")||"—")}</div></div>
 
 function rPool(){
   const badge=w=>w==='interested'?'<span class="pill green">interested</span>':w==='no_reply'?'<span class="pill red">no reply</span>':'<span class="pill amber">awaiting reply</span>';
-  document.getElementById('s-pool').innerHTML = shell('pool',`
+  document.getElementById('s-pool').innerHTML = shell('pool',`<div class="pad">
     <h2>Talent pool</h2>
     <p class="sub">Suggested for SF-114 Station Crew, Calamba · ranked by most recent application</p>
     <div class="hint">Qualified rejections are pre-ticked into the pool. A warm-check goes out before anyone is shortlisted; no reply in 2 days flags them unresponsive.</div>
@@ -679,7 +868,7 @@ function rPool(){
 function rMsg(){
   const pend = MSGS.filter(m=>m.status==='pending'), sent = MSGS.filter(m=>m.status==='sent');
   const pct = Math.round(sent.length/MSGS.length*100);
-  document.getElementById('s-msg').innerHTML = shell('msg',`
+  document.getElementById('s-msg').innerHTML = shell('msg',`<div class="pad">
     <h2>Messages</h2>
     <p class="sub">Copy the text, send it yourself, then mark it sent · one at a time</p>
     <div class="hint">Nothing sends automatically except the application acknowledgment email. A message stays pending — and stays on the daily digest — until someone marks it sent.</div>
@@ -711,7 +900,7 @@ function rMsg(){
 }
 
 function rRep(){
-  document.getElementById('s-rep').innerHTML = shell('rep',`
+  document.getElementById('s-rep').innerHTML = shell('rep',`<div class="pad">
     <h2>Reports</h2>
     <p class="sub">August 2026 · calendar days · imported backlog excluded</p>
     <div class="bar">
@@ -759,7 +948,7 @@ function rRep(){
 }
 
 function rJobs(){
-  document.getElementById('s-jobs').innerHTML = shell('jobs',`
+  document.getElementById('s-jobs').innerHTML = shell('jobs',`<div class="pad">
     <h2>Jobs</h2>
     <p class="sub">HR posts · hr_admin approves before it goes live</p>
     <div class="bar"><button class="btn pri" onclick="toast('New job → draft → submitted for hr_admin approval')">+ New job</button>
@@ -905,7 +1094,7 @@ function rPortal(){
 /* ============================================================
    ACTIONS
    ============================================================ */
-function openCand(id){curCand=id;profTab='app';go('s-prof');}
+function openCand(id){curCand=id;profTab='app';RECENT=[id,...RECENT.filter(x=>x!==id)].slice(0,4);go('s-prof');}
 function claim(id){const c=cand(id);c.owner="R. Cruz";toast(`${c.nick||c.n} assigned to you`);render();}
 function advance(id){const c=cand(id);const i=STAGES.findIndex(s=>s.k===c.stage);
   if(c.stage==='draft'){c.stage='new';}else if(i<STAGES.length-1){c.stage=STAGES[i+1].k;}else{toast('Already at Offer — use Hired or Reject');return;}
