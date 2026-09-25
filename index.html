@@ -436,6 +436,13 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 .brchips{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
 @media (max-width:700px){.brform{grid-template-columns:1fr 1fr}}
 .brdel:hover{color:var(--danger);border-color:#F0C9C7}
+
+.publogo{height:62px;width:auto;background:#0B120A;padding:8px 16px;border-radius:12px;margin:0 auto 10px;display:block}
+.apjob{display:flex;gap:12px;align-items:center;margin-bottom:12px;flex-wrap:wrap}
+.skl{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:13px}.skl label{display:flex;gap:6px;align-items:center;color:var(--ink);font-size:13px;margin:0}
+.skl input{accent-color:#256B12}
+.okc{width:58px;height:58px;border-radius:50%;background:#E8F1E3;color:#256B12;font-size:28px;display:grid;place-items:center;margin:0 auto}
+.lg-jobs{margin-top:18px;text-align:center;font-size:13px;color:#5B6460}.lg-jobs a{color:#1F5F4E;font-weight:600;text-decoration:none}.lg-jobs a:hover{text-decoration:underline}
 </style>
 </head>
 <body class="locked">
@@ -490,6 +497,7 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 
       <button class="lg-btn" id="lgBtn" type="submit">SIGN IN</button>
 
+      <p class="lg-jobs">Looking for a job? <a href="#careers">View open positions →</a></p>
       <div class="lg-foot">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2l8 4v6c0 5-3.5 9-8 10-4.5-1-8-5-8-10V6l8-4z"/><path d="M9 12l2 2 4-4"/></svg>
         Restricted to authorised BRDC personnel. Access is logged.
@@ -834,7 +842,7 @@ const SCREENS = [
 ];
 let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
 
-function go(id){cur=id;document.getElementById('backhr').classList.toggle('on',['s-careers','s-apply','s-test','s-portal'].includes(id));document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+function go(id){cur=id;document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -1029,88 +1037,6 @@ function rMsg(){
 }
 
 /* ---------- public ---------- */
-function rCareers(){
-  document.getElementById('s-careers').innerHTML = `<div class="pub">
-    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
-      <p class="sub" style="margin-top:6px">Careers · careers.brdc.com.ph</p></div>
-    ${JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0).map(j=>`<div class="job">
-      <h4>${esc(j.t)}</h4>
-      <div class="meta">${BU[j.bu]} · ${esc(j.br)} · ${vacancies(j)} opening${vacancies(j)>1?'s':''}${j.sal?' · '+esc(j.sal):''}</div>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:10px">Full-time, shifting schedule. Applicants must be willing to be assigned within the group.</p>
-      <button class="btn pri" onclick="go('s-apply')">Apply now</button>
-      <button class="btn" onclick="toast('Shareable link + QR code copied')">Share</button>
-    </div>`).join('')}
-    <div class="job" style="border-style:dashed">
-      <h4>Any available position</h4>
-      <div class="meta">Don't see a fit? Send a general application.</div>
-      <button class="btn" onclick="go('s-apply')">Apply anyway</button>
-    </div>
-    <p class="sub" style="text-align:center;margin-top:18px">Job postings carry structured data for Google for Jobs.</p>
-  </div>`;
-}
-
-function rApply(){
-  const pages = ["Position &amp; photo","Personal information","Family, education &amp; work","Availability &amp; skills","Consent"];
-  const total = pages.length;
-  const body = {
-    1:`<div class="fld"><label>Position applied for *</label><select class="inp">${JOBS.filter(j=>j.status==='open').map(j=>`<option>${j.t} — ${j.br}</option>`).join('')}<option>Any available position</option></select></div>
-       <div class="fld"><label>Department *</label><input class="inp" value="Retail Operations"></div>
-       <div class="fld"><label>Expected salary *</label><input class="inp" placeholder="₱"></div>
-       <div class="fld"><label>How did you learn about BRDC? *</label><select class="inp"><option>Facebook</option><option>Indeed</option><option>Jobstreet</option><option>Company website / walk-in</option><option>Job fair</option><option>Referral</option></select></div>
-       <div class="fld"><label>2×2 photo * — upload any photo and crop it here</label>
-         <div class="card" style="text-align:center;padding:20px;border-style:dashed">
-           <div class="avatar" style="margin:0 auto 10px">2×2</div>
-           <button class="btn" onclick="toast('Crop tool: drag the square frame to fit your face')">Upload &amp; crop</button>
-           <p class="sub" style="margin:8px 0 0">White background preferred, not required.</p></div></div>`,
-    2:`<div class="fld"><label>Full name *</label><input class="inp" value="Maria Santos Dela Cruz"></div>
-       <div class="fld"><label>Nickname *</label><input class="inp" value="Maria"></div>
-       <div class="fld"><label>Date of birth *</label><input class="inp" type="date" value="1999-04-12" onchange="toast('Applicants under 18 are blocked and the draft is discarded')"></div>
-       <div class="fld"><label>Mobile number *</label><input class="inp" value="0917 123 4567"></div>
-       <div class="fld"><label>Email address *</label><input class="inp" value="maria.dc@email.com"></div>
-       <div class="fld"><label>Home address *</label><input class="inp" value="Brgy. San Vicente, San Pedro, Laguna"></div>
-       <div class="fld"><label>Location * — choose one</label>
-         <div style="display:flex;gap:8px;flex-wrap:wrap">
-           <button class="btn" onclick="toast('Coordinates captured — used for distance matching')">📍 Use my current location</button>
-           <button class="btn" onclick="toast('Map screenshot uploaded')">Upload map screenshot</button>
-           <button class="btn" onclick="toast('Landmark saved')">Type a landmark</button></div></div>
-       <div class="fld"><label>SSS / TIN / PhilHealth / Pag-IBIG *</label><input class="inp" placeholder="stored as sensitive data, hr_admin access only"></div>`,
-    3:`<div class="fld"><label>Family information *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Father · Mother · Spouse · Siblings — name, age, occupation, employer</div></div>
-       <div class="fld"><label>Educational background *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Elementary · High school · College · Graduate · Vocational</div></div>
-       <div class="fld"><label>Employment history</label><div class="card" style="font-size:12.5px;color:var(--muted)">Company · period · position · gross pay · reason for leaving</div></div>
-       <div class="fld"><label>Attach resume</label><button class="btn" onclick="toast('Uploaded — text extracted automatically for search')">Choose file or photo</button></div>`,
-    4:`<div class="fld"><label>Date available to start *</label><input class="inp" type="date"></div>
-       <div class="fld"><label>Willing to work in</label><div>${["Construction site","Hotel","Gas station","Office"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
-       <div class="fld"><label>Hard skills</label><div>${["Computer proficiency","Data entry","Driving","Records management","Basic bookkeeping"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
-       <div class="fld"><label>Soft skills</label><div>${["Leadership","Teamwork","Communication","Customer service","Works under pressure"].map(x=>`<label style="margin-right:12px;font-size:13px"><input type="checkbox"> ${x}</label>`).join('')}</div></div>
-       <div class="fld"><label>Medical declaration *</label><div class="card" style="font-size:12.5px;color:var(--muted)">Stored separately as sensitive personal information — visible only to hr_admin.</div></div>`,
-    5:`<div class="card" style="font-size:12.5px;line-height:1.6;margin-bottom:12px">
-         <b>Data Privacy Consent (v1.2)</b><br>
-         I consent to BRDC collecting and processing my personal information for recruitment and employment evaluation, <b>and for future job openings</b>, until I withdraw my consent. I understand my information is saved as I type and cleared after 7 days if I do not finish, and that BRDC may follow up on incomplete applications. I may withdraw my consent at any time through the applicant portal.</div>
-       <label style="font-size:13px"><input type="checkbox" checked> Acknowledged</label>
-       <div class="fld" style="margin-top:14px"><label>Applicant signature *</label><div class="card" style="height:70px;border-style:dashed"></div></div>`
-  }[applyPage];
-
-  document.getElementById('s-apply').innerHTML = `<div class="pub">
-    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
-      <p class="sub" style="margin-top:6px">Application for Employment</p></div>
-    <div class="card">
-      <div class="prog"><i style="width:${applyPage/total*100}%"></i></div>
-      <div style="display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px">
-        <h3>${pages[applyPage-1]}</h3>
-        <span style="font-size:12px;color:var(--muted)">Page ${applyPage} of ${total}<span class="saved">✓ Naka-save</span></span>
-      </div>
-      ${body}
-      <div style="display:flex;gap:8px;margin-top:16px">
-        ${applyPage>1?`<button class="btn" onclick="applyPage--;render()">Back</button>`:''}
-        <span style="flex:1"></span>
-        ${applyPage<total?`<button class="btn pri" onclick="applyPage++;render();toast('Draft saved — you can close this and come back within 7 days')">Next</button>`
-          :`<button class="btn pri" onclick="submitApply()">Submit application</button>`}
-      </div>
-    </div>
-    <p class="sub" style="text-align:center;margin-top:14px">Your answers are saved automatically. If your connection drops, reopen this page and continue where you left off.</p>
-  </div>`;
-}
-
 function rTest(){
   const secs = Object.keys(QUESTIONS);
   document.getElementById('s-test').innerHTML = `<div class="pub">
@@ -1183,12 +1109,6 @@ function tryClose(id){
   if(live){alert(`Cannot close job ${id}:\n\n${live} candidate(s) still lack a final status.\n\nThis is enforced by the database (guard_job_close), not by the interface. Disposition them first — that is what stops applicants being forgotten.`);}
   else{toast(`Job ${id} closed.`);}
 }
-function submitApply(){
-  applyPage=1;
-  alert("Application submitted.\n\nReference number: C-2087\n\n• A copy has been emailed to you\n• A PDF of your application is available to download\n• Your record now appears in HR's pipeline at 'New' with a 2-business-day SLA");
-  go('s-pipe');
-}
-
 /* ============================================================
    RENDER
    ============================================================ */
@@ -1561,6 +1481,7 @@ function rJob(){
       <div class="jicon"><div class="ci">${ic('bulb')}</div><div class="jstat"><i style="${j.status==='open'?'':'background:#D48A1B'}"></i>${j.status==='open'?'Active':j.status==='filled'?'Filled':'Pending'}</div></div>
       <div style="min-width:0">
         <div class="jt"><button class="btn sm" onclick="go('s-jobs')">← Jobs</button><h2>${esc(j.t)}</h2>${st}<span class="chip"><span class="mini">${j.owner?initials(j.owner):'—'}</span>${esc(j.owner||'Unassigned')}</span>
+          <button class="btn sm pri" onclick="shareJob('${j.id}')">Share apply link</button>
           <select class="inp" onchange="openJob(this.value)" title="Switch job">${JOBS.filter(x=>x.rf!=='general').map(x=>`<option value="${x.id}" ${x.id===curJob?'selected':''}>${x.id} — ${esc(x.t)}</option>`).join('')}</select></div>
         <div class="jmeta"><div>${ic('dept')} ${BU[j.bu]} · ${esc(j.dept)} · ${esc(j.id)}</div><div>${ic('pin')} ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</div>${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}</div>
         <div class="tags"><span class="tag">${ic('tag','width="12" height="12"')} ${j.head} headcount</span>${j.vac?`<span class="tag red">${ic('flag','width="12" height="12"')} Replacement</span>`:`<span class="tag">${ic('flag','width="12" height="12"')} New position</span>`}<span class="tag">${ic('clock','width="12" height="12"')} Open ${daysSince(j.open)} days</span></div>
@@ -1632,7 +1553,7 @@ function rJobs(){
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
         <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
-          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="toast('QR poster PNG generated for ${j.id}')">QR</button>`}</td></tr>`}).join('')}</tbody>
+          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}</td></tr>`}).join('')}</tbody>
     </table></div></div>
     <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten.</div>`);
 }
@@ -1878,13 +1799,112 @@ function claim(id){const c=cand(id);c.owner=ME();log(`${ME()} claimed ${c.n}`,c.
 function advance(id){const c=cand(id);if(c.stage==='draft'){c.stage='new';c.since=isoAgo(0);log(`${c.n} submitted application`,c.job);render();return;}
   const i=STAGES.findIndex(s=>s.k===c.stage);if(i<STAGES.length-1){moveTo(id,STAGES[i+1].k);}else{toast('Already in onboarding — complete it from the Onboarding page');}}
 function render(){
+  if(!SESSION&&!PUBLIC_SCREENS.includes(cur)&&document.body.classList.contains('public')){document.body.classList.remove('public');cur='s-dash';history.replaceState(null,'',location.pathname);logout();}
   refreshDerived();
   ({'s-dash':rDash,'s-pipe':rPipe,'s-prof':rProf,'s-pool':rPool,'s-msg':rMsg,'s-rep':rRep,'s-jobs':rJobs,'s-job':rJob,'s-bu':rBU,'s-mpr':rMpr,'s-int':rInt,'s-onb':rOnb,'s-set':rSet,'s-adm':rAdm,
     's-careers':rCareers,'s-apply':rApply,'s-test':rTest,'s-portal':rPortal})[cur]();
   saveData();
 }
 
-render();
+/* ============================================================
+   PUBLIC CAREERS + JOB-SPECIFIC APPLY (no sign-in needed)
+   Links: index.html#careers   index.html#apply=SF-114
+   ============================================================ */
+const PUBLIC_SCREENS=['s-careers','s-apply','s-test','s-portal'];
+let applyJob=null, applyDone=null;
+function jobLink(id){return location.href.split('#')[0]+'#apply='+id;}
+function careersLink(){return location.href.split('#')[0]+'#careers';}
+function openApply(id){applyJob=id;applyDone=null;history.replaceState(null,'','#apply='+id);go('s-apply');}
+function shareJob(id){const j=job(id),url=jobLink(id);
+  modal(`<h3>Apply link — ${esc(j.t)}</h3><p class="sub">Anyone with this link can apply for <b>${esc(j.t)}</b> (${esc(j.br)}, ${BU[j.bu]}) without signing in. Post it on Facebook, Jobstreet or print the QR code for walk-ins.</p>
+    <div class="tmp" style="gap:10px"><input class="inp" id="lnk" value="${esc(url)}" readonly style="flex:1;min-width:220px;font-size:12.5px" onclick="this.select()">
+      <button class="btn pri" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('lnk').value);toast('Link copied')">Copy link</button></div>
+    <div style="display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap">
+      <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(url)}" width="160" height="160" alt="QR code for the apply link" style="border:1px solid var(--line);border-radius:10px" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'mut',textContent:'QR code needs an internet connection.'}))">
+      <div class="mut" style="max-width:300px">Scan to open the application form for this job. Right-click the QR code and choose <b>Save image</b> to print it on a poster.</div></div>
+    <div class="mdl-f"><button class="btn" onclick="window.open(jobLink('${id}'),'_blank')">Preview form</button><button class="btn pri" onclick="closeModal()">Done</button></div>`);}
+
+function rCareers(){
+  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
+  document.getElementById('s-careers').innerHTML = `<div class="pub">
+    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">CAREERS AT BRDC</div>
+      <p class="sub" style="margin-top:6px">${open.length} open position${open.length===1?'':'s'} across the BRDC group</p></div>
+    ${open.map(j=>`<div class="job"><div style="display:flex;gap:12px;align-items:flex-start">${buLogo(j.bu,'sm')}<div style="flex:1">
+      <h4>${esc(j.t)}</h4>
+      <div class="meta">${BU[j.bu]} · ${esc(j.br)}${j.prov?', '+esc(j.prov):''} · ${vacancies(j)} opening${vacancies(j)>1?'s':''}${j.sal?' · '+esc(j.sal):''}</div>
+      ${(j.skills||[]).length?`<p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Looking for: ${j.skills.map(esc).join(', ')}</p>`:''}
+      <button class="btn pri" onclick="openApply('${j.id}')">Apply now</button>
+      <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(jobLink('${j.id}'));toast('Link to this job copied')">Share</button></div></div>
+    </div>`).join('')}
+    <div class="job" style="border-style:dashed"><h4>Any available position</h4><div class="meta">Don't see a fit? Send a general application.</div>
+      <button class="btn" onclick="openApply('GEN-SF')">Apply anyway</button></div>
+  </div>`;
+}
+
+function rApply(){
+  const el=document.getElementById('s-apply');
+  if(applyDone){el.innerHTML=`<div class="pub"><div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"></div>
+    <div class="card" style="text-align:center;padding:30px"><div class="okc">✓</div><h2 style="margin:10px 0 4px">Application received</h2>
+    <p class="sub">Thank you, ${esc(applyDone.nick)}. Your reference number is <b>${applyDone.ref}</b>.</p>
+    <p style="font-size:13px;color:var(--muted);max-width:420px;margin:0 auto 16px">BRDC HR will review your application for <b>${esc(applyDone.job)}</b> and contact you by text or email within 2 working days.</p>
+    <button class="btn" onclick="applyDone=null;history.replaceState(null,'','#careers');go('s-careers')">See other openings</button></div></div>`;return;}
+  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
+  if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
+  const j=job(applyJob), skills=[...new Set([...(j.skills||[]),'Customer service','Teamwork','Communication','Basic Excel','Driving','Computer proficiency'])];
+  el.innerHTML = `<div class="pub">
+    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">APPLICATION FOR EMPLOYMENT</div></div>
+    <div class="card apjob">${buLogo(j.bu,'sm')}<div style="flex:1"><div class="mut">You are applying for</div><b style="font-size:15px">${esc(j.t)}</b>
+      <div class="mut">${j.rf==='general'?'Any available position in the BRDC group':`${BU[j.bu]} · ${esc(j.br)}${j.sal?' · '+esc(j.sal):''}`}</div></div>
+      <select class="inp" style="max-width:190px" onchange="applyJob=this.value;history.replaceState(null,'','#apply='+this.value);render()" aria-label="Change position">${open.map(x=>`<option value="${x.id}" ${x.id===applyJob?'selected':''}>${esc(x.t)} — ${esc(x.br)}</option>`).join('')}<option value="GEN-SF" ${applyJob==='GEN-SF'?'selected':''}>Any available position</option></select></div>
+    <form class="card" id="apForm" onsubmit="submitApply(event)" novalidate>
+      <h3>Your details</h3>
+      <div class="fg">
+        <label>Full name *<input class="inp" id="aN" autocomplete="name" placeholder="e.g. Maria Santos Dela Cruz"></label>
+        <label>Nickname<input class="inp" id="aK" placeholder="e.g. Maria"></label>
+        <label>Mobile number *<input class="inp" id="aM" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>
+        <label>Email<input class="inp" id="aE" type="email" autocomplete="email" placeholder="name@email.com"></label>
+        <label>City / municipality *<input class="inp" id="aC" placeholder="e.g. Calamba"></label>
+        <label>Province *<input class="inp" id="aP" placeholder="e.g. Laguna"></label>
+        <label>Expected monthly salary<input class="inp" id="aS" inputmode="numeric" placeholder="₱"></label>
+        <label>Available to start<input class="inp" id="aA" type="date"></label>
+        <label style="grid-column:1/-1">How did you hear about this job? *<select class="inp" id="aSrc"><option value="">— Select —</option>${['Facebook','Jobstreet','Indeed','Referral','Walk-in (QR)','Career page','Job fair'].map(s=>`<option>${s}</option>`).join('')}</select></label>
+      </div>
+      <h3 style="margin-top:16px">Experience &amp; skills</h3>
+      <div class="fld"><label>Work experience — most recent first</label><textarea class="inp" id="aX" rows="3" style="width:100%" placeholder="e.g. Cashier – 7-Eleven Pacita (2022–2024)"></textarea></div>
+      <div class="fld"><label>Skills (tick all that apply)</label><div class="skl">${skills.map(s=>`<label><input type="checkbox" value="${esc(s)}"> ${esc(s)}</label>`).join('')}</div></div>
+      <div class="fld"><label>Resume (optional)</label><input type="file" id="aR" accept=".pdf,.doc,.docx,image/*"></div>
+      <label class="chk" style="margin-top:8px;align-items:flex-start"><input type="checkbox" id="aOk"> <span style="font-size:12.5px;line-height:1.5">I consent to BRDC collecting and processing my personal information for recruitment and for future job openings, under the Data Privacy Act of 2012. I can withdraw this consent anytime.</span></label>
+      <div class="err" id="aErr"></div>
+      <button class="btn pri" type="submit" style="width:100%;height:44px;margin-top:10px;font-size:14px">Submit application</button>
+    </form>
+    <p class="sub" style="text-align:center;margin-top:12px"><a class="lnk" onclick="history.replaceState(null,'','#careers');go('s-careers')">← See all openings</a></p>
+  </div>`;
+}
+function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr');
+  const miss=[['aN','full name'],['aM','mobile number'],['aC','city'],['aP','province'],['aSrc','how you heard about us']].filter(([id])=>!g(id)).map(x=>x[1]);
+  if(miss.length){er.textContent='Please fill in: '+miss.join(', ')+'.';return;}
+  if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('aM'))){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return;}
+  if(g('aE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('aE'))){er.textContent='Check your email address.';return;}
+  if(!document.getElementById('aOk').checked){er.textContent='Please tick the consent box to continue.';return;}
+  const dup=CANDS.find(c=>c.job===applyJob&&c.mob.replace(/\D/g,'').slice(-10)===g('aM').replace(/\D/g,'').slice(-10));
+  if(dup){er.textContent='You have already applied for this job. HR will contact you soon.';return;}
+  const j=job(applyJob),id=Math.max(0,...CANDS.map(c=>c.id))+1,f=document.getElementById('aR').files[0];
+  const skills=[...document.querySelectorAll('#apForm .skl input:checked')].map(x=>x.value);
+  CANDS.push({id,n:g('aN'),nick:g('aK')||g('aN').split(' ')[0],mob:g('aM'),em:g('aE'),city:g('aC'),prov:g('aP'),job:applyJob,stage:'new',since:isoAgo(0),applied:isoAgo(0),
+    src:g('aSrc'),owner:j.owner,lang:'tl',quad:null,docs:false,exp:g('aX')||'—',skills,salary:g('aS'),avail:g('aA'),resume:f?f.name:null});
+  const ref='C-'+String(2000+id);
+  ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${g('aN')} for ${j.t} (${ref})`,job:applyJob});
+  saveData();applyDone={ref,nick:g('aK')||g('aN').split(' ')[0],job:j.t};render();window.scrollTo(0,0);}
+
+/* public routing from the URL */
+function routeFromHash(){const h=location.hash||'';
+  if(h.startsWith('#apply=')){applyJob=decodeURIComponent(h.slice(7));applyDone=null;return 's-apply';}
+  if(h.startsWith('#careers'))return 's-careers';return null;}
+function enterPublic(scr){const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.body.classList.add('public');document.title='Careers — BRDC';go(scr);}
+window.addEventListener('hashchange',()=>{const s=routeFromHash();if(s)enterPublic(s);});
+
+const _pub=routeFromHash();
+if(_pub)enterPublic(_pub);else render();
 </script>
 </body>
 </html>
