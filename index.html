@@ -435,6 +435,7 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 .brn{flex:1;min-width:0}.brn b{display:block;font-size:13px}.brn small{color:var(--muted);font-size:11.5px}
 .brchips{display:flex;gap:4px;flex-wrap:wrap;margin-top:10px}
 @media (max-width:700px){.brform{grid-template-columns:1fr 1fr}}
+.brdel:hover{color:var(--danger);border-color:#F0C9C7}
 </style>
 </head>
 <body class="locked">
@@ -1321,7 +1322,7 @@ function drawBranches(k){const L=branchesOf(k), list=L.filter(b=>!brQ||[b.n,b.ci
     <div class="brlist">${list.map(b=>`<div class="bri ${b.active===false?'off':''}"><span class="brn"><b>${esc(b.n)}</b><small>${esc([b.city,b.prov].filter(Boolean).join(', ')||'—')}${b.mgr?' · Mgr: '+esc(b.mgr):''}</small></span>
         ${used(b.n)?`<span class="pill green">${used(b.n)} job${used(b.n)>1?'s':''}</span>`:''}${b.active===false?'<span class="pill mute">inactive</span>':''}
         <button class="btn sm" onclick="brEdit('${k}','${b.id}')">Edit</button><button class="btn sm" onclick="brToggle('${k}','${b.id}')">${b.active===false?'Activate':'Deactivate'}</button>
-        <button class="btn sm" ${used(b.n)?'disabled title="Has jobs — deactivate instead"':''} onclick="brDel('${k}','${b.id}')">Remove</button></div>`).join('')||'<div class="empty">No branches yet. Add one above, paste a list, or import a CSV.</div>'}</div>`,'wide');}
+        <button class="btn sm brdel" onclick="brDel('${k}','${b.id}')">Remove</button></div>`).join('')||'<div class="empty">No branches yet. Add one above, paste a list, or import a CSV.</div>'}</div>`,'wide');}
 function brAddOne(k){const g=id=>document.getElementById(id).value.trim();if(!g('bN')){toast('Branch name is required');return;}
   const r=addBranchRows(k,[{n:g('bN'),city:g('bC'),prov:g('bP'),mgr:g('bM')}]);toast(r.added?`${g('bN')} added`:'That branch already exists');saveData();drawBranches(k);}
 function brBulk(k){modal(`<h3>Paste ${BU[k]} branches</h3>
@@ -1344,7 +1345,10 @@ function brEditSave(k,id){const b=branchesOf(k).find(x=>x.id===id),g=i=>document
   if(old!==b.n)JOBS.forEach(j=>{if(j.bu===k&&j.br===old)j.br=b.n;});
   log(`Updated branch ${b.n} (${BU[k]})`);saveData();drawBranches(k);}
 function brToggle(k,id){const b=branchesOf(k).find(x=>x.id===id);b.active=b.active===false;log(`${b.active?'Activated':'Deactivated'} branch ${b.n}`);saveData();drawBranches(k);}
-function brDel(k,id){const L=branchesOf(k),b=L.find(x=>x.id===id);if(!confirm(`Remove ${b.n}?`))return;L.splice(L.indexOf(b),1);log(`Removed branch ${b.n} (${BU[k]})`);saveData();drawBranches(k);}
+function brDel(k,id){const L=branchesOf(k),b=L.find(x=>x.id===id);const js=JOBS.filter(j=>j.bu===k&&j.br===b.n);
+  const msg=js.length?`Remove ${b.n}?\n\n${js.length} job${js.length>1?'s':''} use this branch (${js.map(j=>j.id).join(', ')}). ${js.length>1?'They':'It'} will be set to "To be confirmed" — you can pick a new branch from the job's Summary tab.`:`Remove ${b.n}?`;
+  if(!confirm(msg))return;js.forEach(j=>{j.br='To be confirmed';});L.splice(L.indexOf(b),1);
+  log(`Removed branch ${b.n} (${BU[k]})${js.length?` — ${js.length} job(s) set to To be confirmed`:''}`);saveData();toast(`${b.n} removed`);drawBranches(k);}
 function setJobBranch(jid,v){const j=job(jid);if(v==='__tbc')v='To be confirmed';if(!v)return;j.br=v;const b=branchesOf(j.bu).find(x=>x.n===v);if(b&&b.prov)j.prov=b.prov;log(`Set branch of ${jid} to ${v}`,jid);toast('Branch updated');render();}
 
 /* ============================================================
