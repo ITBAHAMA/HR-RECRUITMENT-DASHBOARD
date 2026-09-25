@@ -551,6 +551,11 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 @keyframes bellGlow{0%,60%{box-shadow:0 0 0 0 rgba(227,196,126,0)}66%{box-shadow:0 0 0 4px rgba(227,196,126,.45)}90%,100%{box-shadow:0 0 0 0 rgba(227,196,126,0)}}
 .bell:hover .bi{animation:bellShake .9s ease-in-out 1 -.56s}
 @media (prefers-reduced-motion:reduce){.bell.ring .bi,.bell.ring span,.bell.ring,.bell:hover .bi{animation:none}}
+
+.odp{border:none;background:#FBEBEA;color:#B3352F;font-weight:700;font-size:11.5px;border-radius:99px;padding:4px 11px;cursor:pointer;transition:transform .12s,box-shadow .12s}
+.odp:hover{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(251,235,234,.35)}
+.notif a.nw{background:#FBF7EC}
+.nwb{font-style:normal;font-size:10px;font-weight:700;color:#8A6D1F;background:#FBF3DF;border-radius:99px;padding:1px 7px;align-self:center;margin-left:auto}
 </style>
 </head>
 <body class="locked">
@@ -1313,8 +1318,17 @@ function gsearch(q){const box=document.querySelector('.screen.on .gres');if(!box
   box.classList.add('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.gsearch'))document.querySelectorAll('.gres').forEach(b=>b.classList.remove('on'));
   if(!e.target.closest('.bellw'))document.querySelectorAll('.notif').forEach(b=>b.classList.remove('on'));});
-let notifSeen=0;
-function toggleNotif(ev){ev.stopPropagation();notifSeen=pendingActions().length;document.querySelectorAll('.bell').forEach(b=>b.classList.remove('ring'));const p=document.querySelector('.screen.on .notif');if(p)p.classList.toggle('on');}
+function seenKey(){return 'brdc-notif-seen-'+(SESSION?SESSION.user:'x');}
+function getSeen(){try{return new Set(JSON.parse(localStorage.getItem(seenKey())||'[]'));}catch(e){return new Set();}}
+function unseenActs(acts){const s=getSeen();return acts.filter(a=>!s.has(a.t));}
+function markSeen(){const all=(()=>{const b=buF;buF='';const a=pendingActions();buF=b;return a;})();try{localStorage.setItem(seenKey(),JSON.stringify(all.map(a=>a.t)));}catch(e){}}
+function toggleNotif(ev){ev.stopPropagation();const p=document.querySelector('.screen.on .notif');if(!p)return;const opening=!p.classList.contains('on');p.classList.toggle('on');
+  if(opening){markSeen();document.querySelectorAll('.bell').forEach(b=>{b.classList.remove('ring');const s=b.querySelector('span');if(s)s.remove();b.setAttribute('data-tip','Notifications');});}}
+function showOverdue(){const L=CANDS.filter(c=>c.late&&ACTIVE.includes(c.stage)).sort((a,b)=>(b.days-stg(b.stage).sla)-(a.days-stg(a.stage).sla));
+  modal(`<div class="brh"><div><h3 style="margin:0">Overdue candidates</h3><div class="mut">${L.length} candidate${L.length===1?'':'s'} past the allowed days for their stage · most overdue first</div></div><button class="btn sm" style="margin-left:auto" onclick="closeModal()">Close</button></div>
+    <div class="brlist">${L.map(c=>{const j=job(c.job),over=c.days-stg(c.stage).sla;return `<div class="bri"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span class="brn"><b>${esc(c.n)}</b><small>${esc(j.t)} · ${BU[j.bu]} · ${stageName(c.stage)} for ${c.days} days (limit ${stg(c.stage).sla})</small></span>
+      <span class="pill red">${over}d over</span><button class="btn sm pri" onclick="closeModal();openCand(${c.id})">Open</button></div>`;}).join('')||'<div class="empty">Nothing overdue. Every candidate is within the allowed days.</div>'}</div>
+    <div class="mdl-f"><button class="btn" onclick="closeModal();pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:true};go('s-pipe')">View in Candidates list</button></div>`,'wide');}
 
 /* ============================================================
    BRANCHES — per business unit (add one, paste many, or import CSV)
@@ -1389,6 +1403,7 @@ function toggleSide(){document.body.classList.toggle('sidecol');}
 function shell(active, body, extra){
   const nm=ME(), acts=buF?(()=>{const b=buF;buF='';const a=pendingActions();buF=b;return a;})():pendingActions();
   const overdue=CANDS.filter(c=>c.late&&ACTIVE.includes(c.stage)).length;
+  const newList=unseenActs(acts), newN=newList.length, newSet=new Set(newList.map(a=>a.t));
   const L=(key,screen,icon,label,badge)=>`<a href="#" class="${active===key?'on':''}" title="${label}" onclick="go('${screen}');return false">${ic(icon)}<span>${label}</span>${badge?`<em class="sb">${badge}</em>`:''}</a>`;
   const pendMpr=MPR.filter(m=>m.status==='pending').length, awaitInt=INTV.filter(i=>i.status==='done'&&!i.result).length, onbN=CANDS.filter(c=>c.stage==='onboarding'||c.stage==='hired').length;
   return `<div class="app">
@@ -1397,10 +1412,10 @@ function shell(active, body, extra){
       <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
       <div class="gsearch">${ic('search')}<input placeholder="Search by name, mobile, skill, job or business unit" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
       <span class="spacer"></span>
-      ${overdue?`<span class="pill red" style="cursor:pointer" onclick="go('s-dash')">${overdue} overdue</span>`:''}
-      <span class="bellw"><button class="bell ${acts.length>notifSeen?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${acts.length?' — '+acts.length+' need attention':''}" data-tip="${acts.length>notifSeen?'You have '+acts.length+' notifications — click to view':'Notifications'}"><i class="bi">🔔</i>${acts.length?`<span>${acts.length}</span>`:''}</button>
-        <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention</small></div>
-        ${acts.slice(0,8).map(a=>`<a onclick="${a.a};render()"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
+      ${overdue?`<button class="odp" onclick="showOverdue()" data-tip="See who is overdue">${overdue} overdue</button>`:''}
+      <span class="bellw"><button class="bell ${newN?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${newN?' — '+newN+' new':''}" data-tip="${newN?'You have '+newN+' new notification'+(newN>1?'s':'')+' — click to view':'Notifications'}"><i class="bi">🔔</i>${newN?`<span>${newN}</span>`:''}</button>
+        <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention${newN?' · '+newN+' new':''}</small></div>
+        ${[...newList,...acts.filter(a=>!newSet.has(a.t))].slice(0,8).map(a=>`<a onclick="${a.a};render()" class="${newSet.has(a.t)?'nw':''}"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>${newSet.has(a.t)?'<em class="nwb">New</em>':''}</a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
         ${acts.length>8?`<a class="more" onclick="go('s-dash')">See all ${acts.length} on the dashboard →</a>`:''}</div></span>
       <span class="who" style="cursor:pointer" title="Change my password" onclick="changeMyPw()"><span class="uav">${esc(nm.split(' ').map(w=>w[0]).join('').slice(0,2))}</span><b>${esc(nm)}</b></span>
       <button class="logout" onclick="logout()">Sign out</button>
@@ -1622,9 +1637,9 @@ function rJob(){
 /* ============================================================
    CANDIDATES — searchable, filterable, sortable list
    ============================================================ */
-let pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1};
+let pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};
 function rPipe(){
-  let list=CANDS.filter(c=>(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
+  let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
   const key={name:c=>c.n,job:c=>job(c.job).t,stage:c=>STAGES.findIndex(s=>s.k===c.stage),days:c=>c.days,fit:c=>fitParts(c).total,src:c=>c.src};
   list.sort((a,b)=>{const x=key[pf.sort](a),y=key[pf.sort](b);return (x>y?1:x<y?-1:0)*pf.dir;});
   const th=(k,n)=>`<th class="srt" onclick="pf.dir=pf.sort==='${k}'?-pf.dir:-1;pf.sort='${k}';render()">${n}${pf.sort===k?(pf.dir<0?' ▾':' ▴'):''}</th>`;
@@ -1635,7 +1650,8 @@ function rPipe(){
       <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
       <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
-      ${pf.job||pf.bu||pf.stage||pf.q?`<button class="btn sm" onclick="pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1};render()">Clear filters</button>`:''}
+      <label class="tgl"><input type="checkbox" ${pf.late?'checked':''} onchange="pf.late=this.checked;render()"> Overdue only</label>
+      ${pf.job||pf.bu||pf.stage||pf.q||pf.late?`<button class="btn sm" onclick="pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};render()">Clear filters</button>`:''}
       <span style="flex:1"></span>
       ${pf.job?`<button class="btn pri" onclick="openJob('${pf.job}')">Open board view</button>`:''}
       <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
