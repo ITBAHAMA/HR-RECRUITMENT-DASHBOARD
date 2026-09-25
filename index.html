@@ -585,6 +585,12 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .pbuc:nth-child(5){animation-delay:.25s}.pbuc:nth-child(6){animation-delay:.3s}.pbuc:nth-child(7){animation-delay:.35s}.pbuc:nth-child(8){animation-delay:.4s}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
 @media (prefers-reduced-motion:reduce){.phero::after,.porb,.pdots i,.phin>*,.phero h1 em,.phlogo,.steps li.on span,.pbuc{animation:none!important}.pdots{display:none}}
+
+.ferr{display:none;margin-top:10px;background:#FBEBEA;border:1px solid #F0C9C7;color:#9C2D28;border-radius:10px;padding:9px 12px;font-size:13px}
+.ferr.on{display:block}
+.inp.bad{border-color:#D9534F!important;box-shadow:0 0 0 3px rgba(217,83,79,.15)}
+.fg small.mut{font-size:11px}
+.mdl-card{max-height:92vh;overflow:auto}
 </style>
 </head>
 <body class="locked">
@@ -903,7 +909,7 @@ let ACCOUNTS=[
 ];
 ACCOUNTS[0].hash='b07a5cc71a90351859379d6b5ec82e58a82fd9c74cdaf4af2d950e709584185f'; /* default admin hash — change the password after first sign-in */
 try{const s=JSON.parse(localStorage.getItem(ACC_KEY)||'null');if(Array.isArray(s)&&s.length)ACCOUNTS=s;}catch(e){}
-function saveAccounts(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));}catch(e){}}
+function saveAccounts(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));return true;}catch(e){toast('Could not save accounts in this browser');return false;}}
 function acct(u){return ACCOUNTS.find(a=>a.u===String(u||'').toLowerCase());}
 const USERS=new Proxy({}, {get:(_,u)=>acct(u)}); /* legacy lookups */
 function pwProblems(p,u){const x=[];if(p.length<8)x.push('at least 8 characters');if(!/[A-Z]/.test(p))x.push('an uppercase letter');if(!/[a-z]/.test(p))x.push('a lowercase letter');if(!/\d/.test(p))x.push('a number');if(u&&p.toLowerCase().includes(u.toLowerCase()))x.push('not containing the username');return x;}
@@ -1900,23 +1906,33 @@ function rAdm(){
     <div class="tabs">${[['acc','Accounts'],['roles','Roles & policy'],['audit','Audit trail']].map(([k,n])=>`<button class="${admTab===k?'on':''}" onclick="admTab='${k}';render()">${n}</button>`).join('')}</div>
     ${admTab==='acc'?accTab:admTab==='roles'?rolesTab:auditTab}`);
 }
+function cleanUser(s){return String(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/ñ/g,'n').replace(/\s+/g,'.').replace(/[^a-z0-9._-]/g,'').replace(/\.{2,}/g,'.').replace(/^[._-]+|[._-]+$/g,'').slice(0,30);}
+function suggestUser(name){const p=String(name||'').trim().split(/\s+/).filter(Boolean);if(!p.length)return '';let base=cleanUser(p.length>1?p[0][0]+p[p.length-1]:p[0]);if(base.length<2)base=cleanUser(p.join(''));
+  let u=base,n=2;while(acct(u)){u=base+n;n++;}return u;}
 function acctForm(a){return `<div class="fg">
-  <label>Full name<input class="inp" id="fN" value="${esc(a?a.name:'')}" placeholder="e.g. Ana Reyes"></label>
-  <label>Username<input class="inp" id="fU" value="${esc(a?a.u:'')}" ${a?'disabled':''} placeholder="e.g. areyes"></label>
+  <label>Full name *<input class="inp" id="fN" value="${esc(a?a.name:'')}" placeholder="e.g. Ana Reyes" ${a?'':`oninput="const U=document.getElementById('fU');if(!U.dataset.touched)U.value=suggestUser(this.value)"`}></label>
+  <label>Username *<input class="inp" id="fU" value="${esc(a?a.u:'')}" ${a?'disabled':''} placeholder="filled in from the name" oninput="this.dataset.touched=1;const c=cleanUser(this.value);if(c!==this.value)this.value=c"><small class="mut">Lowercase letters, numbers, dot, dash or underscore</small></label>
   <label>Email<input class="inp" id="fE" type="email" value="${esc(a?a.email:'')}" placeholder="name@brdc.ph"></label>
-  <label>Role<select class="inp" id="fR">${Object.keys(ROLE_INFO).map(r=>`<option ${a&&a.role===r?'selected':''}>${r}</option>`).join('')}</select></label>
-  <label style="grid-column:1/-1">Business units<input class="inp" id="fB" value="${esc(a?a.bu:'')}" placeholder="e.g. Smartfuels, U Hotels — or All business units"></label></div>
-  <div class="err" id="fErr"></div>`;}
+  <label>Role<select class="inp" id="fR">${Object.keys(ROLE_INFO).map(r=>`<option value="${r}" ${a&&a.role===r?'selected':(!a&&r==='hr_staff'?'selected':'')}>${r} — ${ROLE_INFO[r].split(':')[0].split(',')[0]}</option>`).join('')}</select></label>
+  <label style="grid-column:1/-1">Business units<input class="inp" id="fB" value="${esc(a?a.bu:'')}" placeholder="e.g. Smartfuels, U Hotels — or All business units" list="buList"><datalist id="buList"><option>All business units</option>${Object.values(BU).map(v=>`<option>${v}</option>`).join('')}</datalist></label></div>
+  <div class="ferr" id="fErr" role="alert"></div>`;}
+function fErr(msg,field){const er=document.getElementById('fErr');er.textContent=msg;er.classList.add('on');document.querySelectorAll('#modal .inp.bad').forEach(x=>x.classList.remove('bad'));if(field){const f=document.getElementById(field);if(f){f.classList.add('bad');f.focus();}}}
 function addAccount(){modal(`<h3>Add account</h3><p class="sub">A temporary password is created. Give it to the user privately; they must change it when they first sign in.</p>${acctForm(null)}
-  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveNewAccount()">Create account</button></div>`);}
-function saveNewAccount(){const g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');
-  const u=g('fU').toLowerCase();
-  if(!g('fN')||!u){er.textContent='Name and username are required.';return;}
-  if(!/^[a-z0-9._-]{3,20}$/.test(u)){er.textContent='Username: 3–20 lowercase letters, numbers, dot, dash or underscore.';return;}
-  if(acct(u)){er.textContent='That username is already taken.';return;}
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="fSave" onclick="saveNewAccount()">Create account</button></div>`);
+  document.querySelectorAll('#modal .inp').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveNewAccount();}}));}
+function saveNewAccount(){try{
+  const g=id=>(document.getElementById(id).value||'').trim();
+  const name=g('fN');let u=cleanUser(g('fU'))||suggestUser(name);
+  if(!name)return fErr('Please enter the full name.','fN');
+  if(u.length<2)return fErr('Username must be at least 2 characters.','fU');
+  if(acct(u))return fErr(`The username “${u}” is already used. Try “${suggestUser(name)}”.`,'fU');
+  if(g('fE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('fE')))return fErr('Check the email address (or leave it blank).','fE');
   const tmp=genTempPw();
-  ACCOUNTS.push({u,name:g('fN'),first:g('fN').split(' ')[0],email:g('fE'),role:g('fR'),bu:g('fB')||'—',status:'active',hash:pwHash(u,tmp),mustChange:true,created:new Date().toISOString(),last:null});
-  saveAccounts();audit(`Created account ${u} (${g('fR')})`);render();showTemp(u,tmp,true);}
+  ACCOUNTS.push({u,name,first:name.split(' ')[0],email:g('fE'),role:g('fR')||'hr_staff',bu:g('fB')||'—',status:'active',hash:pwHash(u,tmp),mustChange:true,created:new Date().toISOString(),last:null});
+  saveAccounts();
+  if(!acct(u))return fErr('Could not save the account in this browser. Check that the browser allows site data (not private/incognito mode).');
+  audit(`Created account ${u} (${g('fR')})`);render();showTemp(u,tmp,true);
+}catch(err){fErr('Something went wrong: '+(err&&err.message||err)+'. Please send a screenshot of this message to IT.');}}
 function editAccount(u){const a=acct(u);modal(`<h3>Edit account</h3>${acctForm(a)}
   <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveEdit('${u}')">Save changes</button></div>`);}
 function saveEdit(u){const a=acct(u),g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');if(!g('fN')){er.textContent='Name is required.';return;}
