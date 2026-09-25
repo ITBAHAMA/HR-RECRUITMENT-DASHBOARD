@@ -443,6 +443,28 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 .skl input{accent-color:#256B12}
 .okc{width:58px;height:58px;border-radius:50%;background:#E8F1E3;color:#256B12;font-size:28px;display:grid;place-items:center;margin:0 auto}
 .lg-jobs{margin-top:18px;text-align:center;font-size:13px;color:#5B6460}.lg-jobs a{color:#1F5F4E;font-weight:600;text-decoration:none}.lg-jobs a:hover{text-decoration:underline}
+
+.sech{display:flex;align-items:baseline;gap:10px;margin:24px 0 10px;flex-wrap:wrap}.sech h3{font-size:16px;margin:0;color:#12330D}.sech small{color:var(--muted);font-size:12.5px}
+.fchip{display:flex;align-items:center;gap:10px;background:#E8F1E3;border:1px solid #CBE0C0;border-radius:10px;padding:8px 12px;margin:-4px 0 14px;font-size:13px;color:#12330D}
+.fchip .btn{margin-left:auto}
+.bubox-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px}
+.bubox{background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;cursor:pointer;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,transform .15s,opacity .15s,border-color .15s}
+.bubox:hover{box-shadow:0 10px 24px -14px rgba(16,40,16,.4);transform:translateY(-2px);border-color:#BFD3B4}
+.bubox:focus-visible{outline:2px solid #256B12;outline-offset:2px}
+.bubox.sel{border:2px solid #256B12;box-shadow:0 10px 24px -14px rgba(16,40,16,.45)}
+.bubox.dim{opacity:.55}
+.bbh{display:flex;gap:12px;align-items:center}.bbn{min-width:0}.bbn b{display:block;font-size:14px;color:#12330D}.bbn small{color:var(--muted);font-size:11.5px}
+.bbst{display:flex;gap:6px;flex-wrap:wrap}
+.st{font-size:11px;font-weight:600;border-radius:99px;padding:2px 9px}.st.ok{background:#E6F2EA;color:#1F6B45}.st.bad{background:#FBEBEA;color:#B3352F}.st.warn{background:#FDF0E3;color:#B4620E}
+.bbk{display:grid;grid-template-columns:repeat(4,1fr);gap:4px;background:#F6F8F4;border-radius:10px;padding:10px 6px;text-align:center}
+.bbk b{display:block;font-size:19px;color:#12330D;line-height:1.2}.bbk span{font-size:9.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--muted);line-height:1.2;display:block}
+.bbbar{display:flex;gap:2px;height:10px;border-radius:99px;overflow:hidden;background:#EEF1EB}
+.bbbar i{display:block;height:100%}.bbbar em{font-style:normal;font-size:10.5px;color:var(--muted);padding-left:8px;line-height:10px}
+.bbf{display:flex;gap:6px;flex-wrap:wrap}
+.bulgd{display:flex;gap:14px;flex-wrap:wrap;font-size:11.5px;color:var(--muted);margin:-4px 0 10px}.bulgd span{display:flex;align-items:center;gap:6px}.bulgd i{width:12px;height:8px;border-radius:2px;display:inline-block}
+.dgA{grid-template-columns:1.15fr 1fr}
+@media (max-width:1280px){.bubox-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (max-width:700px){.bubox-grid{grid-template-columns:1fr}.dgA{grid-template-columns:1fr}}
 </style>
 </head>
 <body class="locked">
@@ -1336,6 +1358,22 @@ function showHired(){
     <h3 style="font-size:13px;margin:14px 0 4px">Completed onboarding (${done.length})</h3>
     ${done.map(h=>{const j=h.job?job(h.job):null;return row(esc(h.n||'Hire record'),`${j&&j.t!=='—'?esc(j.t)+' · ':''}${BU[h.bu]||''} · via ${esc(h.src)}${h.day?' · '+fmtD(mk+'-'+String(h.day).padStart(2,'0')):''} · ${h.tth} days to hire`,'<span class="pill green">Employee</span>');}).join('')||'<div class="mut" style="padding:6px 0">None yet this month</div>'}
     <div class="mdl-f"><button class="btn" onclick="closeModal();go('s-onb')">Go to Onboarding</button></div>`,'wide');}
+let paAll=false;
+const BU_GROUPS=[['Screening',['new','screening'],'#CFE8C4'],['Interviews',['hr_int','dept_int','final'],'#8FC77A'],['Assessment',['exam'],'#4E9E38'],['Offer & requirements',['offer','reqs'],'#2A6E1C'],['Onboarding',['hired','onboarding'],'#133F0C']];
+function buBoxes(){const mk=todayKey.slice(0,7);
+  return `<div class="bulgd">${BU_GROUPS.map(([n,,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')}</div><div class="bubox-grid">${Object.keys(BU).map(k=>{
+    const bj=JOBS.filter(j=>j.bu===k&&jobOpen(j)), bc=CANDS.filter(c=>c.stage!=='draft'&&job(c.job).bu===k);
+    const act=bc.filter(c=>ACTIVE.includes(c.stage)), late=act.filter(c=>c.late).length, vac=bj.reduce((s,j)=>s+vacancies(j),0);
+    const intv=bc.filter(c=>INTERVIEW_STAGES.includes(c.stage)).length, hired=HIST.filter(x=>x.bu===k&&x.out==='hired'&&x.month===mk).length+bc.filter(c=>['hired','onboarding'].includes(c.stage)).length;
+    const segs=BU_GROUPS.map(([n,st,c])=>({n,c,v:bc.filter(x=>st.includes(x.stage)).length})), tot=segs.reduce((s,x)=>s+x.v,0);
+    const pend=MPR.filter(m=>m.bu===k&&m.status==='pending').length;
+    return `<div class="bubox ${buF===k?'sel':''} ${buF&&buF!==k?'dim':''}" role="button" tabindex="0" onclick="buF=buF==='${k}'?'':'${k}';render();window.scrollTo({top:0,behavior:'smooth'})" onkeydown="if(event.key==='Enter')this.click()">
+      <div class="bbh">${buLogo(k)}<div class="bbn"><b>${BU[k]}</b><small>${bj.length} open job${bj.length===1?'':'s'} · ${branchesOf(k).length} branch${branchesOf(k).length===1?'':'es'}</small></div></div>
+      <div class="bbst">${late?`<span class="st bad">● ${late} overdue</span>`:`<span class="st ok">● On track</span>`}${pend?`<span class="st warn">${pend} request${pend>1?'s':''} to approve</span>`:''}</div>
+      <div class="bbk"><div><b>${vac}</b><span>Vacancies</span></div><div><b>${act.length}</b><span>Applicants</span></div><div><b>${intv}</b><span>Interviews</span></div><div data-tip="Hired this month"><b>${hired}</b><span>Hired</span></div></div>
+      <div class="bbbar" aria-label="Pipeline mix">${tot?segs.filter(x=>x.v).map(x=>`<i style="flex:${x.v};background:${x.c}" data-tip="<b>${x.n}</b><br>${x.v} candidate${x.v>1?'s':''}"></i>`).join(''):'<em>No candidates yet</em>'}</div>
+      <div class="bbf"><button class="btn sm" onclick="event.stopPropagation();jfl.bu='${k}';jfl.br='';go('s-jobs')">Jobs</button><button class="btn sm" onclick="event.stopPropagation();pf.bu='${k}';go('s-pipe')">Candidates</button><button class="btn sm" onclick="event.stopPropagation();manageBranches('${k}')">Branches</button></div>
+    </div>`;}).join('')}</div>`;}
 function rDash(){
   const js=scopedJobs(), open=js.filter(jobOpen), cs=scopedCands(), hs=scopedHist();
   const act=cs.filter(c=>ACTIVE.includes(c.stage));
@@ -1376,23 +1414,29 @@ function rDash(){
       <select class="inp" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
       <button class="btn" onclick="go('s-rep');setTimeout(()=>window.print(),300)">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Management report</button>
     </div>
+    ${buF?`<div class="fchip">${buLogo(buF,'sm')}<span>Showing <b>${BU[buF]}</b> only</span><button class="btn sm" onclick="buF='';render()">✕ Show all business units</button></div>`:''}
 
     <div class="kpi7">${KPI.map(([l,v,s,i,a])=>`<button class="k7" onclick="${a}"><span class="k7i">${ic(i)}</span><span class="k7l">${l}</span><b>${v}</b><small>${s}</small></button>`).join('')}</div>
 
+    <div class="sech"><h3>Business units</h3><small>Each box is one unit · click a box to focus the whole dashboard on it</small></div>
+    ${buBoxes()}
+
+    <div class="sech"><h3>Today</h3><small>What needs action and where candidates are right now</small></div>
+    <div class="dg2 dgA">
+      <div class="card"><div class="ch"><h3>Needs your attention</h3><small>${acts.length} item${acts.length===1?'':'s'} waiting on HR</small></div>
+        <div class="pa">${acts.slice(0,paAll?acts.length:6).map(a=>`<div class="pai"><i style="background:${LVL[a.lvl][0]}" data-tip="${LVL[a.lvl][1]}"></i><span class="pat"><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span><button class="btn sm" onclick="${a.a};render()">${a.b}</button></div>`).join('')||'<div class="empty">Nothing pending. Nice work.</div>'}
+        ${acts.length>6?`<button class="btn sm" style="margin-top:10px" onclick="paAll=!paAll;render()">${paAll?'Show less':'Show all '+acts.length}</button>`:''}</div></div>
+      <div class="card"><div class="ch"><h3>Recruitment pipeline</h3><small>Candidates currently at each stage</small></div>
+        ${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length,on:`pf.stage='${s.k}';go('s-pipe')`,tip:`<b>${s.n}</b><br>${cs.filter(c=>c.stage===s.k).length} candidates · SLA ${s.sla||'—'} days`})))}</div>
+    </div>
+
+    <div class="sech"><h3>Recruitment performance</h3><small>Last 8 months · hover any number or bar for details</small></div>
     <div class="measures">
       <div data-tip="Median days from application to hire, last 8 months"><span>Time to hire</span><b>${tth}<small> days</small></b></div>
       <div data-tip="Median days from job opening to position filled, last 8 months"><span>Time to fill</span><b>${ttf}<small> days</small></b></div>
       <div data-tip="Hires as a share of all closed applications"><span>Hiring rate</span><b>${pct(H.length,closed)}<small>%</small></b></div>
       <div data-tip="Rejections as a share of all closed applications"><span>Rejection rate</span><b>${pct(hs.filter(h=>h.out==='rejected').length,closed)}<small>%</small></b></div>
       <div data-tip="Source with the highest applicant-to-hire rate"><span>Most effective source</span><b style="font-size:17px">${esc(best.s)}<small> · ${best.r}% hire rate</small></b></div>
-    </div>
-
-    <div class="dg2">
-      <div class="card"><div class="ch"><h3>Recruitment pipeline</h3><small>Candidates currently at each stage</small></div>
-        ${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length,on:`pf.stage='${s.k}';go('s-pipe')`,tip:`<b>${s.n}</b><br>${cs.filter(c=>c.stage===s.k).length} candidates · SLA ${s.sla||'—'} days`})))}</div>
-      <div class="card"><div class="ch"><h3>Pending actions</h3><small>${acts.length} item${acts.length===1?'':'s'} need HR</small></div>
-        <div class="pa">${acts.slice(0,9).map(a=>`<div class="pai"><i style="background:${LVL[a.lvl][0]}" data-tip="${LVL[a.lvl][1]}"></i><span class="pat"><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span><button class="btn sm" onclick="${a.a};render()">${a.b}</button></div>`).join('')||'<div class="empty">Nothing pending. Nice work.</div>'}
-        ${acts.length>9?`<div class="sub" style="margin:8px 0 0">+ ${acts.length-9} more</div>`:''}</div></div>
     </div>
 
     <div class="dg3">
@@ -1411,11 +1455,6 @@ function rDash(){
         <div class="ch" style="margin-top:16px"><h3>Recruitment status</h3><small>Last 8 months + in process</small></div>
         ${hbars(status.map(([l,v])=>({l,v})))}</div>
     </div>
-
-    <div class="card" style="margin-top:14px"><div class="ch"><h3>Department monitoring</h3><small>By business unit · click a row to filter the dashboard</small></div>
-      <div class="tw"><table><thead><tr><th>Business unit</th><th>Open jobs</th><th>Vacancies</th><th>Active applicants</th><th>For interview</th><th>Offers</th><th>Hired (month)</th><th>Avg days open</th></tr></thead><tbody>
-      ${buRows.map(r=>`<tr class="clk" onclick="buF=buF==='${r.b}'?'':'${r.b}';render()"><td><span class="bucell">${buLogo(r.b,'sm')}<b>${BU[r.b]}</b></span></td><td>${r.jobs}</td><td>${r.vac}</td><td>${r.act}</td><td>${r.int}</td><td>${r.off}</td><td>${r.hired}</td><td>${r.age>45?`<span class="pill red">${r.age}</span>`:r.age}</td></tr>`).join('')}
-      </tbody></table></div></div>
 
     <div class="card" style="margin-top:14px"><div class="ch"><h3>Positions taking longest to fill</h3><small>Open jobs, oldest first</small></div>
       <div class="tw"><table><thead><tr><th>Position</th><th>Business unit</th><th>Days open</th><th>Vacancies</th><th>In pipeline</th><th>Furthest stage</th><th></th></tr></thead><tbody>
