@@ -540,6 +540,17 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .pnext{text-align:left;max-width:380px;margin:0 auto 20px;padding-left:20px;font-size:13.5px;color:#4B544C;line-height:1.8}
 @media (max-width:860px){.pbu{grid-template-columns:repeat(2,minmax(0,1fr))}.pjobs{grid-template-columns:1fr}.pform{grid-template-columns:1fr}.psum{position:static}.phero h1{font-size:28px}.steps li{font-size:0;padding:4px}.steps li.on{font-size:12.5px;padding-right:12px}}
 @media (max-width:520px){.pg2{grid-template-columns:1fr}.pbul{width:100px;height:60px}}
+
+/* ============ bell attention animation ============ */
+.bell .bi{display:inline-block;font-style:normal;transform-origin:50% 8%}
+.bell.ring .bi{animation:bellShake 4s ease-in-out infinite}
+.bell.ring span{animation:badgePulse 2s ease-out infinite}
+.bell.ring{box-shadow:0 0 0 0 rgba(227,196,126,.6);animation:bellGlow 4s ease-out infinite}
+@keyframes bellShake{0%,62%,100%{transform:rotate(0)}64%{transform:rotate(18deg)}68%{transform:rotate(-16deg)}72%{transform:rotate(13deg)}76%{transform:rotate(-10deg)}80%{transform:rotate(6deg)}84%{transform:rotate(-3deg)}88%{transform:rotate(0)}}
+@keyframes badgePulse{0%{box-shadow:0 0 0 0 rgba(179,53,47,.7)}70%{box-shadow:0 0 0 7px rgba(179,53,47,0)}100%{box-shadow:0 0 0 0 rgba(179,53,47,0)}}
+@keyframes bellGlow{0%,60%{box-shadow:0 0 0 0 rgba(227,196,126,0)}66%{box-shadow:0 0 0 4px rgba(227,196,126,.45)}90%,100%{box-shadow:0 0 0 0 rgba(227,196,126,0)}}
+.bell:hover .bi{animation:bellShake .9s ease-in-out 1 -.56s}
+@media (prefers-reduced-motion:reduce){.bell.ring .bi,.bell.ring span,.bell.ring,.bell:hover .bi{animation:none}}
 </style>
 </head>
 <body class="locked">
@@ -1302,7 +1313,8 @@ function gsearch(q){const box=document.querySelector('.screen.on .gres');if(!box
   box.classList.add('on');}
 document.addEventListener('click',e=>{if(!e.target.closest('.gsearch'))document.querySelectorAll('.gres').forEach(b=>b.classList.remove('on'));
   if(!e.target.closest('.bellw'))document.querySelectorAll('.notif').forEach(b=>b.classList.remove('on'));});
-function toggleNotif(ev){ev.stopPropagation();const p=document.querySelector('.screen.on .notif');if(p)p.classList.toggle('on');}
+let notifSeen=0;
+function toggleNotif(ev){ev.stopPropagation();notifSeen=pendingActions().length;document.querySelectorAll('.bell').forEach(b=>b.classList.remove('ring'));const p=document.querySelector('.screen.on .notif');if(p)p.classList.toggle('on');}
 
 /* ============================================================
    BRANCHES — per business unit (add one, paste many, or import CSV)
@@ -1386,7 +1398,7 @@ function shell(active, body, extra){
       <div class="gsearch">${ic('search')}<input placeholder="Search by name, mobile, skill, job or business unit" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
       <span class="spacer"></span>
       ${overdue?`<span class="pill red" style="cursor:pointer" onclick="go('s-dash')">${overdue} overdue</span>`:''}
-      <span class="bellw"><button class="bell" onclick="toggleNotif(event)" aria-label="Notifications">🔔${acts.length?`<span>${acts.length}</span>`:''}</button>
+      <span class="bellw"><button class="bell ${acts.length>notifSeen?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${acts.length?' — '+acts.length+' need attention':''}" data-tip="${acts.length>notifSeen?'You have '+acts.length+' notifications — click to view':'Notifications'}"><i class="bi">🔔</i>${acts.length?`<span>${acts.length}</span>`:''}</button>
         <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention</small></div>
         ${acts.slice(0,8).map(a=>`<a onclick="${a.a};render()"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span></a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
         ${acts.length>8?`<a class="more" onclick="go('s-dash')">See all ${acts.length} on the dashboard →</a>`:''}</div></span>
