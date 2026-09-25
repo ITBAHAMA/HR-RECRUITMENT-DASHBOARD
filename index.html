@@ -465,6 +465,81 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 .dgA{grid-template-columns:1.15fr 1fr}
 @media (max-width:1280px){.bubox-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
 @media (max-width:700px){.bubox-grid{grid-template-columns:1fr}.dgA{grid-template-columns:1fr}}
+
+/* ============ PUBLIC CAREERS / APPLY v2 ============ */
+#s-careers,#s-apply{background:#F4F6F1;min-height:100vh}
+.phero{background:radial-gradient(120% 140% at 0% 0%,#2A6B1A 0%,#12330D 55%,#081A06 100%);color:#F4EEDF;padding:34px 16px 64px;position:relative;overflow:hidden}
+.phero::after{content:"";position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:40px 40px;mask-image:radial-gradient(ellipse at 20% 30%,#000,transparent 70%);-webkit-mask-image:radial-gradient(ellipse at 20% 30%,#000,transparent 70%);pointer-events:none}
+.phin{max-width:980px;margin:0 auto;position:relative;z-index:1}
+.phlogo{height:54px;width:auto;background:rgba(0,0,0,.35);padding:7px 12px;border-radius:12px;border:1px solid rgba(227,196,126,.25)}
+.phero h1{font:500 38px/1.1 "Cormorant Garamond",Georgia,serif;margin:18px 0 8px;color:#F5EFE2}.phero h1 em{color:#E3C47E}
+.phero p{color:#BFD0B8;font-size:15px;max-width:560px}
+.steps{list-style:none;display:flex;gap:8px;margin-top:22px;flex-wrap:wrap;padding:0}
+.steps li{display:flex;align-items:center;gap:8px;font-size:13px;color:#9FB59A;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:99px;padding:5px 12px 5px 5px}
+.steps li span{width:22px;height:22px;border-radius:50%;display:grid;place-items:center;background:rgba(255,255,255,.12);font-size:11.5px;font-weight:700}
+.steps li.on{color:#fff;background:rgba(227,196,126,.16);border-color:rgba(227,196,126,.45)}.steps li.on span{background:#E3C47E;color:#12330D}
+.steps li.done{color:#D6E6CF}.steps li.done span{background:#3E9E2A;color:#fff}
+.pmain{max-width:980px;margin:-40px auto 40px;padding:0 16px;position:relative;z-index:2}
+.phd{background:#fff;border-radius:16px;padding:18px 20px;margin-bottom:14px;box-shadow:0 10px 30px -18px rgba(16,40,16,.35)}
+.phd h2{font-size:19px;color:#12330D}.phd p{color:var(--muted);font-size:13.5px;margin-top:2px}
+.pbu{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.pbuc{background:#fff;border:1px solid #E1E6DC;border-radius:16px;padding:18px 12px 14px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center;cursor:pointer;transition:transform .15s,box-shadow .15s,border-color .15s}
+.pbuc:hover{transform:translateY(-3px);box-shadow:0 14px 28px -16px rgba(16,40,16,.45);border-color:#9BC98A}
+.pbuc.none{opacity:.6}
+.pbul{width:120px;height:72px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;border:1px solid #EEF1EB}
+.pbul.dark{background:#0B120A;border-color:#0B120A}.pbul img{max-width:100%;max-height:100%;object-fit:contain}.pbul b{font-size:22px;color:#256B12}
+.pbul.lg{width:132px;height:80px;flex:none}
+.pbun{font-weight:600;font-size:14px;color:#12330D}
+.pbuj{font-size:12px;font-weight:600;color:#1F6B45;background:#E6F2EA;border-radius:99px;padding:2px 10px}.pbuj.z{color:var(--muted);background:#F0F2EE}
+.pgen{display:flex;align-items:center;gap:14px;background:#fff;border:1px dashed #BFD3B4;border-radius:16px;padding:16px 18px;margin-top:14px;flex-wrap:wrap}
+.pgen div{flex:1;min-width:220px}.pgen b{display:block;color:#12330D}.pgen span{font-size:13px;color:var(--muted)}
+.pbtn{border:none;border-radius:10px;background:linear-gradient(135deg,#2F7D22,#1C5A12);color:#fff;font-weight:600;font-size:14px;padding:11px 18px;cursor:pointer;box-shadow:0 8px 18px -10px rgba(28,90,18,.7);transition:transform .12s,box-shadow .12s}
+.pbtn:hover{transform:translateY(-1px);box-shadow:0 12px 22px -10px rgba(28,90,18,.75)}
+.pbtn.ghost{background:#fff;color:#1C5A12;border:1px solid #BFD3B4;box-shadow:none}.pbtn.ghost:hover{background:#F0F6EC}
+.pbtn.sm{padding:7px 12px;font-size:12.5px}.pbtn.big{width:100%;padding:15px;font-size:16px;margin-top:6px}
+.pback{background:#fff;border:1px solid #E1E6DC;border-radius:99px;padding:7px 14px;font-size:13px;color:#1C5A12;margin-bottom:12px;cursor:pointer}
+.pbuhead{display:flex;gap:16px;align-items:center;background:#fff;border-radius:16px;padding:16px 18px;margin-bottom:14px;box-shadow:0 10px 30px -18px rgba(16,40,16,.35)}
+.pbuhead h2{font-size:20px;color:#12330D}.pbuhead p{color:var(--muted);font-size:13.5px}
+.pjobs{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.pjob{background:#fff;border:1px solid #E1E6DC;border-radius:16px;padding:18px;display:flex;flex-direction:column;gap:10px;transition:box-shadow .15s,border-color .15s}
+.pjob:hover{box-shadow:0 14px 28px -18px rgba(16,40,16,.45);border-color:#BFD3B4}
+.pjt{display:flex;justify-content:space-between;gap:8px;align-items:flex-start}.pjt h3{font-size:17px;color:#12330D}
+.pjo{font-size:11.5px;font-weight:700;color:#8A6D1F;background:#FBF3DF;border-radius:99px;padding:3px 10px;white-space:nowrap}
+.pjm{display:flex;gap:6px 14px;flex-wrap:wrap;font-size:13px;color:#4B544C}
+.pjs{display:flex;gap:6px;flex-wrap:wrap}.pjs span{font-size:12px;background:#F0F4EC;color:#2F5F24;border-radius:6px;padding:3px 8px}
+.pja{display:flex;gap:8px;margin-top:auto;padding-top:4px}
+.pform{display:grid;grid-template-columns:280px 1fr;gap:16px;align-items:start}
+.psum{position:sticky;top:16px}.psumc{background:#fff;border-radius:16px;padding:16px;box-shadow:0 10px 30px -18px rgba(16,40,16,.35);display:flex;flex-direction:column;gap:10px}
+.psj{display:flex;gap:10px;align-items:center}.psj b{display:block;color:#12330D;font-size:15px}.psj small{color:var(--muted);font-size:12px}
+.psr{display:flex;justify-content:space-between;font-size:13px;border-top:1px solid #EEF0F1;padding-top:8px}.psr span{color:var(--muted)}
+.psafe{font-size:11.5px;color:var(--muted);background:#F6F8F4;border-radius:10px;padding:9px 10px;line-height:1.5}
+.pfm{display:flex;flex-direction:column;gap:14px}
+.psec{background:#fff;border-radius:16px;padding:18px 20px;box-shadow:0 10px 30px -20px rgba(16,40,16,.35)}
+.psec h3{display:flex;align-items:center;gap:10px;font-size:15.5px;color:#12330D;margin-bottom:14px}
+.psec h3 span{width:26px;height:26px;border-radius:50%;background:#E8F1E3;color:#256B12;display:grid;place-items:center;font-size:13px}
+.pg2{display:grid;grid-template-columns:1fr 1fr;gap:12px 14px}
+.pf{display:block;font-size:13px;font-weight:600;color:#26302A}.pf>.pin,.pf>.skl,.pf>.psrc{margin-top:6px}.pf>.pin{display:block;width:100%;box-sizing:border-box}.pf>.pin+small{display:block;margin-top:4px}.pf.full{grid-column:1/-1;margin-top:4px}
+.pf em{color:#B3352F;font-style:normal}.pf small{font-weight:400;color:var(--muted);font-size:11.5px}
+.pin{height:46px;border:1.5px solid #DCE2D6;border-radius:10px;padding:0 14px;font-size:15px;font-family:inherit;background:#FBFCFA;color:var(--ink);outline:none;transition:border-color .15s,box-shadow .15s;font-weight:400}
+textarea.pin{height:auto;padding:10px 14px;resize:vertical}
+.pin:focus{border-color:#2F7D22;box-shadow:0 0 0 4px rgba(47,125,34,.12);background:#fff}
+.skl,.psrc{display:flex;flex-wrap:wrap;gap:8px}
+.schip{cursor:pointer;font-weight:400}.schip input{position:absolute;opacity:0;pointer-events:none}
+.schip span{display:inline-block;border:1.5px solid #DCE2D6;border-radius:99px;padding:7px 14px;font-size:13px;color:#374037;background:#fff;transition:all .12s}
+.schip:hover span{border-color:#9BC98A}
+.schip input:checked+span{background:#256B12;border-color:#256B12;color:#fff}
+.schip input:focus-visible+span{outline:2px solid #256B12;outline-offset:2px}
+.pdrop{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed #BFD3B4;border-radius:14px;padding:20px;text-align:center;cursor:pointer;background:#FBFCFA;margin-bottom:14px}
+.pdrop:hover{background:#F0F6EC}.pdrop input{position:absolute;opacity:0;width:1px;height:1px}.pdrop b{color:#1C5A12}.pdrop span{font-size:12.5px;color:var(--muted)}
+.pconsent{display:flex;gap:10px;align-items:flex-start;font-size:13px;line-height:1.55;color:#374037;background:#F6F8F4;border-radius:12px;padding:12px}
+.pconsent input{width:18px;height:18px;margin-top:2px;accent-color:#256B12;flex:none}
+.pdone{background:#fff;border-radius:18px;padding:34px 24px;text-align:center;max-width:560px;margin:0 auto;box-shadow:0 14px 40px -20px rgba(16,40,16,.4)}
+.pdone h2{font-size:24px;color:#12330D;margin:12px 0 6px}.pdone p{color:#4B544C}
+.pref{display:inline-flex;flex-direction:column;gap:2px;background:#F6F8F4;border:1px dashed #BFD3B4;border-radius:12px;padding:12px 26px;margin:18px 0}
+.pref span,.pref small{font-size:11.5px;color:var(--muted)}.pref b{font:700 28px ui-monospace,Consolas,monospace;color:#12330D;letter-spacing:.06em}
+.pnext{text-align:left;max-width:380px;margin:0 auto 20px;padding-left:20px;font-size:13.5px;color:#4B544C;line-height:1.8}
+@media (max-width:860px){.pbu{grid-template-columns:repeat(2,minmax(0,1fr))}.pjobs{grid-template-columns:1fr}.pform{grid-template-columns:1fr}.psum{position:static}.phero h1{font-size:28px}.steps li{font-size:0;padding:4px}.steps li.on{font-size:12.5px;padding-right:12px}}
+@media (max-width:520px){.pg2{grid-template-columns:1fr}.pbul{width:100px;height:60px}}
 </style>
 </head>
 <body class="locked">
@@ -1863,65 +1938,78 @@ function shareJob(id){const j=job(id),url=jobLink(id);
       <div class="mut" style="max-width:300px">Scan to open the application form for this job. Right-click the QR code and choose <b>Save image</b> to print it on a poster.</div></div>
     <div class="mdl-f"><button class="btn" onclick="window.open(jobLink('${id}'),'_blank')">Preview form</button><button class="btn pri" onclick="closeModal()">Done</button></div>`);}
 
+let apBu=null;
+function pubHero(step){const S=['Choose company','Choose position','Your details','Done'];
+  return `<header class="phero"><div class="phin">
+    <img src="assets/brdc-logo.png" alt="Bahama Realty and Development Corporation" class="phlogo">
+    <h1>Build your career with the <em>BRDC Group</em></h1>
+    <p>Fuel, hospitality, logistics, agriculture and more — ${Object.keys(BU).length} companies, one application.</p>
+    <ol class="steps">${S.map((s,i)=>`<li class="${i+1<step?'done':i+1===step?'on':''}"><span>${i+1<step?'✓':i+1}</span>${s}</li>`).join('')}</ol></div></header>`;}
+function openJobsByBu(k){return JOBS.filter(j=>j.bu===k&&jobOpen(j)&&vacancies(j)>0);}
 function rCareers(){
-  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
-  document.getElementById('s-careers').innerHTML = `<div class="pub">
-    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">CAREERS AT BRDC</div>
-      <p class="sub" style="margin-top:6px">${open.length} open position${open.length===1?'':'s'} across the BRDC group</p></div>
-    ${open.map(j=>`<div class="job"><div style="display:flex;gap:12px;align-items:flex-start">${buLogo(j.bu,'sm')}<div style="flex:1">
-      <h4>${esc(j.t)}</h4>
-      <div class="meta">${BU[j.bu]} · ${esc(j.br)}${j.prov?', '+esc(j.prov):''} · ${vacancies(j)} opening${vacancies(j)>1?'s':''}${j.sal?' · '+esc(j.sal):''}</div>
-      ${(j.skills||[]).length?`<p style="font-size:12.5px;color:var(--muted);margin-bottom:10px">Looking for: ${j.skills.map(esc).join(', ')}</p>`:''}
-      <button class="btn pri" onclick="openApply('${j.id}')">Apply now</button>
-      <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText(jobLink('${j.id}'));toast('Link to this job copied')">Share</button></div></div>
-    </div>`).join('')}
-    <div class="job" style="border-style:dashed"><h4>Any available position</h4><div class="meta">Don't see a fit? Send a general application.</div>
-      <button class="btn" onclick="openApply('GEN-SF')">Apply anyway</button></div>
-  </div>`;
+  const el=document.getElementById('s-careers');
+  if(!apBu){
+    el.innerHTML=`${pubHero(1)}<main class="pmain">
+      <div class="phd"><h2>Which company would you like to join?</h2><p>Tap a company to see its open positions.</p></div>
+      <div class="pbu">${Object.keys(BU).map(k=>{const n=openJobsByBu(k).length;return `<button class="pbuc ${n?'':'none'}" onclick="apBu='${k}';render();window.scrollTo({top:0,behavior:'smooth'})">
+        <span class="pbul ${k==='br'||k==='uh'?'dark':''}">${BU_LOGO[k]?`<img src="${BU_LOGO[k]}" alt="">`:`<b>${BU[k].slice(0,2)}</b>`}</span>
+        <span class="pbun">${BU[k]}</span><span class="pbuj ${n?'':'z'}">${n?`${n} open position${n>1?'s':''}`:'No openings right now'}</span></button>`;}).join('')}</div>
+      <div class="pgen"><div><b>Not sure where you fit?</b><span>Send one general application and HR will match you to an opening.</span></div><button class="pbtn ghost" onclick="openApply('GEN-SF')">General application</button></div>
+    </main>`;return;}
+  const js=openJobsByBu(apBu);
+  el.innerHTML=`${pubHero(2)}<main class="pmain">
+    <button class="pback" onclick="apBu=null;render()">← All companies</button>
+    <div class="pbuhead"><span class="pbul lg ${apBu==='br'||apBu==='uh'?'dark':''}">${BU_LOGO[apBu]?`<img src="${BU_LOGO[apBu]}" alt="">`:''}</span><div><h2>${BU[apBu]}</h2><p>${js.length} open position${js.length===1?'':'s'} · choose the one you want to apply for</p></div></div>
+    <div class="pjobs">${js.map(j=>`<article class="pjob">
+      <div class="pjt"><h3>${esc(j.t)}</h3><span class="pjo">${vacancies(j)} opening${vacancies(j)>1?'s':''}</span></div>
+      <div class="pjm"><span>📍 ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</span>${j.sal?`<span>💰 ${esc(j.sal)} / month</span>`:''}<span>🕒 Full-time</span></div>
+      ${(j.skills||[]).length?`<div class="pjs">${j.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
+      <div class="pja"><button class="pbtn" onclick="openApply('${j.id}')">Apply for this job →</button><button class="pbtn ghost sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(jobLink('${j.id}'));toast('Link copied — share it with a friend')">Share</button></div>
+    </article>`).join('')||`<div class="empty">No openings at ${BU[apBu]} right now. <button class="pbtn ghost sm" onclick="openApply('GEN-SF')">Send a general application</button></div>`}</div>
+  </main>`;
 }
-
+function skillChip(s){return `<label class="schip"><input type="checkbox" value="${esc(s)}"><span>${esc(s)}</span></label>`;}
 function rApply(){
   const el=document.getElementById('s-apply');
-  if(applyDone){el.innerHTML=`<div class="pub"><div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"></div>
-    <div class="card" style="text-align:center;padding:30px"><div class="okc">✓</div><h2 style="margin:10px 0 4px">Application received</h2>
-    <p class="sub">Thank you, ${esc(applyDone.nick)}. Your reference number is <b>${applyDone.ref}</b>.</p>
-    <p style="font-size:13px;color:var(--muted);max-width:420px;margin:0 auto 16px">BRDC HR will review your application for <b>${esc(applyDone.job)}</b> and contact you by text or email within 2 working days.</p>
-    <button class="btn" onclick="applyDone=null;history.replaceState(null,'','#careers');go('s-careers')">See other openings</button></div></div>`;return;}
+  if(applyDone){el.innerHTML=`${pubHero(4)}<main class="pmain"><div class="pdone"><div class="okc">✓</div><h2>Application received!</h2>
+    <p>Thank you, <b>${esc(applyDone.nick)}</b>. We received your application for <b>${esc(applyDone.job)}</b>.</p>
+    <div class="pref"><span>Your reference number</span><b>${applyDone.ref}</b><small>Screenshot or write this down</small></div>
+    <ol class="pnext"><li><b>HR reviews</b> your application within 2 working days</li><li><b>We text or email you</b> if you move to the interview stage</li><li><b>Bring a valid ID</b> and your resume to the interview</li></ol>
+    <button class="pbtn ghost" onclick="applyDone=null;apBu=null;history.replaceState(null,'','#careers');go('s-careers')">See other openings</button></div></main>`;return;}
   const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
   if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
-  const j=job(applyJob), skills=[...new Set([...(j.skills||[]),'Customer service','Teamwork','Communication','Basic Excel','Driving','Computer proficiency'])];
-  el.innerHTML = `<div class="pub">
-    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">APPLICATION FOR EMPLOYMENT</div></div>
-    <div class="card apjob">${buLogo(j.bu,'sm')}<div style="flex:1"><div class="mut">You are applying for</div><b style="font-size:15px">${esc(j.t)}</b>
-      <div class="mut">${j.rf==='general'?'Any available position in the BRDC group':`${BU[j.bu]} · ${esc(j.br)}${j.sal?' · '+esc(j.sal):''}`}</div></div>
-      <select class="inp" style="max-width:190px" onchange="applyJob=this.value;history.replaceState(null,'','#apply='+this.value);render()" aria-label="Change position">${open.map(x=>`<option value="${x.id}" ${x.id===applyJob?'selected':''}>${esc(x.t)} — ${esc(x.br)}</option>`).join('')}<option value="GEN-SF" ${applyJob==='GEN-SF'?'selected':''}>Any available position</option></select></div>
-    <form class="card" id="apForm" onsubmit="submitApply(event)" novalidate>
-      <h3>Your details</h3>
-      <div class="fg">
-        <label>Full name *<input class="inp" id="aN" autocomplete="name" placeholder="e.g. Maria Santos Dela Cruz"></label>
-        <label>Nickname<input class="inp" id="aK" placeholder="e.g. Maria"></label>
-        <label>Mobile number *<input class="inp" id="aM" inputmode="tel" autocomplete="tel" placeholder="09XX XXX XXXX"></label>
-        <label>Email<input class="inp" id="aE" type="email" autocomplete="email" placeholder="name@email.com"></label>
-        <label>City / municipality *<input class="inp" id="aC" placeholder="e.g. Calamba"></label>
-        <label>Province *<input class="inp" id="aP" placeholder="e.g. Laguna"></label>
-        <label>Expected monthly salary<input class="inp" id="aS" inputmode="numeric" placeholder="₱"></label>
-        <label>Available to start<input class="inp" id="aA" type="date"></label>
-        <label style="grid-column:1/-1">How did you hear about this job? *<select class="inp" id="aSrc"><option value="">— Select —</option>${['Facebook','Jobstreet','Indeed','Referral','Walk-in (QR)','Career page','Job fair'].map(s=>`<option>${s}</option>`).join('')}</select></label>
-      </div>
-      <h3 style="margin-top:16px">Experience &amp; skills</h3>
-      <div class="fld"><label>Work experience — most recent first</label><textarea class="inp" id="aX" rows="3" style="width:100%" placeholder="e.g. Cashier – 7-Eleven Pacita (2022–2024)"></textarea></div>
-      <div class="fld"><label>Skills (tick all that apply)</label><div class="skl">${skills.map(s=>`<label><input type="checkbox" value="${esc(s)}"> ${esc(s)}</label>`).join('')}</div></div>
-      <div class="fld"><label>Resume (optional)</label><input type="file" id="aR" accept=".pdf,.doc,.docx,image/*"></div>
-      <label class="chk" style="margin-top:8px;align-items:flex-start"><input type="checkbox" id="aOk"> <span style="font-size:12.5px;line-height:1.5">I consent to BRDC collecting and processing my personal information for recruitment and for future job openings, under the Data Privacy Act of 2012. I can withdraw this consent anytime.</span></label>
-      <div class="err" id="aErr"></div>
-      <button class="btn pri" type="submit" style="width:100%;height:44px;margin-top:10px;font-size:14px">Submit application</button>
-    </form>
-    <p class="sub" style="text-align:center;margin-top:12px"><a class="lnk" onclick="history.replaceState(null,'','#careers');go('s-careers')">← See all openings</a></p>
-  </div>`;
+  const j=job(applyJob),gen=j.rf==='general', skills=[...new Set([...(j.skills||[]),'Customer service','Teamwork','Communication','Basic Excel','Driving','Computer proficiency'])];
+  el.innerHTML=`${pubHero(3)}<main class="pmain pform">
+    <aside class="psum"><div class="psumc"><span class="mut">You're applying for</span>
+      <div class="psj">${buLogo(j.bu,'sm')}<div><b>${esc(gen?'General application':j.t)}</b><small>${gen?'Any company in the BRDC Group':`${BU[j.bu]} · ${esc(j.br)}`}</small></div></div>
+      ${!gen&&j.sal?`<div class="psr"><span>Salary</span><b>${esc(j.sal)}</b></div>`:''}${!gen?`<div class="psr"><span>Openings</span><b>${vacancies(j)}</b></div>`:''}
+      <button class="pbtn ghost sm" style="width:100%" onclick="apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">Change position</button>
+      <div class="psafe">🔒 Your information is protected under the Data Privacy Act of 2012 and used only for recruitment.</div></div></aside>
+    <form id="apForm" class="pfm" onsubmit="submitApply(event)" novalidate>
+      <section class="psec"><h3><span>1</span>About you</h3><div class="pg2">
+        <label class="pf">Full name <em>*</em><input class="pin" id="aN" autocomplete="name" placeholder="Juan Dela Cruz"></label>
+        <label class="pf">Nickname<input class="pin" id="aK" placeholder="Juan"></label>
+        <label class="pf">Mobile number <em>*</em><input class="pin" id="aM" inputmode="tel" autocomplete="tel" placeholder="0917 123 4567"><small>We'll text you about your application</small></label>
+        <label class="pf">Email<input class="pin" id="aE" type="email" autocomplete="email" placeholder="juan@email.com"></label></div></section>
+      <section class="psec"><h3><span>2</span>Location &amp; availability</h3><div class="pg2">
+        <label class="pf">City / municipality <em>*</em><input class="pin" id="aC" placeholder="Calamba"></label>
+        <label class="pf">Province <em>*</em><input class="pin" id="aP" placeholder="Laguna" list="provs"><datalist id="provs">${['NCR','Laguna','Cavite','Batangas','Rizal','Quezon','Bulacan','Pampanga'].map(p=>`<option>${p}</option>`).join('')}</datalist></label>
+        <label class="pf">Expected monthly salary<input class="pin" id="aS" inputmode="numeric" placeholder="₱ 15,000"></label>
+        <label class="pf">Available to start<input class="pin" id="aA" type="date"></label>
+        <label class="pf full">How did you hear about this job? <em>*</em><div class="psrc" id="srcBox">${['Facebook','Jobstreet','Indeed','Referral','Walk-in (QR)','Career page','Job fair'].map(s=>`<label class="schip r"><input type="radio" name="src" value="${s}" onchange="document.getElementById('aSrc').value=this.value"><span>${s}</span></label>`).join('')}</div><input type="hidden" id="aSrc"></label></div></section>
+      <section class="psec"><h3><span>3</span>Experience &amp; skills</h3>
+        <label class="pf full">Work experience <small style="display:inline">— most recent first</small><textarea class="pin" id="aX" rows="3" placeholder="Cashier – 7-Eleven Pacita (2022–2024)"></textarea></label>
+        <div class="pf full">Skills <small style="display:inline">— tap all that apply</small><div class="skl">${skills.map(skillChip).join('')}</div></div></section>
+      <section class="psec"><h3><span>4</span>Resume &amp; consent</h3>
+        <label class="pdrop"><input type="file" id="aR" accept=".pdf,.doc,.docx,image/*" onchange="document.getElementById('rName').textContent=this.files[0]?'📎 '+this.files[0].name:'No file chosen'"><b>Upload resume (optional)</b><span id="rName">PDF, Word or a photo of your resume</span></label>
+        <label class="pconsent"><input type="checkbox" id="aOk"><span>I agree that BRDC may collect and process my personal information for this and future job openings, under the Data Privacy Act of 2012. I can withdraw my consent anytime.</span></label>
+        <div class="err" id="aErr" role="alert"></div>
+        <button class="pbtn big" type="submit">Submit application</button></section>
+    </form></main>`;
 }
 function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr');
   const miss=[['aN','full name'],['aM','mobile number'],['aC','city'],['aP','province'],['aSrc','how you heard about us']].filter(([id])=>!g(id)).map(x=>x[1]);
-  if(miss.length){er.textContent='Please fill in: '+miss.join(', ')+'.';return;}
+  if(miss.length){er.textContent='Please fill in: '+miss.join(', ')+'.';er.scrollIntoView({behavior:'smooth',block:'center'});return;}
   if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('aM'))){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return;}
   if(g('aE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('aE'))){er.textContent='Check your email address.';return;}
   if(!document.getElementById('aOk').checked){er.textContent='Please tick the consent box to continue.';return;}
@@ -1938,7 +2026,7 @@ function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElement
 /* public routing from the URL */
 function routeFromHash(){const h=location.hash||'';
   if(h.startsWith('#apply=')){applyJob=decodeURIComponent(h.slice(7));applyDone=null;return 's-apply';}
-  if(h.startsWith('#careers'))return 's-careers';return null;}
+  if(h.startsWith('#careers')){apBu=null;return 's-careers';}return null;}
 function enterPublic(scr){const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.body.classList.add('public');document.title='Careers — BRDC';go(scr);}
 window.addEventListener('hashchange',()=>{const s=routeFromHash();if(s)enterPublic(s);});
 
