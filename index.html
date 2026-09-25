@@ -556,6 +556,35 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .odp:hover{transform:translateY(-1px);box-shadow:0 0 0 3px rgba(251,235,234,.35)}
 .notif a.nw{background:#FBF7EC}
 .nwb{font-style:normal;font-size:10px;font-weight:700;color:#8A6D1F;background:#FBF3DF;border-radius:99px;padding:1px 7px;align-self:center;margin-left:auto}
+
+/* ============ hero animation ============ */
+.phero::after{animation:gridPan 26s linear infinite}
+@keyframes gridPan{from{background-position:0 0,0 0}to{background-position:40px 40px,40px 40px}}
+.porb{position:absolute;border-radius:50%;filter:blur(50px);pointer-events:none;z-index:0}
+.porb.o1{width:340px;height:340px;background:#C9A45C;opacity:.22;right:-60px;top:-120px;animation:orbA 16s ease-in-out infinite}
+.porb.o2{width:280px;height:280px;background:#3E9E2A;opacity:.35;left:-80px;bottom:-140px;animation:orbB 19s ease-in-out infinite}
+.porb.o3{width:180px;height:180px;background:#E3C47E;opacity:.14;left:45%;top:20%;animation:orbC 22s ease-in-out infinite}
+@keyframes orbA{0%,100%{transform:translate(0,0) scale(1)}50%{transform:translate(-80px,50px) scale(1.15)}}
+@keyframes orbB{0%,100%{transform:translate(0,0)}50%{transform:translate(90px,-40px)}}
+@keyframes orbC{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-60px,30px) scale(.85)}66%{transform:translate(50px,-20px) scale(1.1)}}
+.pdots{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.pdots i{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;background:#E3C47E;opacity:0;animation:rise linear infinite}
+.pdots i:nth-child(3n){background:#9BE07F;width:3px;height:3px}
+@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.7}80%{opacity:.35}100%{transform:translateY(-320px);opacity:0}}
+.phin>*{animation:heroUp .8s cubic-bezier(.2,.7,.2,1) both}
+.phin>.phlogo{animation-delay:.05s}.phin>h1{animation-delay:.15s}.phin>p{animation-delay:.28s}.phin>.steps{animation-delay:.4s}
+@keyframes heroUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+.phero h1 em{background:linear-gradient(100deg,#C9A45C 20%,#FFF1C4 40%,#E3C47E 55%,#C9A45C 75%);background-size:250% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:goldShine 5s ease-in-out infinite}
+@keyframes goldShine{0%,100%{background-position:100% 0}50%{background-position:0 0}}
+.phlogo{position:relative;animation:heroUp .8s cubic-bezier(.2,.7,.2,1) both,logoGlow 4s ease-in-out 1s infinite}
+@keyframes logoGlow{0%,100%{box-shadow:0 0 0 0 rgba(227,196,126,0)}50%{box-shadow:0 0 22px 2px rgba(227,196,126,.35)}}
+.steps li.on span{animation:stepPulse 2.2s ease-out infinite}
+@keyframes stepPulse{0%{box-shadow:0 0 0 0 rgba(227,196,126,.7)}70%{box-shadow:0 0 0 8px rgba(227,196,126,0)}100%{box-shadow:0 0 0 0 rgba(227,196,126,0)}}
+.pbuc{animation:cardIn .5s cubic-bezier(.2,.7,.2,1) both}
+.pbuc:nth-child(1){animation-delay:.05s}.pbuc:nth-child(2){animation-delay:.1s}.pbuc:nth-child(3){animation-delay:.15s}.pbuc:nth-child(4){animation-delay:.2s}
+.pbuc:nth-child(5){animation-delay:.25s}.pbuc:nth-child(6){animation-delay:.3s}.pbuc:nth-child(7){animation-delay:.35s}.pbuc:nth-child(8){animation-delay:.4s}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px) scale(.98)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.phero::after,.porb,.pdots i,.phin>*,.phero h1 em,.phlogo,.steps li.on span,.pbuc{animation:none!important}.pdots{display:none}}
 </style>
 </head>
 <body class="locked">
@@ -955,7 +984,7 @@ const SCREENS = [
 ];
 let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
 
-function go(id){cur=id;document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+function go(id){cur=id;if(typeof closeModal==='function')closeModal();document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -1228,15 +1257,23 @@ function tryClose(id){
 /* ============================================================
    v2 CORE — persistence, derived data, charts, search, notifications
    ============================================================ */
-const STORE='brdc-recruit-v2';
+const STORE='brdc-recruit-v3'; /* v3 = starts empty for test runs */
 let BRANCHES=null;
 function saveData(){try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
 function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');if(!d||d.v!==2)return;
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
-function resetData(){if(!confirm('Reset all demo data? Every change you made will be lost.'))return;try{localStorage.removeItem(STORE);}catch(e){}location.reload();}
+function resetData(){if(!confirm('Clear ALL recruitment data and start from zero?\n\nApplicants, interviews, requests, messages and history will be deleted. Jobs and branches are kept. Accounts are not affected.'))return;try{localStorage.removeItem(STORE);localStorage.removeItem('brdc-sample');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
+function loadSample(){if(!confirm('Replace current data with sample data for a demo?\n\nAnything you entered will be lost.'))return;try{localStorage.removeItem(STORE);localStorage.setItem('brdc-sample','1');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
+function wipeJobs(){if(!confirm('Delete ALL jobs and branches too?\n\nYou will create jobs again through Manpower requests.'))return;JOBS=JOBS.filter(j=>j.rf==='general');Object.keys(BRANCHES||{}).forEach(k=>BRANCHES[k]=[]);CANDS=[];try{localStorage.setItem('brdc-nojobs','1');}catch(e){}saveData();toast('All jobs and branches removed');render();}
+/* start from zero unless sample data was requested */
+(function(){let sample=false;try{sample=localStorage.getItem('brdc-sample')==='1';}catch(e){}
+  if(sample)return;
+  CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];
+  JOBS.forEach(j=>{j.filled=0;if(j.rf!=='general')j.open=isoAgo(0);if(j.status==='pending_approval')j.status='open';});
+  Object.keys(DOCSTATE).forEach(k=>DOCSTATE[k]='pending');})();
 loadData();
 (function(){ /* add BRDC corporate jobs to data saved before BRDC was added */
-  if(!JOBS.some(j=>j.bu==='br')){JOBS.splice(JOBS.length-1,0,
+  if(!JOBS.some(j=>j.bu==='br')&&(()=>{try{return localStorage.getItem('brdc-nojobs')!=='1'}catch(e){return true}})()){JOBS.splice(JOBS.length-1,0,
     {id:"BR-001",t:"IT Support Specialist",bu:"br",dept:"Information Technology",br:"Head Office",prov:"NCR",rf:"it_support",head:1,filled:0,open:isoAgo(18),owner:"R. Cruz",status:"open",sal:"₱20,000–25,000",vac:false,skills:["Troubleshooting","Networking","Communication","Records management"],team:["R. Cruz","IT Manager"]},
     {id:"BR-002",t:"HR Assistant",bu:"br",dept:"Human Resources",br:"Head Office",prov:"NCR",rf:"hr_assistant",head:1,filled:0,open:isoAgo(9),owner:"J. Tan",status:"open",sal:"₱18,000–21,000",vac:true,skills:["Records management","Communication","Basic Excel","Data entry"],team:["J. Tan","HR Manager"]},
     {id:"BR-003",t:"Executive Assistant",bu:"br",dept:"Office of the President",br:"Head Office",prov:"NCR",rf:"exec_asst",head:1,filled:0,open:isoAgo(33),owner:"M. Lim",status:"open",sal:"₱25,000–30,000",vac:true,skills:["Communication","Basic Excel","Records management","English"],team:["M. Lim","Office of the President"]});}
@@ -1494,7 +1531,7 @@ function rDash(){
   ];
   const H=hs.filter(h=>h.out==='hired'), closed=hs.length;
   const tth=median(H.map(h=>h.tth)), ttf=median(H.map(h=>h.ttf));
-  const srcs=[...new Set(HIST.map(h=>h.src))];
+  const srcs=[...new Set([...HIST.map(h=>h.src),...CANDS.map(c=>c.src)])];
   const srcStats=srcs.map(s=>{const a=hs.filter(h=>h.src===s).length+cs.filter(c=>c.src===s).length, h=H.filter(x=>x.src===s).length;return {s,a,h,r:pct(h,a)};}).sort((a,b)=>b.a-a.a);
   const best=[...srcStats].sort((a,b)=>b.r-a.r)[0]||{s:'—',r:0};
   const acts=pendingActions();
@@ -1547,7 +1584,7 @@ function rDash(){
       <div class="card"><div class="ch"><h3>Applicants by position</h3><small>Active only</small></div>
         ${posRows.length?hbars(posRows.map(([t,v])=>({l:t,v}))):'<div class="empty">No active applicants</div>'}</div>
       <div class="card"><div class="ch"><h3>Applicant sources</h3><small>Applicants · hire rate</small></div>
-        ${hbars(srcStats.map(s=>({l:s.s,v:s.a,x:s.r+'%',tip:`<b>${s.s}</b><br>${s.a} applicants · ${s.h} hired · ${s.r}% hire rate`})))}</div>
+        ${srcStats.length?'':'<div class="empty">No applicants yet</div>'}${hbars(srcStats.map(s=>({l:s.s,v:s.a,x:s.r+'%',tip:`<b>${s.s}</b><br>${s.a} applicants · ${s.h} hired · ${s.r}% hire rate`})))}</div>
     </div>
 
     <div class="dg2">
@@ -1818,7 +1855,10 @@ function rSet(){
       <p class="mut" style="margin-top:8px">Candidates over these limits are flagged red and listed in Pending actions.</p></div>
       <div><div class="card"><h3>Hiring target</h3><div class="doc"><span>Hires per month (all business units)</span><input class="inp" type="number" min="1" style="width:80px" value="${TARGET}" onchange="TARGET=+this.value||1;render()"></div></div>
       <div class="card" style="margin-top:14px"><h3>Data</h3><p class="mut" style="margin-bottom:10px">Changes are saved in this browser only. A shared database is needed before several HR staff can work on the same records.</p>
-        <button class="btn" onclick="exportJSON()">Download backup (JSON)</button> <button class="btn" style="color:var(--danger)" onclick="resetData()">Reset demo data</button></div>
+        <button class="btn" onclick="exportJSON()">Download backup (JSON)</button>
+        <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
+        <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
+        <div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div></div>
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
@@ -1968,7 +2008,7 @@ function shareJob(id){const j=job(id),url=jobLink(id);
 
 let apBu=null;
 function pubHero(step){const S=['Choose company','Choose position','Your details','Done'];
-  return `<header class="phero"><div class="phin">
+  return `<header class="phero"><span class="porb o1"></span><span class="porb o2"></span><span class="porb o3"></span><div class="pdots">${Array.from({length:14},(_,i)=>`<i style="left:${(i*37)%100}%;animation-delay:${(i*0.9)%8}s;animation-duration:${7+(i%5)}s"></i>`).join('')}</div><div class="phin">
     <img src="assets/brdc-logo.png" alt="Bahama Realty and Development Corporation" class="phlogo">
     <h1>Build your career with the <em>BRDC Group</em></h1>
     <p>Fuel, hospitality, logistics, agriculture and more — ${Object.keys(BU).length} companies, one application.</p>
