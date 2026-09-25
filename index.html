@@ -555,7 +555,7 @@ const STAGES = [
   {k:"hired",      n:"Hired",                sla:0,  c:"#256B12"},
   {k:"onboarding", n:"Onboarding",           sla:14, c:"#12330D"}
 ];
-const BU_LOGO = {br:"assets/bu/br.png", sf:"assets/bu/sf.png", uh:"assets/bu/uh.png", th:"assets/bu/th.png", ex:"assets/bu/ex.png", pp:"assets/bu/pp.png", lf:"assets/bu/lf.png"};
+const BU_LOGO = {br:"assets/bu/br.png", sf:"assets/bu/sf.png", nb:"assets/bu/nb.png", uh:"assets/bu/uh.png", th:"assets/bu/th.png", ex:"assets/bu/ex.png", pp:"assets/bu/pp.png", lf:"assets/bu/lf.png"};
 function buLogo(k,cls){const v=BU[k]||k;return BU_LOGO[k]?`<span class="bulogo ${cls||''} ${k==='br'||k==='uh'?'dark':''}"><img src="${BU_LOGO[k]}" alt="${v} logo" loading="lazy"></span>`:`<span class="bulogo ${cls||''} ini">${(v.split(' ').map(w=>w[0]).join('')).slice(0,2).toUpperCase()}</span>`;}
 const ACTIVE = ["new","screening","hr_int","dept_int","exam","final","offer","reqs"];
 const INTERVIEW_STAGES = ["hr_int","dept_int","final"];
