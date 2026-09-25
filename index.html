@@ -591,6 +591,9 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .inp.bad{border-color:#D9534F!important;box-shadow:0 0 0 3px rgba(217,83,79,.15)}
 .fg small.mut{font-size:11px}
 .mdl-card{max-height:92vh;overflow:auto}
+#lgErr{align-items:flex-start;line-height:1.45}
+.phstaff{position:absolute;top:16px;right:16px;z-index:3;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#F4EEDF;border-radius:99px;padding:7px 14px;font-size:13px;cursor:pointer;backdrop-filter:blur(4px)}
+.phstaff:hover{background:rgba(255,255,255,.2)}
 </style>
 </head>
 <body class="locked">
@@ -911,6 +914,8 @@ ACCOUNTS[0].hash='b07a5cc71a90351859379d6b5ec82e58a82fd9c74cdaf4af2d950e70958418
 try{const s=JSON.parse(localStorage.getItem(ACC_KEY)||'null');if(Array.isArray(s)&&s.length)ACCOUNTS=s;}catch(e){}
 function saveAccounts(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));return true;}catch(e){toast('Could not save accounts in this browser');return false;}}
 function acct(u){return ACCOUNTS.find(a=>a.u===String(u||'').toLowerCase());}
+function findLogin(x){x=String(x||'').trim().toLowerCase();if(!x)return null;
+  return ACCOUNTS.find(a=>a.u===x)||ACCOUNTS.find(a=>a.email&&a.email.toLowerCase()===x)||ACCOUNTS.find(a=>a.name.toLowerCase()===x)||ACCOUNTS.find(a=>typeof cleanUser==='function'&&a.u===cleanUser(x));}
 const USERS=new Proxy({}, {get:(_,u)=>acct(u)}); /* legacy lookups */
 function pwProblems(p,u){const x=[];if(p.length<8)x.push('at least 8 characters');if(!/[A-Z]/.test(p))x.push('an uppercase letter');if(!/[a-z]/.test(p))x.push('a lowercase letter');if(!/\d/.test(p))x.push('a number');if(u&&p.toLowerCase().includes(u.toLowerCase()))x.push('not containing the username');return x;}
 function pwScore(p){let s=0;if(p.length>=8)s++;if(p.length>=12)s++;if(/[A-Z]/.test(p)&&/[a-z]/.test(p))s++;if(/\d/.test(p))s++;if(/[^A-Za-z0-9]/.test(p))s++;return Math.min(4,s);}
@@ -943,10 +948,12 @@ async function doLogin(e){
   if(!u||!p){lgShowErr('Enter your username and password.');return;}
   btn.disabled=true;btn.innerHTML='<span class="lg-spin"></span>AUTHENTICATING';
   await new Promise(r=>setTimeout(r,700));
-  const a=acct(u);
+  const a=findLogin(u);
   const reset=()=>{btn.disabled=false;btn.textContent='SIGN IN';};
-  if(a&&a.status==='disabled'&&a.hash===pwHash(u,p)){reset();lgShowErr('This account is disabled. Contact your administrator.');return;}
-  if(!a||!a.hash||a.status==='disabled'||a.hash!==pwHash(u,p)){
+  if(!a){reset();lgFails++;lgShowErr(`No account “${u}” on this computer. Use the username HR gave you. Note: until the shared database is set up, accounts only work in the browser where they were created.`);return;}
+  if(a&&a.status==='disabled'&&a.hash===pwHash(a.u,p)){reset();lgShowErr('This account is disabled. Contact your administrator.');return;}
+  if(!a.hash){reset();lgShowErr('This account has no password yet. Ask an hr_admin to click “Set temporary password” in Administration.');return;}
+  if(a.status==='disabled'||a.hash!==pwHash(a.u,p)){
     reset();lgFails++;
     if(lgFails>=5){lgLockUntil=Date.now()+30000;lgFails=0;lgShowErr('Too many attempts. Sign-in locked for 30 seconds.');}
     else lgShowErr(`Incorrect username or password. ${5-lgFails} attempt${5-lgFails===1?'':'s'} left.`);
@@ -2024,7 +2031,7 @@ function shareJob(id){const j=job(id),url=jobLink(id);
 
 let apBu=null;
 function pubHero(step){const S=['Choose company','Choose position','Your details','Done'];
-  return `<header class="phero"><span class="porb o1"></span><span class="porb o2"></span><span class="porb o3"></span><div class="pdots">${Array.from({length:14},(_,i)=>`<i style="left:${(i*37)%100}%;animation-delay:${(i*0.9)%8}s;animation-duration:${7+(i%5)}s"></i>`).join('')}</div><div class="phin">
+  return `<header class="phero">${SESSION?'':'<button class="phstaff" onclick="staffLogin()">🔒 Staff sign in</button>'}<span class="porb o1"></span><span class="porb o2"></span><span class="porb o3"></span><div class="pdots">${Array.from({length:14},(_,i)=>`<i style="left:${(i*37)%100}%;animation-delay:${(i*0.9)%8}s;animation-duration:${7+(i%5)}s"></i>`).join('')}</div><div class="phin">
     <img src="assets/brdc-logo.png" alt="Bahama Realty and Development Corporation" class="phlogo">
     <h1>Build your career with the <em>BRDC Group</em></h1>
     <p>Fuel, hospitality, logistics, agriculture and more — ${Object.keys(BU).length} companies, one application.</p>
@@ -2111,6 +2118,7 @@ function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElement
 function routeFromHash(){const h=location.hash||'';
   if(h.startsWith('#apply=')){applyJob=decodeURIComponent(h.slice(7));applyDone=null;return 's-apply';}
   if(h.startsWith('#careers')){apBu=null;return 's-careers';}return null;}
+function staffLogin(){history.replaceState(null,'',location.pathname);document.body.classList.remove('public');cur='s-dash';logout();}
 function enterPublic(scr){const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.body.classList.add('public');document.title='Careers — BRDC';go(scr);}
 window.addEventListener('hashchange',()=>{const s=routeFromHash();if(s)enterPublic(s);});
 
