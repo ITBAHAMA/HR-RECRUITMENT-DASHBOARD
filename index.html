@@ -651,7 +651,8 @@ let HIST=[];
   for(let m=7;m>=0;m--){
     const d=new Date(TODAY.getFullYear(),TODAY.getMonth()-m,1), month=localISO(d).slice(0,7);
     const hires=m===0?3:4+Math.floor(R()*6), rej=14+Math.floor(R()*14), wd=2+Math.floor(R()*4);
-    for(let i=0;i<hires;i++){const s=pick(SRC);HIST.push({month,out:'hired',bu:pick(bus),src:s,tth:12+Math.floor(R()*22)+(s==='Referral'?-4:0),ttf:18+Math.floor(R()*40)});}
+    const HN=['Ana Lopez','Mark Reyes','Joy Santos','Paolo Cruz','Grace Flores','Rico Bautista','Kaye Ramos','Noel Garcia','Mae Torres','Jun Navarro','Bea Castillo','Allan Mercado'];
+    for(let i=0;i<hires;i++){const s=pick(SRC),b=pick(bus),js=JOBS.filter(j=>j.bu===b&&j.rf!=='general');HIST.push({month,out:'hired',n:pick(HN),job:js.length?pick(js).id:null,day:1+Math.floor(R()*(m===0?Math.max(1,TODAY.getDate()-1):27)),bu:b,src:s,tth:12+Math.floor(R()*22)+(s==='Referral'?-4:0),ttf:18+Math.floor(R()*40)});}
     for(let i=0;i<rej;i++)HIST.push({month,out:'rejected',bu:pick(bus),src:pick(SRC)});
     for(let i=0;i<wd;i++)HIST.push({month,out:'withdrew',bu:pick(bus),src:pick(SRC)});
   }
@@ -1346,7 +1347,7 @@ function brEditSave(k,id){const b=branchesOf(k).find(x=>x.id===id),g=i=>document
   log(`Updated branch ${b.n} (${BU[k]})`);saveData();drawBranches(k);}
 function brToggle(k,id){const b=branchesOf(k).find(x=>x.id===id);b.active=b.active===false;log(`${b.active?'Activated':'Deactivated'} branch ${b.n}`);saveData();drawBranches(k);}
 function brDel(k,id){const L=branchesOf(k),b=L.find(x=>x.id===id);const js=JOBS.filter(j=>j.bu===k&&j.br===b.n);
-  const msg=js.length?`Remove ${b.n}?\n\n${js.length} job${js.length>1?'s':''} use this branch (${js.map(j=>j.id).join(', ')}). ${js.length>1?'They':'It'} will be set to "To be confirmed" — you can pick a new branch from the job's Summary tab.`:`Remove ${b.n}?`;
+  const msg=js.length?`Remove ${b.n}?\n\n${js.length} ${js.length>1?'jobs use':'job uses'} this branch (${js.map(j=>j.id).join(', ')}). ${js.length>1?'They':'It'} will be set to "To be confirmed" — you can pick a new branch from the job's Summary tab.`:`Remove ${b.n}?`;
   if(!confirm(msg))return;js.forEach(j=>{j.br='To be confirmed';});L.splice(L.indexOf(b),1);
   log(`Removed branch ${b.n} (${BU[k]})${js.length?` — ${js.length} job(s) set to To be confirmed`:''}`);saveData();toast(`${b.n} removed`);drawBranches(k);}
 function setJobBranch(jid,v){const j=job(jid);if(v==='__tbc')v='To be confirmed';if(!v)return;j.br=v;const b=branchesOf(j.bu).find(x=>x.n===v);if(b&&b.prov)j.prov=b.prov;log(`Set branch of ${jid} to ${v}`,jid);toast('Branch updated');render();}
@@ -1406,6 +1407,15 @@ function shell(active, body, extra){
 /* ============================================================
    DASHBOARD — company-wide overview
    ============================================================ */
+function showHired(){
+  const mk=todayKey.slice(0,7), cur=scopedCands().filter(c=>['hired','onboarding'].includes(c.stage)), done=scopedHist().filter(h=>h.out==='hired'&&h.month===mk);
+  const row=(nm,sub,pill,act)=>`<div class="bri"><span class="brn"><b>${nm}</b><small>${sub}</small></span>${pill}${act||''}</div>`;
+  modal(`<div class="brh"><div><h3 style="margin:0">Hired this month</h3><div class="mut">${cur.length+done.length} total${buF?' · '+BU[buF]:''} · ${TODAY.toLocaleDateString('en-PH',{month:'long',year:'numeric'})}</div></div><button class="btn sm" style="margin-left:auto" onclick="closeModal()">Close</button></div>
+    <h3 style="font-size:13px;margin:6px 0 4px">In onboarding (${cur.length})</h3>
+    ${cur.map(c=>{const j=job(c.job);return row(esc(c.n),`${esc(j.t)} · ${BU[j.bu]} · start ${c.start?fmtD(c.start):'TBC'} · ${(c.onb||[]).filter(Boolean).length}/${ONB_ITEMS.length} requirements`,`<span class="pill ${c.stage==='hired'?'amber':'green'}">${stageName(c.stage)}</span>`,`<button class="btn sm" onclick="closeModal();openCand(${c.id})">Open</button>`);}).join('')||'<div class="mut" style="padding:6px 0">None</div>'}
+    <h3 style="font-size:13px;margin:14px 0 4px">Completed onboarding (${done.length})</h3>
+    ${done.map(h=>{const j=h.job?job(h.job):null;return row(esc(h.n||'Hire record'),`${j&&j.t!=='—'?esc(j.t)+' · ':''}${BU[h.bu]||''} · via ${esc(h.src)}${h.day?' · '+fmtD(mk+'-'+String(h.day).padStart(2,'0')):''} · ${h.tth} days to hire`,'<span class="pill green">Employee</span>');}).join('')||'<div class="mut" style="padding:6px 0">None yet this month</div>'}
+    <div class="mdl-f"><button class="btn" onclick="closeModal();go('s-onb')">Go to Onboarding</button></div>`,'wide');}
 function rDash(){
   const js=scopedJobs(), open=js.filter(jobOpen), cs=scopedCands(), hs=scopedHist();
   const act=cs.filter(c=>ACTIVE.includes(c.stage));
@@ -1419,7 +1429,7 @@ function rDash(){
     ['For interview',n(INTERVIEW_STAGES),`${INTV.filter(i=>i.status==='scheduled').length} interviews scheduled`,'cal',"go('s-int')"],
     ['For evaluation',n('exam')+awaitRes,`${n('exam')} assessments · ${awaitRes} results due`,'req',"pf.stage='exam';go('s-pipe')"],
     ['Job offers',n('offer'),`${cs.filter(c=>c.stage==='offer'&&c.days>3).length} waiting > 3 days`,'doc',"pf.stage='offer';go('s-pipe')"],
-    ['Hired',hiredMTD,'this month','onb',"go('s-onb')"],
+    ['Hired',hiredMTD,`this month · ${n('hired')+n('onboarding')} onboarding · ${hiredMTD-n('hired')-n('onboarding')} completed`,'onb',"showHired()"],
     ['Onboarding',n('onboarding')+n('hired'),`${n('hired')} starting soon`,'team',"go('s-onb')"]
   ];
   const H=hs.filter(h=>h.out==='hired'), closed=hs.length;
@@ -1730,7 +1740,7 @@ function rOnb(){
         ${ONB_ITEMS.map((t,i)=>`<label class="chk"><input type="checkbox" ${c.onb&&c.onb[i]?'checked':''} onchange="cand(${c.id}).onb[${i}]=this.checked;${c.stage==='hired'?`cand(${c.id}).stage='onboarding';`:''}render()"> ${t}</label>`).join('')}
         ${d===ONB_ITEMS.length?`<button class="btn pri" style="margin-top:10px" onclick="completeOnb(${c.id})">Complete onboarding</button>`:''}</div>`;}).join('')||'<div class="empty">No one is onboarding right now.</div>'}</div>`);
 }
-function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),out:'hired',bu:job(c.job).bu,src:c.src,tth:daysSince(c.applied||isoAgo(20)),ttf:daysSince(job(c.job).open)});
+function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),out:'hired',n:c.n,job:c.job,day:TODAY.getDate(),bu:job(c.job).bu,src:c.src,tth:daysSince(c.applied||isoAgo(20)),ttf:daysSince(job(c.job).open)});
   CANDS=CANDS.filter(x=>x.id!==id);log(`${c.n} completed onboarding`,c.job);toast(`${c.n} onboarding complete — moved to employee records`);render();}
 
 /* ============================================================
