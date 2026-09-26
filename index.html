@@ -597,6 +597,10 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 
 @media (max-width:860px){body.sideopen .side{display:block;position:fixed;left:0;top:58px;bottom:0;width:250px;z-index:70;height:auto;box-shadow:12px 0 30px -10px rgba(0,0,0,.35)}
  body.sideopen::after{content:"";position:fixed;inset:58px 0 0 250px;background:rgba(8,14,8,.35);z-index:65}}
+
+.sync{font-size:11.5px;color:#C8D8C0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:3px 10px;white-space:nowrap}
+.sync.ok::before{content:"● ";color:#7EE06A}.sync.busy::before{content:"● ";color:#E3C47E}.sync.warn{color:#FFD2CC}.sync.warn::before{content:"● ";color:#FF8A7A}
+@media (max-width:860px){.sync{display:none}}
 </style>
 </head>
 <body class="locked">
@@ -699,6 +703,7 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 <button class="backhr" id="backhr" onclick="go('s-dash')">← Back to HR dashboard</button>
 
 <script>
+var REMOTE=false,TOKEN=null;
 /* ============================================================
    DUMMY DATA
    ============================================================ */
@@ -915,7 +920,7 @@ let ACCOUNTS=[
 ];
 ACCOUNTS[0].hash='b07a5cc71a90351859379d6b5ec82e58a82fd9c74cdaf4af2d950e709584185f'; /* default admin hash — change the password after first sign-in */
 try{const s=JSON.parse(localStorage.getItem(ACC_KEY)||'null');if(Array.isArray(s)&&s.length)ACCOUNTS=s;}catch(e){}
-function saveAccounts(){try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));return true;}catch(e){toast('Could not save accounts in this browser');return false;}}
+function saveAccounts(){if(REMOTE)return true;try{localStorage.setItem(ACC_KEY,JSON.stringify(ACCOUNTS));return true;}catch(e){toast('Could not save accounts in this browser');return false;}}
 function acct(u){return ACCOUNTS.find(a=>a.u===String(u||'').toLowerCase());}
 function findLogin(x){x=String(x||'').trim().toLowerCase();if(!x)return null;
   return ACCOUNTS.find(a=>a.u===x)||ACCOUNTS.find(a=>a.email&&a.email.toLowerCase()===x)||ACCOUNTS.find(a=>a.name.toLowerCase()===x)||ACCOUNTS.find(a=>typeof cleanUser==='function'&&a.u===cleanUser(x));}
@@ -950,6 +955,7 @@ async function doLogin(e){
   if(Date.now()<lgLockUntil){lgShowErr(`Too many attempts. Try again in ${Math.ceil((lgLockUntil-Date.now())/1000)}s.`);return;}
   if(!u||!p){lgShowErr('Enter your username and password.');return;}
   btn.disabled=true;btn.innerHTML='<span class="lg-spin"></span>AUTHENTICATING';
+  if(REMOTE)return remoteLogin(u,p,btn);
   await new Promise(r=>setTimeout(r,700));
   const a=findLogin(u);
   const reset=()=>{btn.disabled=false;btn.textContent='SIGN IN';};
@@ -968,7 +974,7 @@ async function doLogin(e){
 }
 function pwMeter(inp,barId,u){const s=pwScore(inp.value),el=document.getElementById(barId);if(!el)return;
   el.innerHTML=`<i style="width:${s*25}%;background:${['#C2412D','#C2412D','#D07A12','#7F9A12','#2F9E44'][s]}"></i>`;el.title=['Very weak','Weak','Fair','Good','Strong'][s];}
-function doChange(e){e.preventDefault();const a=acct(pendingChange),n=document.getElementById('cgNew').value,c=document.getElementById('cgConf').value,er=document.getElementById('cgErr');
+function doChange(e){e.preventDefault();if(REMOTE){const er=document.getElementById('cgErr');return remoteChange(document.getElementById('cgNew').value,document.getElementById('cgConf').value,er);}const a=acct(pendingChange),n=document.getElementById('cgNew').value,c=document.getElementById('cgConf').value,er=document.getElementById('cgErr');
   const bad=pwProblems(n,a.u);if(bad.length){er.textContent='Password needs '+bad.join(', ')+'.';er.classList.add('on');return;}
   if(n!==c){er.textContent='The two passwords do not match.';er.classList.add('on');return;}
   if(pwHash(a.u,n)===a.hash){er.textContent='Choose a password different from the temporary one.';er.classList.add('on');return;}
@@ -976,6 +982,7 @@ function doChange(e){e.preventDefault();const a=acct(pendingChange),n=document.g
   document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';pendingChange=null;enterApp(a);}
 function cancelChange(){pendingChange=null;document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';document.getElementById('lgPass').value='';}
 function logout(){
+  TOKEN=null;try{localStorage.removeItem('brdc-token');}catch(e){}if(typeof pollTimer!=='undefined')clearInterval(pollTimer);
   try{localStorage.removeItem('brdc-sess');}catch(e){}
   if(SESSION)audit(`${SESSION.name} signed out`);
   SESSION=null;lgFails=0;
@@ -988,7 +995,7 @@ function logout(){
 ['keydown','keyup'].forEach(ev=>document.getElementById('lgPass').addEventListener(ev,e=>{
   if(e.getModifierState)document.getElementById('lgCaps').classList.toggle('on',e.getModifierState('CapsLock'));}));
 document.getElementById('lgUser').focus();
-(function(){try{const u=localStorage.getItem('brdc-sess'),a=acct(u);if(a&&a.status==='active'&&!a.mustChange){SESSION={user:a.u,name:a.name,first:a.first||a.name,role:a.role,at:new Date()};const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}catch(e){}})();
+function localAutoLogin(){try{const u=localStorage.getItem('brdc-sess'),a=acct(u);if(a&&a.status==='active'&&!a.mustChange){SESSION={user:a.u,name:a.name,first:a.first||a.name,role:a.role,at:new Date()};const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}catch(e){}}
 
 /* ============================================================
    PLUMBING
@@ -1117,10 +1124,10 @@ function tryClose(id){
    ============================================================ */
 const STORE='brdc-recruit-v3'; /* v3 = starts empty for test runs */
 let BRANCHES=null;
-function saveData(){try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
+function saveData(){if(REMOTE){if(SESSION)queueSave();return;}try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
 function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');if(!d||d.v!==2)return;
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
-function resetData(){if(!confirm('Clear ALL recruitment data and start from zero?\n\nApplicants, interviews, requests, messages and history will be deleted. Jobs and branches are kept. Accounts are not affected.'))return;try{localStorage.removeItem(STORE);localStorage.removeItem('brdc-sample');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
+function resetData(){if(REMOTE){if(!confirm('Clear ALL recruitment data in the shared database?\n\nApplicants, interviews, requests, messages and history will be deleted for EVERYONE. Jobs, branches and accounts are kept.'))return;CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];log('Cleared all recruitment data');saveData();render();toast('Data cleared');return;}if(!confirm('Clear ALL recruitment data and start from zero?\n\nApplicants, interviews, requests, messages and history will be deleted. Jobs and branches are kept. Accounts are not affected.'))return;try{localStorage.removeItem(STORE);localStorage.removeItem('brdc-sample');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function loadSample(){if(!confirm('Replace current data with sample data for a demo?\n\nAnything you entered will be lost.'))return;try{localStorage.removeItem(STORE);localStorage.setItem('brdc-sample','1');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function wipeJobs(){if(!confirm('Delete ALL jobs and branches too?\n\nYou will create jobs again through Manpower requests.'))return;JOBS=JOBS.filter(j=>j.rf==='general');Object.keys(BRANCHES||{}).forEach(k=>BRANCHES[k]=[]);CANDS=[];try{localStorage.setItem('brdc-nojobs','1');}catch(e){}saveData();toast('All jobs and branches removed');render();}
 /* start from zero unless sample data was requested */
@@ -1296,7 +1303,7 @@ function setJobBranch(jid,v){const j=job(jid);if(v==='__tbc')v='To be confirmed'
 function copyText(t,msg){const done=()=>toast(msg||'Copied');
   const fb=()=>{try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();ok?done():prompt('Copy this:',t);}catch(e){prompt('Copy this:',t);}};
   try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,fb);else fb();}catch(e){fb();}}
-function candRef(c){return 'C-'+(2000+c.id);}
+function candRef(c){return c.ref||('C-'+(2000+c.id));}
 function queueMsg(c,tpl,body){MSGS.unshift({id:Date.now()+Math.floor(Math.random()*999),cand:c.n,cid:c.id,mob:c.mob,tpl,lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),body});}
 function msgAge(m){return m.created?daysSince(m.created):(m.age||0);}
 
@@ -1438,7 +1445,7 @@ function rPortal(){document.getElementById('s-portal').innerHTML=`<div class="pu
       <button class="btn pri" style="width:100%" onclick="portalCheck()">Check status</button></div>
     <div id="pstat" style="margin-top:12px"></div>
     <p class="sub" style="text-align:center;margin-top:12px"><a class="lnk" onclick="apBu=null;go('s-careers')">See open positions</a></p></div>`;}
-function portalCheck(){const q=(document.getElementById('ptQ').value||'').trim(),digits=q.replace(/\D/g,'').slice(-10),out=document.getElementById('pstat');
+function portalCheck(){if(REMOTE){const qq=(document.getElementById('ptQ').value||'').trim(),out=document.getElementById('pstat');out.innerHTML='<p class="sub">Checking…</p>';api('public',{method:'POST',body:{action:'status',q:qq}}).then(r=>{out.innerHTML=r.results.length?r.results.map(x=>`<div class="card" style="margin-bottom:8px"><h3>${esc(x.ref)} · ${esc(x.job)}</h3><p class="sub">Status: <b style="color:var(--ink)">${esc(x.status)}</b> · updated ${fmtD(x.since)}</p></div>`).join(''):`<div class="card"><p class="sub" style="margin:0">No application found for “${esc(qq)}”. Check the number, or contact BRDC HR.</p></div>`;}).catch(e=>{out.innerHTML=`<div class="card"><p class="sub">${esc(e.message)}</p></div>`;});return;}const q=(document.getElementById('ptQ').value||'').trim(),digits=q.replace(/\D/g,'').slice(-10),out=document.getElementById('pstat');
   const L=CANDS.filter(c=>c.stage!=='draft'&&(candRef(c).toLowerCase()===q.toLowerCase()||(digits.length>=10&&c.mob.replace(/\D/g,'').slice(-10)===digits)));
   const friendly=k=>({new:'Received',screening:'Under review',hr_int:'Interview',dept_int:'Interview',exam:'Assessment',final:'Final interview',offer:'Job offer',reqs:'Completing requirements',hired:'Hired',onboarding:'Onboarding'}[k]||'Under review');
   out.innerHTML=L.length?L.map(c=>`<div class="card" style="margin-bottom:8px"><h3>${candRef(c)} · ${esc(job(c.job).t)}</h3><p class="sub">Status: <b style="color:var(--ink)">${friendly(c.stage)}</b> · updated ${fmtD(c.since)}</p></div>`).join('')+'<div class="hint">Only the status is shown, so a mobile number alone reveals nothing sensitive.</div>'
@@ -1462,6 +1469,7 @@ function shell(active, body, extra){
       <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
       <div class="gsearch">${ic('search')}<input placeholder="Search by name, mobile, skill, job or business unit" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
       <span class="spacer"></span>
+      ${REMOTE?'<span id="syncState" class="sync ok">Shared database</span>':''}
       ${overdue?`<button class="odp" onclick="showOverdue()" data-tip="See who is overdue">${overdue} overdue</button>`:''}
       <span class="bellw"><button class="bell ${newN?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${newN?' — '+newN+' new':''}" data-tip="${newN?'You have '+newN+' new notification'+(newN>1?'s':'')+' — click to view':'Notifications'}"><i class="bi">🔔</i>${newN?`<span>${newN}</span>`:''}</button>
         <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention${newN?' · '+newN+' new':''}</small></div>
@@ -1867,14 +1875,14 @@ function rSet(){
       ${STAGES.map((s,i)=>`<div class="doc"><span><span class="sdot" style="background:${s.c}"></span>${s.n}</span><input class="inp" type="number" min="0" style="width:80px" value="${s.sla}" onchange="STAGES[${i}].sla=+this.value;render()"></div>`).join('')}
       <p class="mut" style="margin-top:8px">Candidates over these limits are flagged red and listed in Pending actions.</p></div>
       <div><div class="card"><h3>Hiring target</h3><div class="doc"><span>Hires per month (all business units)</span><input class="inp" type="number" min="1" style="width:80px" value="${TARGET}" onchange="TARGET=+this.value||1;render()"></div></div>
-      <div class="card" style="margin-top:14px"><h3>Data</h3><p class="mut" style="margin-bottom:10px">Changes are saved in this browser only. A shared database is needed before several HR staff can work on the same records.</p>
+      <div class="card" style="margin-top:14px"><h3>Data</h3><p class="mut" style="margin-bottom:10px">${REMOTE?'Saved in the shared BRDC database — every HR user sees the same data, from any device.':'Changes are saved in this browser only. A shared database is needed before several HR staff can work on the same records.'}</p>
         <button class="btn" onclick="exportJSON()">Download backup (JSON)</button>
         <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
         <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
-        <div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div></div>
+        ${REMOTE?'':`<div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div>`}</div>
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
-function exportJSON(){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
+function exportJSON(){if(REMOTE){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(packData(),null,1)],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();return;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
 /* ============================================================
    ADMINISTRATION — accounts, password reset, roles, audit
    ============================================================ */
@@ -1927,7 +1935,7 @@ function fErr(msg,field){const er=document.getElementById('fErr');er.textContent
 function addAccount(){modal(`<h3>Add account</h3><p class="sub">A temporary password is created. Give it to the user privately; they must change it when they first sign in.</p>${acctForm(null)}
   <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="fSave" onclick="saveNewAccount()">Create account</button></div>`);
   document.querySelectorAll('#modal .inp').forEach(x=>x.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();saveNewAccount();}}));}
-function saveNewAccount(){try{
+function saveNewAccount(){if(REMOTE)return rSaveNewAccount();try{
   const g=id=>(document.getElementById(id).value||'').trim();
   const name=g('fN');let u=cleanUser(g('fU'))||suggestUser(name);
   if(!name)return fErr('Please enter the full name.','fN');
@@ -1942,7 +1950,7 @@ function saveNewAccount(){try{
 }catch(err){fErr('Something went wrong: '+(err&&err.message||err)+'. Please send a screenshot of this message to IT.');}}
 function editAccount(u){const a=acct(u);modal(`<h3>Edit account</h3>${acctForm(a)}
   <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveEdit('${u}')">Save changes</button></div>`);}
-function saveEdit(u){const a=acct(u),g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');if(!g('fN')){er.textContent='Name is required.';return;}
+function saveEdit(u){if(REMOTE)return rSaveEdit(u);const a=acct(u),g=id=>document.getElementById(id).value.trim(),er=document.getElementById('fErr');if(!g('fN')){er.textContent='Name is required.';return;}
   const nr=g('fR');if(a.role==='hr_admin'&&nr!=='hr_admin'&&ACCOUNTS.filter(x=>x.role==='hr_admin'&&x.status==='active').length<=1){er.textContent='Keep at least one active hr_admin.';return;}
   const ch=[];if(a.role!==nr)ch.push(`role ${a.role} → ${nr}`);
   Object.assign(a,{name:g('fN'),first:g('fN').split(' ')[0],email:g('fE'),role:nr,bu:g('fB')||'—'});saveAccounts();
@@ -1951,14 +1959,14 @@ function saveEdit(u){const a=acct(u),g=id=>document.getElementById(id).value.tri
 function resetPw(u){const a=acct(u);modal(`<h3>${a.status==='pending'?'Set temporary password':'Reset password'}</h3>
   <p class="sub">This creates a new one-time password for <b>${esc(a.name)}</b> (${esc(a.u)}). ${a.hash?'Their current password stops working immediately.':''} They must choose their own password at next sign-in.</p>
   <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="doReset('${u}')">${a.status==='pending'?'Create password':'Reset password'}</button></div>`);}
-function doReset(u){const a=acct(u),tmp=genTempPw();a.hash=pwHash(u,tmp);a.mustChange=true;if(a.status==='pending')a.status='active';saveAccounts();
+function doReset(u){if(REMOTE)return rDoReset(u);const a=acct(u),tmp=genTempPw();a.hash=pwHash(u,tmp);a.mustChange=true;if(a.status==='pending')a.status='active';saveAccounts();
   audit(`Reset password for ${u}`);render();showTemp(u,tmp,false);}
 function showTemp(u,tmp,isNew){modal(`<h3>${isNew?'Account created':'Password reset'}</h3>
   <p class="sub">Share this temporary password with <b>${esc(acct(u).name)}</b> in person or by a private message. It is shown only once.</p>
   <div class="tmp"><div><span class="mut">Username</span><b>${esc(u)}</b></div><div><span class="mut">Temporary password</span><b id="tmpPw">${esc(tmp)}</b></div>
   <button class="btn" onclick="copyText('Username: ${u}  Temporary password: ${tmp}','Copied')">Copy</button></div>
   <div class="mdl-f"><button class="btn pri" onclick="closeModal()">Done</button></div>`);}
-function setStatus(u,s){const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;
+function setStatus(u,s){if(REMOTE)return rSetStatus(u,s);const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;
   a.status=a.hash?s:(s==='active'?'pending':s);saveAccounts();audit(`${s==='disabled'?'Disabled':'Enabled'} account ${u}`);toast(`${a.name} ${s==='disabled'?'disabled':'enabled'}`);render();}
 function changeMyPw(){if(!SESSION)return;modal(`<h3>Change my password</h3>
   <div class="fg" style="grid-template-columns:1fr"><label>Current password<input class="inp" id="mCur" type="password" autocomplete="current-password"></label>
@@ -1966,7 +1974,7 @@ function changeMyPw(){if(!SESSION)return;modal(`<h3>Change my password</h3>
   <label>Confirm new password<input class="inp" id="mConf" type="password" autocomplete="new-password"></label></div>
   <p class="mut" style="margin-top:6px">At least 8 characters with uppercase, lowercase and a number.</p><div class="err" id="mErr"></div>
   <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveMyPw()">Update password</button></div>`);}
-function saveMyPw(){const a=acct(SESSION.user),g=id=>document.getElementById(id).value,er=document.getElementById('mErr');
+function saveMyPw(){if(REMOTE)return rSaveMyPw();const a=acct(SESSION.user),g=id=>document.getElementById(id).value,er=document.getElementById('mErr');
   if(pwHash(a.u,g('mCur'))!==a.hash){er.textContent='Current password is incorrect.';return;}
   const bad=pwProblems(g('mNew'),a.u);if(bad.length){er.textContent='Password needs '+bad.join(', ')+'.';return;}
   if(g('mNew')!==g('mConf')){er.textContent='The two passwords do not match.';return;}
@@ -2104,6 +2112,10 @@ function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElement
   if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('aM'))){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return;}
   if(g('aE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('aE'))){er.textContent='Check your email address.';return;}
   if(!document.getElementById('aOk').checked){er.textContent='Please tick the consent box to continue.';return;}
+  if(REMOTE){const f0=document.getElementById('aR').files[0],btn=document.querySelector('#apForm .pbtn.big');btn.disabled=true;btn.textContent='Submitting…';
+    api('public',{method:'POST',body:{action:'apply',app:{job:applyJob,n:g('aN'),nick:g('aK'),mob:g('aM'),em:g('aE'),city:g('aC'),prov:g('aP'),src:g('aSrc'),exp:g('aX'),salary:g('aS'),avail:g('aA'),resume:f0?f0.name:null,consent:true,skills:[...document.querySelectorAll('#apForm .skl input:checked')].map(x=>x.value)}}})
+      .then(r=>{applyDone={ref:r.ref,nick:g('aK')||g('aN').split(' ')[0],job:r.job};render();window.scrollTo(0,0);})
+      .catch(e2=>{er.textContent=e2.message;btn.disabled=false;btn.textContent='Submit application';});return;}
   const dup=CANDS.find(c=>c.job===applyJob&&c.mob.replace(/\D/g,'').slice(-10)===g('aM').replace(/\D/g,'').slice(-10));
   if(dup){er.textContent='You have already applied for this job. HR will contact you soon.';return;}
   const j=job(applyJob),id=Math.max(0,...CANDS.map(c=>c.id))+1,f=document.getElementById('aR').files[0];
@@ -2120,10 +2132,72 @@ function routeFromHash(){const h=location.hash||'';
   if(h.startsWith('#careers')){apBu=null;return 's-careers';}return null;}
 function staffLogin(){history.replaceState(null,'',location.pathname);document.body.classList.remove('public');cur='s-dash';logout();}
 function enterPublic(scr){const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.body.classList.add('public');document.title='Careers — BRDC';go(scr);}
-window.addEventListener('hashchange',()=>{const s=routeFromHash();if(s)enterPublic(s);});
+window.addEventListener('hashchange',()=>{const s=routeFromHash();if(!s)return;if(REMOTE&&!SESSION){probeApi().then(i=>{if(i&&i.jobs&&i.jobs.length)JOBS=i.jobs;enterPublic(s);});}else enterPublic(s);});
 
-const _pub=routeFromHash();
-if(_pub)enterPublic(_pub);else render();
+/* ============================================================
+   SHARED DATABASE MODE (Vercel + Postgres). Falls back to browser-only when /api is not available.
+   ============================================================ */
+let VERSION=0, lastSaved='', pendingConsumed=[], saveTimer=null, saving=false, pollTimer=null, remoteBusy=false;
+function packData(){return {v:2,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)};}
+function unpackData(d){if(!d||!Array.isArray(d.JOBS))return false;
+  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST}=d);CANDS=CANDS||[];MSGS=MSGS||[];POOL=POOL||[];MPR=MPR||[];INTV=INTV||[];NOTES=NOTES||{};ACT=ACT||[];HIST=HIST||[];
+  if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
+async function probeApi(){try{const r=await fetch('api/public',{cache:'no-store'});if(!r.ok)return null;const j=await r.json();return j&&j.ready?j:null;}catch(e){return null;}}
+async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json',...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
+  let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
+function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
+function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=Math.max(0,...CANDS.map(c=>c.id))+1,day=new Date(a.created_at).toISOString().slice(0,10);
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob,em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume});
+  ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
+async function loadRemote(silent){const r=await api('state');VERSION=r.version;
+  const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);
+  if(!had||n)queueSave();return r;}
+function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
+async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.stringify(packData());if(s===lastSaved&&!pendingConsumed.length)return;
+  if(SESSION.role==='viewer'){setSync('View only','');return;}
+  saving=true;setSync('Saving…','busy');const consumed=[...pendingConsumed];
+  try{const r=await api('state',{method:'PUT',body:{data:JSON.parse(s),version:VERSION,consumed}});VERSION=r.version;lastSaved=s;pendingConsumed=pendingConsumed.filter(x=>!consumed.includes(x));setSync('All changes saved','ok');}
+  catch(e){if(e.status===409){setSync('Updated by someone else','warn');toast(`${e.data.updatedBy||'Someone'} saved changes at the same time — loading the latest. Please redo your last change.`);pendingConsumed=[];await loadRemote();refreshDerived();renderSafe();}
+    else if(e.status===401){toast('Your session expired — please sign in again');logout();}
+    else{setSync('Not saved — retrying','warn');setTimeout(pushRemote,5000);}}
+  finally{saving=false;if(JSON.stringify(packData())!==lastSaved)queueSave();}}
+function renderSafe(){const a=document.activeElement;if(document.getElementById('modal')&&document.getElementById('modal').classList.contains('on'))return;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('.main'))return;render();}
+function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(async()=>{if(!REMOTE||!SESSION||saving||remoteBusy)return;if(JSON.stringify(packData())!==lastSaved)return;
+  try{remoteBusy=true;const r=await api('state');if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
+async function refreshAccounts(){if(!REMOTE||!isAdmin())return;try{const r=await api('accounts');ACCOUNTS=r.accounts.map(a=>({...a,hash:a.hasPassword?'set':null,status:a.hasPassword?a.status:'pending'}));}catch(e){}}
+async function enterRemote(res){TOKEN=res.token;SESSION={user:res.user.u,name:res.user.name,first:res.user.first||res.user.name.split(' ')[0],role:res.user.role,at:new Date()};
+  try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-token',JSON.stringify({t:TOKEN,user:res.user}));else localStorage.removeItem('brdc-token');}catch(e){}
+  setSync('Loading…','busy');await loadRemote();await refreshAccounts();log(`${SESSION.name} signed in`);startPoll();
+  document.title='BRDC Recruit — Dashboard';const L=document.getElementById('login');L.classList.add('out');
+  setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');setSync('All changes saved','ok');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},450);}
+async function remoteLogin(u,p,btn){try{const r=await api('login',{method:'POST',body:{u,p}});
+    if(r.mustChange){btn.disabled=false;btn.textContent='SIGN IN';pendingChange=r.changeToken;document.getElementById('lgForm').style.display='none';document.getElementById('lgChg').style.display='';document.getElementById('cgNew').focus();return;}
+    btn.innerHTML='✓ WELCOME';await enterRemote(r);}
+  catch(e){btn.disabled=false;btn.textContent='SIGN IN';lgShowErr(e.message);document.getElementById('lgPass').select();}}
+async function remoteChange(n,c,er){if(n!==c){er.textContent='The two passwords do not match.';er.classList.add('on');return;}
+  try{const r=await api('login',{method:'POST',body:{action:'setpw',changeToken:pendingChange,newPw:n}});document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';pendingChange=null;await enterRemote(r);}
+  catch(e){er.textContent=e.message;er.classList.add('on');}}
+async function remoteAccount(action,payload){const r=await api('accounts',{method:'POST',body:{action,...payload}});await refreshAccounts();return r;}
+async function remoteBoot(){const info=await probeApi();if(!info)return false;REMOTE=true;document.body.classList.add('remote');
+  if(!info.configured&&!routeFromHash()){} // first run: admin signs in and the app seeds jobs/branches
+  if(routeFromHash()&&info.jobs){JOBS=info.jobs.length?info.jobs:JOBS;}
+  try{const saved=JSON.parse(localStorage.getItem('brdc-token')||'null');if(saved&&saved.t&&!routeFromHash()){TOKEN=saved.t;SESSION={user:saved.user.u,name:saved.user.name,first:saved.user.first||saved.user.name,role:saved.user.role,at:new Date()};
+      await loadRemote();await refreshAccounts();startPoll();const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}
+  catch(e){TOKEN=null;SESSION=null;try{localStorage.removeItem('brdc-token');}catch(x){}}
+  return true;}
+
+async function rSaveNewAccount(){const g=id=>(document.getElementById(id).value||'').trim(),name=g('fN'),u=cleanUser(g('fU'))||suggestUser(name);
+  if(!name)return fErr('Please enter the full name.','fN');if(u.length<2)return fErr('Username must be at least 2 characters.','fU');
+  if(g('fE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('fE')))return fErr('Check the email address (or leave it blank).','fE');
+  try{const r=await remoteAccount('create',{u,name,email:g('fE'),role:g('fR'),bu:g('fB')});log(`Created account ${u}`);render();showTemp(r.u,r.tmp,true);}catch(e){fErr(e.message,e.status===409?'fU':null);}}
+async function rSaveEdit(u){const g=id=>(document.getElementById(id).value||'').trim();try{await remoteAccount('update',{u,name:g('fN'),email:g('fE'),role:g('fR'),bu:g('fB')});closeModal();toast('Account updated');render();}catch(e){fErr(e.message);}}
+async function rDoReset(u){try{const r=await remoteAccount('reset',{u});log(`Reset password for ${u}`);render();showTemp(r.u,r.tmp,false);}catch(e){toast(e.message);}}
+async function rSetStatus(u,s){const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;try{await remoteAccount('status',{u,status:s});toast(`${a.name} ${s==='disabled'?'disabled':'enabled'}`);render();}catch(e){toast(e.message);}}
+async function rSaveMyPw(){const g=id=>document.getElementById(id).value,er=document.getElementById('mErr');if(g('mNew')!==g('mConf')){er.textContent='The two passwords do not match.';return;}
+  try{await api('accounts',{method:'POST',body:{action:'changePw',current:g('mCur'),newPw:g('mNew')}});closeModal();toast('Password updated');}catch(e){er.textContent=e.message;}}
+(async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+
 </script>
 </body>
 </html>
