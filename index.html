@@ -568,9 +568,9 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 @keyframes orbB{0%,100%{transform:translate(0,0)}50%{transform:translate(90px,-40px)}}
 @keyframes orbC{0%,100%{transform:translate(0,0) scale(1)}33%{transform:translate(-60px,30px) scale(.85)}66%{transform:translate(50px,-20px) scale(1.1)}}
 .pdots{position:absolute;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.pdots i{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;background:#E3C47E;opacity:0;animation:rise linear infinite}
+.pdots i{position:absolute;bottom:-10px;width:4px;height:4px;border-radius:50%;background:#E3C47E;opacity:0;animation:dotRise linear infinite}
 .pdots i:nth-child(3n){background:#9BE07F;width:3px;height:3px}
-@keyframes rise{0%{transform:translateY(0);opacity:0}15%{opacity:.7}80%{opacity:.35}100%{transform:translateY(-320px);opacity:0}}
+@keyframes dotRise{0%{transform:translateY(0);opacity:0}15%{opacity:.7}80%{opacity:.35}100%{transform:translateY(-320px);opacity:0}}
 .phin>*{animation:heroUp .8s cubic-bezier(.2,.7,.2,1) both}
 .phin>.phlogo{animation-delay:.05s}.phin>h1{animation-delay:.15s}.phin>p{animation-delay:.28s}.phin>.steps{animation-delay:.4s}
 @keyframes heroUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
