@@ -594,6 +594,9 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 #lgErr{align-items:flex-start;line-height:1.45}
 .phstaff{position:absolute;top:16px;right:16px;z-index:3;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.22);color:#F4EEDF;border-radius:99px;padding:7px 14px;font-size:13px;cursor:pointer;backdrop-filter:blur(4px)}
 .phstaff:hover{background:rgba(255,255,255,.2)}
+
+@media (max-width:860px){body.sideopen .side{display:block;position:fixed;left:0;top:58px;bottom:0;width:250px;z-index:70;height:auto;box-shadow:12px 0 30px -10px rgba(0,0,0,.35)}
+ body.sideopen::after{content:"";position:fixed;inset:58px 0 0 250px;background:rgba(8,14,8,.35);z-index:65}}
 </style>
 </head>
 <body class="locked">
@@ -997,7 +1000,7 @@ const SCREENS = [
 ];
 let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
 
-function go(id){cur=id;if(typeof closeModal==='function')closeModal();document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+function go(id){cur=id;document.body.classList.remove('sideopen');if(typeof closeModal==='function')closeModal();document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -1043,123 +1046,9 @@ function greet(){const h=new Date().getHours();return h<12?"Good morning":h<18?"
 /* ============================================================
    SCREENS
    ============================================================ */
-function rProf(){
-  const c = cand(curCand); const j = job(c.job);
-  const q = c.quad;
-  const tab = (k,n)=>`<button class="${profTab===k?'on':''}" onclick="profTab='${k}';render()">${n}</button>`;
-  document.getElementById('s-prof').innerHTML = shell('pipe',`<div class="pad">
-    <div class="bar"><button class="btn sm" onclick="openJob(cand(curCand).job)">← Job board</button> <button class="btn sm" onclick="go('s-pipe')">All candidates</button></div>
-    <div class="phead">
-      <div class="avatar">2×2</div>
-      <div style="flex:1">
-        <h2>${esc(c.n)} <span class="pill mute">${esc(c.nick)}</span></h2>
-        <p class="sub" style="margin-bottom:10px">Ref #C-20${c.id}4 · applied ${daysSince(c.applied||c.since)} days ago · consent v1.2 recorded</p>
-        <dl class="kv">
-          <dt>Mobile</dt><dd>${esc(c.mob)}</dd>
-          <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
-          <dt>Location</dt><dd>${esc(c.city)}, ${esc(c.prov)}</dd>
-          <dt>Applied for</dt><dd>${esc(j.t)} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':`<span class="pill">${stageName(c.stage)}</span>`}</dd>
-          <dt>Source</dt><dd>${esc(c.src)}</dd>
-          <dt>Owner</dt><dd>${c.owner||'<span class="pill mute">unassigned</span>'}</dd>
-        </dl>
-      </div>
-      <div style="display:flex;flex-direction:column;gap:6px">
-        <button class="btn pri" onclick="advance(${c.id})">Move to next stage</button>
-        <button class="btn" onclick="openReject(${c.id})">Reject…</button>
-        <button class="btn" onclick="toast('Test invite queued as a pending message')">Send test</button>
-        <button class="btn" onclick="toast('Document checklist started — 13 core documents')">Start documents</button>
-      </div>
-    </div>
-
-    <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents')}${tab('sens','Sensitive')}</div>
-
-    <div class="tp ${profTab==='app'?'on':''}">
-      <div class="grid" style="grid-template-columns:1fr 1fr">
-        <div class="card"><h3>Employment history</h3><p style="font-size:13px;color:var(--muted)">${esc(c.exp)}</p></div>
-        <div class="card"><h3>Skills (from form checkboxes)</h3>${c.skills.length?c.skills.map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'<span class="pill mute">none recorded</span>'}</div>
-      </div>
-      <div class="card" style="margin-top:12px"><h3>Resume text (auto-extracted)</h3>
-        <div style="font-size:12.5px;color:var(--muted);white-space:pre-wrap;background:#F7F8F8;border-radius:6px;padding:10px">${esc(c.n.toUpperCase())}
-${esc(c.mob)} | Brgy. ${esc(c.city)}, ${esc(c.prov)}
-${esc(c.exp)}
-SKILLS: ${esc(c.skills.join(", ")||"—")}</div></div>
-    </div>
-
-    <div class="tp ${profTab==='act'?'on':''}">
-      <div class="card"><h3>Timeline</h3><div class="tl">
-        <div class="ev"><b>Stage → ${stageName(c.stage)}</b><div class="t">${c.days} days ago · R. Cruz</div></div>
-        <div class="ev"><b>Message sent</b> — Application acknowledgment (email)<div class="t">${c.days} days ago · automatic</div></div>
-        <div class="ev"><b>Application submitted</b> via ${esc(c.src)}<div class="t">${c.days} days ago</div></div>
-        <div class="ev"><b>Consent recorded</b> — privacy notice v1.2<div class="t">${c.days} days ago</div></div>
-      </div></div>
-      <div class="card" style="margin-top:12px"><h3>Notes</h3>
-        <div class="doc"><span>Willing to work shifting schedule. Lives 6 km from station.<div style="color:var(--muted);font-size:11.5px">R. Cruz · 2 days ago</div></span></div>
-        <div style="margin-top:10px;display:flex;gap:8px"><input class="inp" style="flex:1" placeholder="Add a note…"><button class="btn" onclick="toast('Note added (append-only, attributed)')">Add</button></div>
-      </div>
-    </div>
-
-    <div class="tp ${profTab==='test'?'on':''}">
-      <div class="card"><h3>Four Quadrant Brain Dominance</h3>
-      ${q?`<p class="sub">Submitted · 48 items · max 36 per quadrant · no single dominance label shown</p>
-        ${Object.keys(q).map(k=>`<div class="quad"><span>${SECNAMES[k]}</span><div class="qb"><i style="width:${q[k]/36*100}%"></i></div><b>${q[k]}</b></div>`).join('')}`
-        :`<p class="sub">Not yet taken.</p><button class="btn" onclick="toast('Test invite queued as a pending message')">Send invite</button>
-          <button class="btn" onclick="go('s-test')">Preview candidate view</button>`}
-      </div>
-      <div class="card" style="margin-top:12px"><h3>Position-based tests</h3>
-        <div class="doc"><span>Basic Numeracy (knowledge · pass mark 70%)</span>${q?'<span class="pill green">82% · passed</span>':'<span class="pill mute">not sent</span>'}</div>
-        <div class="doc"><span>Customer Service Scenarios (free text)</span><span class="pill mute">awaiting HR scoring</span></div>
-      </div>
-    </div>
-
-    <div class="tp ${profTab==='doc'?'on':''}">
-      <div class="card"><h3>Pre-employment documents</h3>
-        <p class="sub">${c.docs?'Checklist started at Offer stage · deadline 5 Sep 2026':'Not started. HR triggers this manually, usually at Offer.'}</p>
-        ${c.docs?DOCS.map((d,i)=>{const st=DOCSTATE[i];const cls=st==='verified'?'green':st==='submitted'?'amber':'mute';
-          return `<div class="doc"><span>${d}${i>=10?' <span class="pill mute">sensitive</span>':''}</span>
-            <span><span class="pill ${cls}">${st}</span> <button class="btn sm" onclick="cycleDoc(${i})">Update</button></span></div>`}).join('')
-          :`<button class="btn pri" onclick="startDocs(${c.id})">Start checklist</button>`}
-      </div>
-    </div>
-
-    <div class="tp ${profTab==='sens'?'on':''}">
-      <div class="card">
-        <h3>Sensitive personal information</h3>
-        <div class="hint">Restricted to hr_admin. You are signed in as hr_staff, so this section is hidden — RA 10173 §3(l) sensitive personal information.</div>
-        <div style="color:var(--muted);font-size:13px">Medical declaration · gender identity · religion · height and weight · government ID numbers</div>
-      </div>
-    </div>
-  `);
-}
-
-function rPool(){
-  const badge=w=>w==='interested'?'<span class="pill green">interested</span>':w==='no_reply'?'<span class="pill red">no reply</span>':'<span class="pill amber">awaiting reply</span>';
-  document.getElementById('s-pool').innerHTML = shell('pool',`<div class="pad">
-    <h2>Talent pool</h2>
-    <p class="sub">Suggested for SF-114 Station Crew, Calamba · ranked by most recent application</p>
-    <div class="hint">Qualified rejections are pre-ticked into the pool. A warm-check goes out before anyone is shortlisted; no reply in 2 days flags them unresponsive.</div>
-    <div class="bar">
-      <select class="inp"><option>All role families</option><option>Station crew</option><option>Front desk</option><option>Driver</option></select>
-      <select class="inp"><option>All locations</option><option>Laguna</option><option>Batangas</option></select>
-      <span style="flex:1"></span>
-      <button class="btn" onclick="toast('Warm-check messages queued for all interested candidates')">Send warm-check to all</button>
-    </div>
-    <div class="card" style="padding:0"><table>
-      <thead><tr><th>Candidate</th><th>Role family</th><th>Location</th><th>Last applied</th><th>Why pooled</th><th>Warm check</th><th></th></tr></thead>
-      <tbody>${POOL.map(p=>`<tr>
-        <td><b>${esc(p.n)}</b><div style="color:var(--muted);font-size:11.5px">${esc(p.mob)}</div></td>
-        <td>${esc(p.rf)}</td><td>${esc(p.city)}</td><td>${esc(p.last)}</td><td style="color:var(--muted)">${esc(p.reason)}</td>
-        <td>${badge(p.warm)}<div style="color:var(--muted);font-size:11.5px">${esc(p.reply)}</div></td>
-        <td>${p.warm==='interested'?`<button class="btn sm" onclick="toast('Added to SF-114 pipeline at Screening')">Add to job</button>`
-            :p.warm==='no_reply'?`<button class="btn sm" onclick="archivePool(${p.id})">Archive</button>`
-            :`<button class="btn sm" onclick="toast('Reminder queued')">Chase</button>`}</td>
-      </tr>`).join('')}</tbody>
-    </table></div>
-  `);
-}
-
 function rMsg(){
   const pend = MSGS.filter(m=>m.status==='pending'), sent = MSGS.filter(m=>m.status==='sent');
-  const pct = Math.round(sent.length/MSGS.length*100);
+  const pct = MSGS.length?Math.round(sent.length/MSGS.length*100):0;
   document.getElementById('s-msg').innerHTML = shell('msg',`<div class="pad">
     <h2>Messages</h2>
     <p class="sub">Copy the text, send it yourself, then mark it sent · one at a time</p>
@@ -1173,12 +1062,12 @@ function rMsg(){
       <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
         <b>${esc(m.cand)}</b><span class="pill mute">${esc(m.mob)}</span>
         <span class="pill">${esc(m.tpl)}</span><span class="pill mute">${m.lang==='tl'?'Tagalog':'English'}</span>
-        ${m.age?`<span class="pill amber">${m.age}d waiting</span>`:''}
+        ${msgAge(m)?`<span class="pill amber">${msgAge(m)}d waiting</span>`:''}
       </div>
       <div class="msgtxt">${esc(m.body)}</div>
       <div style="display:flex;gap:8px">
         <button class="btn" onclick="copyMsg(${m.id})">Copy text</button>
-        <button class="btn" onclick="toast('Mobile number copied')">Copy number</button>
+        <button class="btn" onclick="copyNum(${m.id})">Copy number</button>
         <button class="btn pri" onclick="markSent(${m.id})">Mark as sent</button>
       </div>
     </div>`).join(''):'<div class="empty">Nothing pending. Every dispositioned candidate has been contacted.</div>'}
@@ -1192,46 +1081,6 @@ function rMsg(){
 }
 
 /* ---------- public ---------- */
-function rTest(){
-  const secs = Object.keys(QUESTIONS);
-  document.getElementById('s-test').innerHTML = `<div class="pub">
-    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
-      <p class="sub" style="margin-top:6px">Four Quadrant Brain Dominance — Self Assessment</p></div>
-    <div class="card" style="margin-bottom:12px;font-size:12.5px;color:var(--muted)">
-      There are no right or wrong answers. Answer honestly. Your answers save as you go — if your connection drops, reopen the same link. No time limit. This link is valid for 3 days and can be used once.</div>
-    ${secs.map(s=>`<div class="card" style="margin-bottom:12px">
-      <h3>${s}. ${SECNAMES[s]}</h3>
-      <table class="matrix"><thead><tr><th></th><th>Very Much<br>(3)</th><th>Yes<br>(2)</th><th>Somewhat<br>(1)</th><th>Not at all<br>(0)</th></tr></thead>
-      <tbody>${QUESTIONS[s].map((q,i)=>`<tr><td>${i+1}. ${q}</td>
-        ${[3,2,1,0].map(v=>`<td><input type="radio" name="${s}${i}" onchange="toast('Answer saved')"></td>`).join('')}</tr>`).join('')}
-      <tr><td colspan="5" style="text-align:right;color:var(--muted);font-size:12px">…8 more items in this section · section total computed automatically</td></tr>
-      </tbody></table></div>`).join('')}
-    <button class="btn pri" style="width:100%;padding:12px" onclick="toast('Submitted. Four section totals computed and saved to the candidate profile.')">Submit assessment</button>
-  </div>`;
-}
-
-function rPortal(){
-  document.getElementById('s-portal').innerHTML = `<div class="pub" style="max-width:420px">
-    <div class="pubhead"><div class="lg">BAHAMA REALTY &amp; DEVELOPMENT CORP</div>
-      <p class="sub" style="margin-top:6px">Check your application status</p></div>
-    <div class="card">
-      <div class="fld"><label>Mobile number</label><input class="inp" value="0917 123 4567"></div>
-      <button class="btn pri" style="width:100%" onclick="document.getElementById('pstat').style.display='block'">Check status</button>
-    </div>
-    <div id="pstat" style="display:none;margin-top:12px">
-      <div class="card">
-        <h3>Application #C-2014</h3>
-        <p class="sub">Status: <b style="color:var(--ink)">Under review</b> · last updated 26 August 2026</p>
-        <div style="display:flex;gap:8px;flex-wrap:wrap">
-          <button class="btn" onclick="go('s-careers')">Apply to another opening</button>
-          <button class="btn" onclick="toast('Withdrawal request recorded — your data will be deleted')">Withdraw my data</button>
-        </div>
-      </div>
-      <div class="hint" style="margin-top:12px">Only the status is shown — no name, address, documents or application answers — so a mobile number alone reveals nothing sensitive.</div>
-    </div>
-  </div>`;
-}
-
 /* ============================================================
    ACTIONS
    ============================================================ */
@@ -1243,7 +1092,7 @@ function openReject(id){
   c.stage = r.q ? 'rejected_qualified' : 'rejected_not_qualified';
   c.late=false; c.days=0;
   if(r.q){POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+", "+c.prov,rf:job(c.job).rf.replace('_',' '),last:isoAgo(0),reason:r.l,warm:"pending",reply:"not yet sent"});}
-  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,
+  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),
     body:(c.lang==='tl'
       ? `Hi ${c.nick}, salamat po sa inyong application para sa ${job(c.job).t} sa BRDC. ${r.l}.${r.q?" Sa inyong pahintulot ay itatago po namin ang inyong profile.":""}`
       : `Hi ${c.nick}, thank you for your interest in ${job(c.job).t} at BRDC. ${r.l}.${r.q?" With your permission we will keep your profile on file.":""}`)});
@@ -1252,17 +1101,13 @@ function openReject(id){
   toast(r.q?'Rejected–Qualified · added to talent pool · feedback message queued':'Rejected · feedback message queued');
   go('s-msg');
 }
-function startDocs(id){cand(id).docs=true;toast('Checklist started — 13 core documents, deadline 5 Sep');render();}
-function cycleDoc(i){const o=["pending","submitted","verified"];DOCSTATE[i]=o[(o.indexOf(DOCSTATE[i])+1)%3];render();}
-function copyMsg(id){const m=MSGS.find(x=>x.id===id);
-  navigator.clipboard&&navigator.clipboard.writeText(m.body).catch(()=>{});toast('Message copied — now send it, then mark as sent');}
 function markSent(id){const m=MSGS.find(x=>x.id===id);m.status='sent';m.by=ME();m.at='today, '+new Date().toLocaleTimeString([], {hour:'numeric',minute:'2-digit'});
   toast('Marked sent — recorded against your name');render();}
 function archivePool(id){POOL=POOL.filter(p=>p.id!==id);toast('Archived — hidden from pool suggestions, still searchable');render();}
 function tryClose(id){
   const live = CANDS.filter(c=>c.job===id && c.stage!=='draft').length;
-  if(live){alert(`Cannot close job ${id}:\n\n${live} candidate(s) still lack a final status.\n\nThis is enforced by the database (guard_job_close), not by the interface. Disposition them first — that is what stops applicants being forgotten.`);}
-  else{toast(`Job ${id} closed.`);}
+  if(live){alert(`Cannot close job ${id}:\n\n${live} candidate(s) still lack a final status.\n\nMove each candidate to Hired or Reject them first — this makes sure no applicant is left without an answer.`);}
+  else{const j=job(id);j.status='closed';log(`Closed job ${id}`,id);toast(`Job ${id} closed.`);render();}
 }
 /* ============================================================
    RENDER
@@ -1446,10 +1291,165 @@ function brDel(k,id){const L=branchesOf(k),b=L.find(x=>x.id===id);const js=JOBS.
 function setJobBranch(jid,v){const j=job(jid);if(v==='__tbc')v='To be confirmed';if(!v)return;j.br=v;const b=branchesOf(j.bu).find(x=>x.n===v);if(b&&b.prov)j.prov=b.prov;log(`Set branch of ${jid} to ${v}`,jid);toast('Branch updated');render();}
 
 /* ============================================================
+   FIXES — profile, talent pool, messages, test, portal, helpers
+   ============================================================ */
+function copyText(t,msg){const done=()=>toast(msg||'Copied');
+  const fb=()=>{try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();ok?done():prompt('Copy this:',t);}catch(e){prompt('Copy this:',t);}};
+  try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,fb);else fb();}catch(e){fb();}}
+function candRef(c){return 'C-'+(2000+c.id);}
+function queueMsg(c,tpl,body){MSGS.unshift({id:Date.now()+Math.floor(Math.random()*999),cand:c.n,cid:c.id,mob:c.mob,tpl,lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),body});}
+function msgAge(m){return m.created?daysSince(m.created):(m.age||0);}
+
+function rProf(){
+  const c=cand(curCand);
+  if(!c){document.getElementById('s-prof').innerHTML=shell('pipe',`<div class="pad"><div class="empty">This candidate is no longer in the pipeline (rejected or completed). <button class="btn sm" onclick="go('s-pipe')">Back to candidates</button></div>`);return;}
+  const j=job(c.job), q=c.quad, admin=isAdmin();
+  const tab=(k,n)=>`<button class="${profTab===k?'on':''}" onclick="profTab='${k}';render()">${n}</button>`;
+  const acts=ACT.filter(a=>a.text&&a.text.includes(c.n)).slice(0,30), ivs=INTV.filter(i=>i.cid===c.id);
+  if(!c.docState)c.docState=DOCS.map(()=> 'pending');
+  const deadline=c.docsStarted?fmtD(localISO(new Date(new Date(c.docsStarted).getTime()+14*864e5))):null;
+  document.getElementById('s-prof').innerHTML = shell('pipe',`<div class="pad">
+    <div class="bar"><button class="btn sm" onclick="openJob(cand(curCand).job)">← Job board</button> <button class="btn sm" onclick="go('s-pipe')">All candidates</button></div>
+    <div class="phead">
+      <div class="cav" style="width:64px;height:64px;font-size:22px;background:${AVC[c.id%AVC.length]}">${initials(c.n)}</div>
+      <div style="flex:1;min-width:0">
+        <h2>${esc(c.n)} ${c.nick?`<span class="pill mute">${esc(c.nick)}</span>`:''}</h2>
+        <p class="sub" style="margin-bottom:10px">Ref ${candRef(c)} · applied ${daysSince(c.applied||c.since)} day${daysSince(c.applied||c.since)===1?'':'s'} ago · privacy consent recorded</p>
+        <dl class="kv">
+          <dt>Mobile</dt><dd>${esc(c.mob)} <a class="lnk" style="font-size:12px" onclick="copyText('${esc(c.mob)}','Mobile number copied')">copy</a></dd>
+          <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
+          <dt>Location</dt><dd>${esc(c.city)}, ${esc(c.prov)}</dd>
+          <dt>Applied for</dt><dd>${esc(j.t)} · ${BU[j.bu]||''} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':''} <span class="pill"><span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)} · ${c.days}d</span></dd>
+          <dt>Source</dt><dd>${esc(c.src)}</dd>
+          ${c.salary?`<dt>Expected salary</dt><dd>₱ ${esc(c.salary)}</dd>`:''}${c.avail?`<dt>Available</dt><dd>${fmtD(c.avail)}</dd>`:''}${c.resume?`<dt>Resume</dt><dd>📎 ${esc(c.resume)}</dd>`:''}
+          <dt>Owner</dt><dd>${c.owner?esc(c.owner):`<button class="btn sm" onclick="claim(${c.id})">Claim</button>`}</dd>
+        </dl>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px">
+        ${c.stage==='onboarding'?`<button class="btn pri" onclick="go('s-onb')">Open onboarding</button>`:`<button class="btn pri" onclick="advance(${c.id})">Move to ${c.stage==='draft'?'New':stageName((STAGES[STAGES.findIndex(s=>s.k===c.stage)+1]||{}).k)}</button>`}
+        <button class="btn" onclick="openReject(${c.id})">Reject…</button>
+        <button class="btn" onclick="sendTest(${c.id})">Send test</button>
+        <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
+      </div>
+    </div>
+    <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents')}${tab('sens','Sensitive')}</div>
+    <div class="tp ${profTab==='app'?'on':''}">
+      <div class="grid" style="grid-template-columns:1fr 1fr">
+        <div class="card"><h3>Employment history</h3><p style="font-size:13px;color:var(--muted);white-space:pre-wrap">${esc(c.exp||'—')}</p></div>
+        <div class="card"><h3>Skills</h3>${c.skills.length?c.skills.map(s=>`<span class="pill ${(j.skills||[]).includes(s)?'green':''}" style="margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'<span class="pill mute">none recorded</span>'}
+          ${(j.skills||[]).length?`<p class="mut" style="margin-top:8px">Green = matches the job's required skills · fit score ${fitParts(c).total}/100</p>`:''}</div>
+      </div>
+    </div>
+    <div class="tp ${profTab==='act'?'on':''}">
+      <div class="card"><h3>Timeline</h3><div class="tl">
+        ${acts.map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtDT(a.at)} · ${esc(a.by)}</div></div>`).join('')}
+        ${ivs.map(i=>`<div class="ev"><b>${i.type}${i.result?' — '+i.result+(i.score?' ('+i.score+'/5)':''):' — '+i.status}</b><div class="t">${fmtDT(i.when)} · ${esc(i.interviewer)}</div></div>`).join('')}
+        <div class="ev"><b>Application submitted</b> via ${esc(c.src)}<div class="t">${fmtD(c.applied||c.since)}</div></div>
+      </div></div>
+      <div class="card" style="margin-top:12px"><h3>Notes</h3>
+        ${(c.notes||[]).map(n=>`<div class="doc" style="display:block"><div>${esc(n.text)}</div><div class="mut">${esc(n.by)} · ${fmtDT(n.at)}</div></div>`).join('')||'<p class="mut">No notes yet.</p>'}
+        <div style="margin-top:10px;display:flex;gap:8px"><input class="inp" id="cNote" style="flex:1" placeholder="Add a note about this candidate…" onkeydown="if(event.key==='Enter')addCandNote(${c.id})"><button class="btn" onclick="addCandNote(${c.id})">Add</button></div>
+      </div>
+    </div>
+    <div class="tp ${profTab==='test'?'on':''}">
+      <div class="card"><h3>Four Quadrant Brain Dominance</h3>
+      ${q?`<p class="sub">Submitted · section totals (max 36 each)</p>${Object.keys(q).map(k=>`<div class="quad"><span>${SECNAMES[k]}</span><div class="qb"><i style="width:${q[k]/36*100}%"></i></div><b>${q[k]}</b></div>`).join('')}`
+        :`<p class="sub">Not yet taken.</p><button class="btn" onclick="sendTest(${c.id})">Send invite</button> <button class="btn" onclick="testFor=${c.id};go('s-test')">Take test now (on this device)</button>`}
+      </div>
+    </div>
+    <div class="tp ${profTab==='doc'?'on':''}">
+      <div class="card"><h3>Pre-employment documents</h3>
+        <p class="sub">${c.docs?`Checklist started ${fmtD(c.docsStarted||todayKey)} · deadline ${deadline||'—'} · ${c.docState.filter(s=>s==='verified').length}/${DOCS.length} verified`:'Not started. HR usually starts this at the Job offer stage.'}</p>
+        ${c.docs?DOCS.map((d,i)=>{const st=c.docState[i];const cls=st==='verified'?'green':st==='submitted'?'amber':'mute';
+          return `<div class="doc"><span>${d}</span><span><span class="pill ${cls}">${st}</span> <button class="btn sm" onclick="cycleDoc(${c.id},${i})">${st==='pending'?'Mark submitted':st==='submitted'?'Mark verified':'Reset'}</button></span></div>`}).join('')
+          :`<button class="btn pri" onclick="startDocs(${c.id})">Start checklist</button>`}
+      </div>
+    </div>
+    <div class="tp ${profTab==='sens'?'on':''}">
+      <div class="card"><h3>Sensitive personal information</h3>
+        ${admin?`<div class="hint">Visible to hr_admin only (Data Privacy Act — sensitive personal information). Nothing has been collected for this candidate yet.</div>`
+          :`<div class="hint">Restricted to hr_admin. You are signed in as ${esc(SESSION?SESSION.role:'hr_staff')}, so this section is hidden.</div>`}
+        <div class="mut" style="font-size:13px">Medical declaration · government ID numbers · other sensitive details</div>
+      </div>
+    </div>`);
+}
+function addCandNote(id){const v=(document.getElementById('cNote').value||'').trim();if(!v)return;const c=cand(id);(c.notes=c.notes||[]).unshift({by:ME(),at:new Date().toISOString(),text:v});log(`Note on ${c.n}: ${v.slice(0,60)}`,c.job);render();}
+function sendTest(id){const c=cand(id);queueMsg(c,'Assessment invitation',c.lang==='tl'?`Hi ${c.nick}, pakisagot po ang maikling assessment para sa inyong ${job(c.job).t} application sa loob ng 3 araw. Salamat po!`:`Hi ${c.nick}, please complete a short assessment for your ${job(c.job).t} application within 3 days. Thank you!`);log(`Assessment invitation queued for ${c.n}`,c.job);toast('Assessment invitation added to Messages');render();}
+function startDocs(id){const c=cand(id);if(c.docs)return;c.docs=true;c.docsStarted=todayKey;c.docState=DOCS.map(()=>'pending');log(`Started document checklist for ${c.n}`,c.job);toast(`Checklist started — ${DOCS.length} documents, deadline in 14 days`);profTab='doc';render();}
+function cycleDoc(id,i){const c=cand(id);if(!c.docState)c.docState=DOCS.map(()=>'pending');const o=["pending","submitted","verified"];c.docState[i]=o[(o.indexOf(c.docState[i])+1)%3];render();}
+function copyMsg(id){const m=MSGS.find(x=>x.id===id);copyText(m.body,'Message copied — send it, then mark as sent');}
+function copyNum(id){const m=MSGS.find(x=>x.id===id);copyText(m.mob,'Mobile number copied');}
+
+let poolF={rf:'',prov:'',warm:''};
+function rPool(){
+  const badge=w=>w==='interested'?'<span class="pill green">interested</span>':w==='no_reply'?'<span class="pill red">no reply</span>':w==='not_sent'?'<span class="pill mute">not contacted</span>':'<span class="pill amber">awaiting reply</span>';
+  const rfs=[...new Set(POOL.map(p=>p.rf))], provs=[...new Set(POOL.map(p=>(p.city.split(',')[1]||'').trim()).filter(Boolean))];
+  const list=POOL.filter(p=>(!poolF.rf||p.rf===poolF.rf)&&(!poolF.prov||p.city.includes(poolF.prov))&&(!poolF.warm||p.warm===poolF.warm));
+  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
+  document.getElementById('s-pool').innerHTML = shell('pool',`<div class="pad">
+    <h2>Talent pool</h2><p class="sub">${POOL.length} past applicant${POOL.length===1?'':'s'} kept for future openings · qualified rejections are added automatically</p>
+    <div class="bar">
+      <select class="inp" onchange="poolF.rf=this.value;render()"><option value="">All roles</option>${rfs.map(r=>`<option ${poolF.rf===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
+      <select class="inp" onchange="poolF.prov=this.value;render()"><option value="">All locations</option>${provs.map(r=>`<option ${poolF.prov===r?'selected':''}>${esc(r)}</option>`).join('')}</select>
+      <select class="inp" onchange="poolF.warm=this.value;render()"><option value="">Any reply status</option>${[['interested','Interested'],['pending','Awaiting reply'],['no_reply','No reply']].map(([k,n])=>`<option value="${k}" ${poolF.warm===k?'selected':''}>${n}</option>`).join('')}</select>
+      <span style="flex:1"></span>
+      ${list.length?`<button class="btn" onclick="warmAll()">Ask all ${list.length} if still interested</button>`:''}
+    </div>
+    <div class="card" style="padding:0"><div class="tw"><table>
+      <thead><tr><th>Candidate</th><th>Role</th><th>Location</th><th>Last applied</th><th>Why pooled</th><th>Reply</th><th></th></tr></thead>
+      <tbody>${list.map(p=>`<tr>
+        <td><b>${esc(p.n)}</b><div class="mut">${esc(p.mob)}</div></td><td>${esc(p.rf)}</td><td>${esc(p.city)}</td><td>${fmtD(p.last)}</td><td class="mut">${esc(p.reason)}</td>
+        <td>${badge(p.warm)}</td>
+        <td style="white-space:nowrap">${p.warm==='interested'?`<select class="inp" style="padding:4px;font-size:12px" onchange="if(this.value)poolToJob(${p.id},this.value)"><option value="">Add to job…</option>${open.map(j=>`<option value="${j.id}">${j.id} — ${esc(j.t)}</option>`).join('')}</select>`
+          :p.warm==='pending'?`<button class="btn sm" onclick="setWarm(${p.id},'interested')">Interested</button> <button class="btn sm" onclick="setWarm(${p.id},'no_reply')">No reply</button>`
+          :`<button class="btn sm" onclick="warmOne(${p.id})">Ask again</button> <button class="btn sm" onclick="archivePool(${p.id})">Archive</button>`}</td>
+      </tr>`).join('')||`<tr><td colspan="7"><div class="empty">${POOL.length?'No one matches these filters.':'The talent pool is empty. Candidates rejected as “qualified” (e.g. position filled) are added here automatically.'}</div></td></tr>`}</tbody>
+    </table></div></div>`);
+}
+function poolMsg(p){return {n:p.n,nick:p.n.split(' ')[0],mob:p.mob,lang:'tl',id:p.id};}
+function warmOne(id){const p=POOL.find(x=>x.id===id);p.warm='pending';p.reply='asked '+fmtD(todayKey);queueMsg(poolMsg(p),'Talent pool check-in',`Hi ${p.n.split(' ')[0]}, may bagong opening po sa BRDC na maaaring angkop sa inyo. Interesado pa rin po ba kayo? Pakisagot lang po ng OO o HINDI.`);toast('Check-in message added to Messages');render();}
+function warmAll(){const L=POOL.filter(p=>(!poolF.rf||p.rf===poolF.rf)&&(!poolF.prov||p.city.includes(poolF.prov))&&(!poolF.warm||p.warm===poolF.warm));L.forEach(p=>{p.warm='pending';queueMsg(poolMsg(p),'Talent pool check-in',`Hi ${p.n.split(' ')[0]}, may bagong opening po sa BRDC na maaaring angkop sa inyo. Interesado pa rin po ba kayo? Pakisagot lang po ng OO o HINDI.`);});toast(`${L.length} check-in messages added to Messages`);render();}
+function setWarm(id,w){POOL.find(x=>x.id===id).warm=w;render();}
+function poolToJob(pid,jid){const p=POOL.find(x=>x.id===pid),j=job(jid),id=Math.max(0,...CANDS.map(c=>c.id))+1,[city,prov]=p.city.split(',').map(s=>s.trim());
+  CANDS.push({id,n:p.n,nick:p.n.split(' ')[0],mob:p.mob,em:'',city:city||'',prov:prov||'',job:jid,stage:'screening',since:isoAgo(0),applied:isoAgo(0),src:'Talent pool',owner:j.owner,lang:'tl',quad:null,docs:false,exp:'From talent pool — '+p.reason,skills:[]});
+  POOL=POOL.filter(x=>x.id!==pid);log(`Added ${p.n} from talent pool to ${jid} at Initial screening`,jid);toast(`${p.n} added to ${j.t} at Initial screening`);render();}
+
+let testFor=null;
+function rTest(){const c=testFor?cand(testFor):null;const secs=Object.keys(QUESTIONS);
+  document.getElementById('s-test').innerHTML=`<div class="pub" style="max-width:760px">
+    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">SELF ASSESSMENT</div><p class="sub" style="margin-top:6px">${c?`For ${esc(c.n)} · ${esc(job(c.job).t)}`:'Preview — answers are not saved to any candidate'}</p></div>
+    <div class="card" style="margin-bottom:12px;font-size:13px;color:var(--muted)">There are no right or wrong answers. Choose how much each statement describes you.</div>
+    <form id="tForm">${secs.map(s=>`<div class="card" style="margin-bottom:12px"><h3>${s}. ${SECNAMES[s]}</h3>
+      <table class="matrix"><thead><tr><th></th><th>Very much (3)</th><th>Yes (2)</th><th>Somewhat (1)</th><th>Not at all (0)</th></tr></thead>
+      <tbody>${QUESTIONS[s].map((q,i)=>`<tr><td>${i+1}. ${q}</td>${[3,2,1,0].map(v=>`<td><input type="radio" name="${s}${i}" value="${v}"></td>`).join('')}</tr>`).join('')}</tbody></table></div>`).join('')}</form>
+    <div class="err" id="tErr"></div>
+    <button class="btn pri" style="width:100%;padding:12px" onclick="submitTest()">Submit assessment</button>
+    ${SESSION?`<p class="sub" style="text-align:center;margin-top:10px"><a class="lnk" onclick="${c?`openCand(${c.id})`:`go('s-dash')`}">← Back</a></p>`:''}</div>`;}
+function submitTest(){const secs=Object.keys(QUESTIONS),tot={};let missing=0;
+  secs.forEach(s=>{tot[s]=0;QUESTIONS[s].forEach((_,i)=>{const r=document.querySelector(`#tForm input[name="${s}${i}"]:checked`);if(!r)missing++;else tot[s]+=+r.value;});tot[s]=Math.round(tot[s]/(QUESTIONS[s].length*3)*36);});
+  if(missing){document.getElementById('tErr').textContent=`Please answer all questions (${missing} left).`;return;}
+  const c=testFor?cand(testFor):null;
+  if(c){c.quad=tot;log(`${c.n} completed the self assessment`,c.job);saveData();toast('Assessment saved to the candidate profile');testFor=null;profTab='test';openCand(c.id);}
+  else toast(`Preview totals — Facts ${tot.A} · Form ${tot.B} · Feelings ${tot.C} · Future ${tot.D}`);}
+
+function rPortal(){document.getElementById('s-portal').innerHTML=`<div class="pub" style="max-width:460px">
+    <div class="pubhead"><img src="assets/brdc-logo.png" alt="BRDC" class="publogo"><div class="lg">APPLICATION STATUS</div><p class="sub" style="margin-top:6px">Enter your mobile number or reference number</p></div>
+    <div class="card"><div class="fld"><label>Mobile number or reference (e.g. C-2146)</label><input class="inp" id="ptQ" style="width:100%" placeholder="0917 123 4567" onkeydown="if(event.key==='Enter')portalCheck()"></div>
+      <button class="btn pri" style="width:100%" onclick="portalCheck()">Check status</button></div>
+    <div id="pstat" style="margin-top:12px"></div>
+    <p class="sub" style="text-align:center;margin-top:12px"><a class="lnk" onclick="apBu=null;go('s-careers')">See open positions</a></p></div>`;}
+function portalCheck(){const q=(document.getElementById('ptQ').value||'').trim(),digits=q.replace(/\D/g,'').slice(-10),out=document.getElementById('pstat');
+  const L=CANDS.filter(c=>c.stage!=='draft'&&(candRef(c).toLowerCase()===q.toLowerCase()||(digits.length>=10&&c.mob.replace(/\D/g,'').slice(-10)===digits)));
+  const friendly=k=>({new:'Received',screening:'Under review',hr_int:'Interview',dept_int:'Interview',exam:'Assessment',final:'Final interview',offer:'Job offer',reqs:'Completing requirements',hired:'Hired',onboarding:'Onboarding'}[k]||'Under review');
+  out.innerHTML=L.length?L.map(c=>`<div class="card" style="margin-bottom:8px"><h3>${candRef(c)} · ${esc(job(c.job).t)}</h3><p class="sub">Status: <b style="color:var(--ink)">${friendly(c.stage)}</b> · updated ${fmtD(c.since)}</p></div>`).join('')+'<div class="hint">Only the status is shown, so a mobile number alone reveals nothing sensitive.</div>'
+    :`<div class="card"><p class="sub" style="margin:0">No application found for “${esc(q)}” on this device. Check the number, or contact BRDC HR.</p></div>`;}
+
+/* ============================================================
    SHELL
    ============================================================ */
 let RECENT=[];
-function toggleSide(){document.body.classList.toggle('sidecol');}
+document.addEventListener('click',e=>{if(document.body.classList.contains('sideopen')&&!e.target.closest('.side')&&!e.target.closest('.burger'))document.body.classList.remove('sideopen');});
+function toggleSide(){if(innerWidth<=860)document.body.classList.toggle('sideopen');else document.body.classList.toggle('sidecol');}
 function shell(active, body, extra){
   const nm=ME(), acts=buF?(()=>{const b=buF;buF='';const a=pendingActions();buF=b;return a;})():pendingActions();
   const overdue=CANDS.filter(c=>c.late&&ACTIVE.includes(c.stage)).length;
@@ -1524,7 +1524,7 @@ function buBoxes(){const mk=todayKey.slice(0,7);
       <div class="bbst">${late?`<span class="st bad">● ${late} overdue</span>`:`<span class="st ok">● On track</span>`}${pend?`<span class="st warn">${pend} request${pend>1?'s':''} to approve</span>`:''}</div>
       <div class="bbk"><div><b>${vac}</b><span>Vacancies</span></div><div><b>${act.length}</b><span>Applicants</span></div><div><b>${intv}</b><span>Interviews</span></div><div data-tip="Hired this month"><b>${hired}</b><span>Hired</span></div></div>
       <div class="bbbar" aria-label="Pipeline mix">${tot?segs.filter(x=>x.v).map(x=>`<i style="flex:${x.v};background:${x.c}" data-tip="<b>${x.n}</b><br>${x.v} candidate${x.v>1?'s':''}"></i>`).join(''):'<em>No candidates yet</em>'}</div>
-      <div class="bbf"><button class="btn sm" onclick="event.stopPropagation();jfl.bu='${k}';jfl.br='';go('s-jobs')">Jobs</button><button class="btn sm" onclick="event.stopPropagation();pf.bu='${k}';go('s-pipe')">Candidates</button><button class="btn sm" onclick="event.stopPropagation();manageBranches('${k}')">Branches</button></div>
+      <div class="bbf"><button class="btn sm" onclick="event.stopPropagation();jfl.bu='${k}';jfl.br='';go('s-jobs')">Jobs</button><button class="btn sm" onclick="event.stopPropagation();pf={job:'',bu:'${k}',stage:'',q:'',sort:'days',dir:-1,late:false};go('s-pipe')">Candidates</button><button class="btn sm" onclick="event.stopPropagation();manageBranches('${k}')">Branches</button></div>
     </div>`;}).join('')}</div>`;}
 function rDash(){
   const js=scopedJobs(), open=js.filter(jobOpen), cs=scopedCands(), hs=scopedHist();
@@ -1535,10 +1535,10 @@ function rDash(){
   const hiredMTD=hs.filter(h=>h.out==='hired'&&h.month===thisMonth).length+n('hired')+n('onboarding');
   const KPI=[
     ['Total vacancies',open.reduce((s,j)=>s+vacancies(j),0),`across ${open.length} open jobs`,'jobs',"go('s-jobs')"],
-    ['Active applicants',act.length,`${cs.filter(c=>daysSince(c.applied||c.since)<=7).length} applied this week`,'cands',"go('s-pipe')"],
+    ['Active applicants',act.length,`${cs.filter(c=>daysSince(c.applied||c.since)<=7).length} applied this week`,'cands',"pf={job:'',bu:buF,stage:'',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
     ['For interview',n(INTERVIEW_STAGES),`${INTV.filter(i=>i.status==='scheduled').length} interviews scheduled`,'cal',"go('s-int')"],
-    ['For evaluation',n('exam')+awaitRes,`${n('exam')} assessments · ${awaitRes} results due`,'req',"pf.stage='exam';go('s-pipe')"],
-    ['Job offers',n('offer'),`${cs.filter(c=>c.stage==='offer'&&c.days>3).length} waiting > 3 days`,'doc',"pf.stage='offer';go('s-pipe')"],
+    ['For evaluation',n('exam')+awaitRes,`${n('exam')} assessments · ${awaitRes} results due`,'req',"pf={job:'',bu:buF,stage:'exam',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
+    ['Job offers',n('offer'),`${cs.filter(c=>c.stage==='offer'&&c.days>3).length} waiting > 3 days`,'doc',"pf={job:'',bu:buF,stage:'offer',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
     ['Hired',hiredMTD,`this month · ${n('hired')+n('onboarding')} onboarding · ${hiredMTD-n('hired')-n('onboarding')} completed`,'onb',"showHired()"],
     ['Onboarding',n('onboarding')+n('hired'),`${n('hired')} starting soon`,'team',"go('s-onb')"]
   ];
@@ -1560,7 +1560,7 @@ function rDash(){
 
   document.getElementById('s-dash').innerHTML = shell('dash',`<div class="pad">
     <div class="dhead">
-      <div><h2>${greet()}, ${SESSION?esc(SESSION.first):"Rhea"}</h2>
+      <div><h2>${greet()}, ${SESSION?esc(SESSION.first):"there"}</h2>
         <p class="sub" style="margin:0">${TODAY.toLocaleDateString('en-PH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · recruitment overview${buF?' · '+BU[buF]:' · all business units'}</p></div>
       <span style="flex:1"></span>
       <select class="inp" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
@@ -1579,7 +1579,7 @@ function rDash(){
         <div class="pa">${acts.slice(0,paAll?acts.length:6).map(a=>`<div class="pai"><i style="background:${LVL[a.lvl][0]}" data-tip="${LVL[a.lvl][1]}"></i><span class="pat"><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span><button class="btn sm" onclick="${a.a};render()">${a.b}</button></div>`).join('')||'<div class="empty">Nothing pending. Nice work.</div>'}
         ${acts.length>6?`<button class="btn sm" style="margin-top:10px" onclick="paAll=!paAll;render()">${paAll?'Show less':'Show all '+acts.length}</button>`:''}</div></div>
       <div class="card"><div class="ch"><h3>Recruitment pipeline</h3><small>Candidates currently at each stage</small></div>
-        ${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length,on:`pf.stage='${s.k}';go('s-pipe')`,tip:`<b>${s.n}</b><br>${cs.filter(c=>c.stage===s.k).length} candidates · SLA ${s.sla||'—'} days`})))}</div>
+        ${hbars(STAGES.map(s=>({l:s.n,v:cs.filter(c=>c.stage===s.k).length,on:`pf={job:'',bu:buF,stage:'${s.k}',q:'',sort:'days',dir:-1,late:false};go('s-pipe')`,tip:`<b>${s.n}</b><br>${cs.filter(c=>c.stage===s.k).length} candidates · SLA ${s.sla||'—'} days`})))}</div>
     </div>
 
     <div class="sech"><h3>Recruitment performance</h3><small>Last 8 months · hover any number or bar for details</small></div>
@@ -1728,13 +1728,13 @@ function exportCSV(ids){const rows=[["Name","Mobile","Email","City","Province","
 let jfl={status:'',bu:'',br:''};
 function rJobs(){
   const list=JOBS.filter(j=>(!jfl.status||j.status===jfl.status)&&(!jfl.bu||j.bu===jfl.bu)&&(!jfl.br||j.br===jfl.br));
-  const stp=j=>({open:'<span class="pill green">open</span>',pending_approval:'<span class="pill amber">pending approval</span>',filled:'<span class="pill">filled</span>',on_hold:'<span class="pill mute">on hold</span>'}[j.status]);
+  const stp=j=>({open:'<span class="pill green">open</span>',pending_approval:'<span class="pill amber">pending approval</span>',filled:'<span class="pill">filled</span>',on_hold:'<span class="pill mute">on hold</span>',closed:'<span class="pill mute">closed</span>'}[j.status]||j.status);
   document.getElementById('s-jobs').innerHTML = shell('jobs',`<div class="pad">
     <h2>Jobs</h2><p class="sub">${JOBS.filter(jobOpen).length} open · ${JOBS.filter(j=>jobOpen(j)).reduce((s,j)=>s+vacancies(j),0)} vacancies · click a job to open its pipeline board</p>
     <div class="bar">
       <select class="inp" onchange="jfl.bu=this.value;jfl.br='';render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${jfl.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       ${jfl.bu?`<select class="inp" onchange="jfl.br=this.value;render()"><option value="">All ${branchesOf(jfl.bu).length} branches</option>${branchesOf(jfl.bu).map(b=>`<option ${jfl.br===b.n?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`:''}
-      <select class="inp" onchange="jfl.status=this.value;render()"><option value="">All statuses</option>${['open','pending_approval','filled','on_hold'].map(s=>`<option value="${s}" ${jfl.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}</select>
+      <select class="inp" onchange="jfl.status=this.value;render()"><option value="">All statuses</option>${['open','pending_approval','filled','on_hold','closed'].map(s=>`<option value="${s}" ${jfl.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}</select>
       <span style="flex:1"></span>
       <button class="btn" onclick="go('s-careers')">View public careers page</button>
       <button class="btn pri" onclick="go('s-mpr')">+ New job (via manpower request)</button></div>
@@ -1745,7 +1745,7 @@ function rJobs(){
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
         <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
-          :`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}</td></tr>`}).join('')}</tbody>
+          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}</td></tr>`}).join('')}</tbody>
     </table></div></div>
     <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten.</div>`);
 }
@@ -1831,7 +1831,7 @@ function rInt(){
 function schedInt(){const cid=+document.getElementById('iC').value,w=document.getElementById('iW').value;if(!cid||!w){toast('Pick a candidate and time');return;}
   const t=document.getElementById('iT').value;INTV.push({id:Math.max(0,...INTV.map(i=>i.id))+1,cid,type:t,when:new Date(w).toISOString(),interviewer:document.getElementById('iI').value,loc:document.getElementById('iL').value,status:'scheduled',score:null,result:null,remarks:''});
   const c=cand(cid),k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);}
-  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,body:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(new Date(w).toISOString())} (${document.getElementById('iL').value}) for ${job(c.job).t}. Please reply to confirm.`});
+  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),body:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(new Date(w).toISOString())} (${document.getElementById('iL').value}) for ${job(c.job).t}. Please reply to confirm.`});
   intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);toast('Interview scheduled · invitation queued in Messages');render();}
 function markDone(id){INTV.find(i=>i.id===id).status='done';intTab='await';render();}
 function noShow(id){const i=INTV.find(x=>x.id===id);i.status='done';i.result='no-show';log(`${cand(i.cid).n} did not attend ${i.type}`,cand(i.cid).job);render();}
@@ -1956,7 +1956,7 @@ function doReset(u){const a=acct(u),tmp=genTempPw();a.hash=pwHash(u,tmp);a.mustC
 function showTemp(u,tmp,isNew){modal(`<h3>${isNew?'Account created':'Password reset'}</h3>
   <p class="sub">Share this temporary password with <b>${esc(acct(u).name)}</b> in person or by a private message. It is shown only once.</p>
   <div class="tmp"><div><span class="mut">Username</span><b>${esc(u)}</b></div><div><span class="mut">Temporary password</span><b id="tmpPw">${esc(tmp)}</b></div>
-  <button class="btn" onclick="navigator.clipboard&&navigator.clipboard.writeText('${u} / ${tmp}');toast('Copied')">Copy</button></div>
+  <button class="btn" onclick="copyText('Username: ${u}  Temporary password: ${tmp}','Copied')">Copy</button></div>
   <div class="mdl-f"><button class="btn pri" onclick="closeModal()">Done</button></div>`);}
 function setStatus(u,s){const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;
   a.status=a.hash?s:(s==='active'?'pending':s);saveAccounts();audit(`${s==='disabled'?'Disabled':'Enabled'} account ${u}`);toast(`${a.name} ${s==='disabled'?'disabled':'enabled'}`);render();}
@@ -2023,7 +2023,7 @@ function openApply(id){applyJob=id;applyDone=null;history.replaceState(null,'','
 function shareJob(id){const j=job(id),url=jobLink(id);
   modal(`<h3>Apply link — ${esc(j.t)}</h3><p class="sub">Anyone with this link can apply for <b>${esc(j.t)}</b> (${esc(j.br)}, ${BU[j.bu]}) without signing in. Post it on Facebook, Jobstreet or print the QR code for walk-ins.</p>
     <div class="tmp" style="gap:10px"><input class="inp" id="lnk" value="${esc(url)}" readonly style="flex:1;min-width:220px;font-size:12.5px" onclick="this.select()">
-      <button class="btn pri" onclick="navigator.clipboard&&navigator.clipboard.writeText(document.getElementById('lnk').value);toast('Link copied')">Copy link</button></div>
+      <button class="btn pri" onclick="copyText(document.getElementById('lnk').value,'Link copied')">Copy link</button></div>
     <div style="display:flex;gap:16px;align-items:center;margin-top:14px;flex-wrap:wrap">
       <img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&margin=8&data=${encodeURIComponent(url)}" width="160" height="160" alt="QR code for the apply link" style="border:1px solid var(--line);border-radius:10px" onerror="this.replaceWith(Object.assign(document.createElement('div'),{className:'mut',textContent:'QR code needs an internet connection.'}))">
       <div class="mut" style="max-width:300px">Scan to open the application form for this job. Right-click the QR code and choose <b>Save image</b> to print it on a poster.</div></div>
@@ -2055,7 +2055,7 @@ function rCareers(){
       <div class="pjt"><h3>${esc(j.t)}</h3><span class="pjo">${vacancies(j)} opening${vacancies(j)>1?'s':''}</span></div>
       <div class="pjm"><span>📍 ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</span>${j.sal?`<span>💰 ${esc(j.sal)} / month</span>`:''}<span>🕒 Full-time</span></div>
       ${(j.skills||[]).length?`<div class="pjs">${j.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
-      <div class="pja"><button class="pbtn" onclick="openApply('${j.id}')">Apply for this job →</button><button class="pbtn ghost sm" onclick="navigator.clipboard&&navigator.clipboard.writeText(jobLink('${j.id}'));toast('Link copied — share it with a friend')">Share</button></div>
+      <div class="pja"><button class="pbtn" onclick="openApply('${j.id}')">Apply for this job →</button><button class="pbtn ghost sm" onclick="copyText(jobLink('${j.id}'),'Link copied — share it with a friend')">Share</button></div>
     </article>`).join('')||`<div class="empty">No openings at ${BU[apBu]} right now. <button class="pbtn ghost sm" onclick="openApply('GEN-SF')">Send a general application</button></div>`}</div>
   </main>`;
 }
