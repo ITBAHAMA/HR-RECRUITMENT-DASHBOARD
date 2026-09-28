@@ -397,7 +397,7 @@ body.sidecol .side .sb{position:absolute;left:34px;top:4px;margin:0;padding:0 5p
 .chk{display:flex;gap:8px;align-items:center;font-size:12.5px;padding:3px 0;cursor:pointer}.chk input{accent-color:#256B12}
 @media (max-width:1280px){.kpi7{grid-template-columns:repeat(4,minmax(0,1fr))}.dg3{grid-template-columns:1fr 1fr}}
 @media (max-width:860px){.kpi7{grid-template-columns:repeat(2,minmax(0,1fr))}.measures{grid-template-columns:1fr 1fr}.measures>div{border-right:none;border-bottom:1px solid var(--line)}.dg2,.dg3{grid-template-columns:1fr}.notif{width:300px;right:-60px}}
-@media print{.top,.side,.noprint,.backhr,.toast,.tip{display:none!important}.main{background:#fff}.app{min-height:0}.card,.measures{break-inside:avoid}body{background:#fff}}
+.flab{font-size:12px;font-weight:600;color:var(--muted);margin-bottom:6px}.bupick{display:flex;flex-wrap:wrap;gap:6px;margin:4px 0 6px}.bupick .schip span{padding:6px 12px;font-size:12.5px}.upl{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:10px}.upl select{max-width:260px}.btn.busy{opacity:.6;pointer-events:none}td .acts{display:flex;gap:4px;flex-wrap:wrap}.rpt{padding:26px 28px;max-width:960px}.rhead{display:flex;gap:18px;align-items:center;flex-wrap:wrap;border-bottom:3px solid #256B12;padding-bottom:14px;margin-bottom:6px}.rlogo{height:54px;width:auto}.rkick{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:#256B12;font-weight:700}.rsec{margin-top:18px}.rsec h3{font-size:14px;margin:0 0 8px;color:#1D3A14;border-left:3px solid #8FC77A;padding-left:8px}.rkpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}.rk{border:1px solid var(--line);border-radius:10px;padding:10px 12px;background:#FAFCF8}.rk span{display:block;font-size:11.5px;color:var(--muted)}.rk b{display:block;font-size:22px;margin:2px 0}.rk small{font-size:11px}.rtxt{font-size:13px;line-height:1.6;margin:10px 0 0;color:#2b332b}.rtab{width:100%;font-size:12.5px}.rtab th{background:#F1F6EE}.rtot td{font-weight:700;border-top:2px solid var(--line)}.rpipe{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}.rpipe div{border:1px solid var(--line);border-radius:8px;padding:6px 8px;font-size:12px;display:flex;align-items:center;gap:6px}.rpipe b{margin-left:auto}.rnote{width:100%;font:inherit;font-size:13px}.rfoot{margin-top:20px;padding-top:10px;border-top:1px solid var(--line);font-size:11px;color:var(--muted);text-align:center}@media(max-width:720px){.rkpis{grid-template-columns:repeat(2,minmax(0,1fr))}.rpipe{grid-template-columns:repeat(2,minmax(0,1fr))}.rpt{padding:16px}}@media print{.rkpis{grid-template-columns:repeat(4,1fr)}.rpipe{grid-template-columns:repeat(5,1fr)}.rk{background:#fff}}@page{size:A4;margin:12mm}@media print{.top,.side,.noprint,.backhr,.toast,.tip,.tabs{display:none!important}.pad{padding:0!important}.rpt{box-shadow:none!important;border:none!important;padding:0!important}.rsec{break-inside:avoid}textarea.rnote{border:1px solid #ccc!important;resize:none}.main{background:#fff}.app{min-height:0}.card,.measures{break-inside:avoid}body{background:#fff}}
 
 /* ============ accounts / modal ============ */
 .mdl{position:fixed;inset:0;z-index:250;display:none;align-items:center;justify-content:center;padding:16px}
@@ -982,6 +982,7 @@ function doChange(e){e.preventDefault();if(REMOTE){const er=document.getElementB
   document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';pendingChange=null;enterApp(a);}
 function cancelChange(){pendingChange=null;document.getElementById('lgChg').style.display='none';document.getElementById('lgForm').style.display='';document.getElementById('lgPass').value='';}
 function logout(){
+  if(typeof applyScope==='function'){applyScope(null);FILES={};FILECOUNT={};MSGCFG={sms:false,email:false,loaded:false};}
   TOKEN=null;try{localStorage.removeItem('brdc-token');}catch(e){}if(typeof pollTimer!=='undefined')clearInterval(pollTimer);
   try{localStorage.removeItem('brdc-sess');}catch(e){}
   if(SESSION)audit(`${SESSION.name} signed out`);
@@ -1099,11 +1100,11 @@ function openReject(id){
   c.stage = r.q ? 'rejected_qualified' : 'rejected_not_qualified';
   c.late=false; c.days=0;
   if(r.q){POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+", "+c.prov,rf:job(c.job).rf.replace('_',' '),last:isoAgo(0),reason:r.l,warm:"pending",reply:"not yet sent"});}
-  MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),
+  MSGS.unshift({id:Date.now(),cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl:r.q?"Rejection, kept in talent pool":"Rejection with reason",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),
     body:(c.lang==='tl'
       ? `Hi ${c.nick}, salamat po sa inyong application para sa ${job(c.job).t} sa BRDC. ${r.l}.${r.q?" Sa inyong pahintulot ay itatago po namin ang inyong profile.":""}`
       : `Hi ${c.nick}, thank you for your interest in ${job(c.job).t} at BRDC. ${r.l}.${r.q?" With your permission we will keep your profile on file.":""}`)});
-  HIST.push({month:todayKey.slice(0,7),out:'rejected',bu:job(c.job).bu,src:c.src});log(`Rejected ${c.n}: ${r.l}`,c.job);
+  HIST.push({month:todayKey.slice(0,7),out:'rejected',bu:job(c.job).bu,src:c.src,n:c.n,job:c.job,applied:c.applied||null});log(`Rejected ${c.n}: ${r.l}`,c.job);
   CANDS = CANDS.filter(x=>x.id!==c.id);
   toast(r.q?'Rejected–Qualified · added to talent pool · feedback message queued':'Rejected · feedback message queued');
   go('s-msg');
@@ -1304,7 +1305,7 @@ function copyText(t,msg){const done=()=>toast(msg||'Copied');
   const fb=()=>{try{const a=document.createElement('textarea');a.value=t;a.style.position='fixed';a.style.opacity='0';document.body.appendChild(a);a.select();const ok=document.execCommand('copy');a.remove();ok?done():prompt('Copy this:',t);}catch(e){prompt('Copy this:',t);}};
   try{if(navigator.clipboard&&window.isSecureContext)navigator.clipboard.writeText(t).then(done,fb);else fb();}catch(e){fb();}}
 function candRef(c){return c.ref||('C-'+(2000+c.id));}
-function queueMsg(c,tpl,body){MSGS.unshift({id:Date.now()+Math.floor(Math.random()*999),cand:c.n,cid:c.id,mob:c.mob,tpl,lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),body});}
+function queueMsg(c,tpl,body){MSGS.unshift({id:Date.now()+Math.floor(Math.random()*999),cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl,lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),body});}
 function msgAge(m){return m.created?daysSince(m.created):(m.age||0);}
 
 function rProf(){
@@ -1328,7 +1329,7 @@ function rProf(){
           <dt>Location</dt><dd>${esc(c.city)}, ${esc(c.prov)}</dd>
           <dt>Applied for</dt><dd>${esc(j.t)} · ${BU[j.bu]||''} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':''} <span class="pill"><span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)} · ${c.days}d</span></dd>
           <dt>Source</dt><dd>${esc(c.src)}</dd>
-          ${c.salary?`<dt>Expected salary</dt><dd>₱ ${esc(c.salary)}</dd>`:''}${c.avail?`<dt>Available</dt><dd>${fmtD(c.avail)}</dd>`:''}${c.resume?`<dt>Resume</dt><dd>📎 ${esc(c.resume)}</dd>`:''}
+          ${c.salary?`<dt>Expected salary</dt><dd>₱ ${esc(c.salary)}</dd>`:''}${c.avail?`<dt>Available</dt><dd>${fmtD(c.avail)}</dd>`:''}${resumeRow(c)}
           <dt>Owner</dt><dd>${c.owner?esc(c.owner):`<button class="btn sm" onclick="claim(${c.id})">Claim</button>`}</dd>
         </dl>
       </div>
@@ -1339,7 +1340,7 @@ function rProf(){
         <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
       </div>
     </div>
-    <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents')}${tab('sens','Sensitive')}</div>
+    <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents'+fileN(c))}${tab('sens','Sensitive')}</div>
     <div class="tp ${profTab==='app'?'on':''}">
       <div class="grid" style="grid-template-columns:1fr 1fr">
         <div class="card"><h3>Employment history</h3><p style="font-size:13px;color:var(--muted);white-space:pre-wrap">${esc(c.exp||'—')}</p></div>
@@ -1365,6 +1366,7 @@ function rProf(){
       </div>
     </div>
     <div class="tp ${profTab==='doc'?'on':''}">
+      ${filesCard(c)}
       <div class="card"><h3>Pre-employment documents</h3>
         <p class="sub">${c.docs?`Checklist started ${fmtD(c.docsStarted||todayKey)} · deadline ${deadline||'—'} · ${c.docState.filter(s=>s==='verified').length}/${DOCS.length} verified`:'Not started. HR usually starts this at the Job offer stage.'}</p>
         ${c.docs?DOCS.map((d,i)=>{const st=c.docState[i];const cls=st==='verified'?'green':st==='submitted'?'amber':'mute';
@@ -1417,7 +1419,7 @@ function poolMsg(p){return {n:p.n,nick:p.n.split(' ')[0],mob:p.mob,lang:'tl',id:
 function warmOne(id){const p=POOL.find(x=>x.id===id);p.warm='pending';p.reply='asked '+fmtD(todayKey);queueMsg(poolMsg(p),'Talent pool check-in',`Hi ${p.n.split(' ')[0]}, may bagong opening po sa BRDC na maaaring angkop sa inyo. Interesado pa rin po ba kayo? Pakisagot lang po ng OO o HINDI.`);toast('Check-in message added to Messages');render();}
 function warmAll(){const L=POOL.filter(p=>(!poolF.rf||p.rf===poolF.rf)&&(!poolF.prov||p.city.includes(poolF.prov))&&(!poolF.warm||p.warm===poolF.warm));L.forEach(p=>{p.warm='pending';queueMsg(poolMsg(p),'Talent pool check-in',`Hi ${p.n.split(' ')[0]}, may bagong opening po sa BRDC na maaaring angkop sa inyo. Interesado pa rin po ba kayo? Pakisagot lang po ng OO o HINDI.`);});toast(`${L.length} check-in messages added to Messages`);render();}
 function setWarm(id,w){POOL.find(x=>x.id===id).warm=w;render();}
-function poolToJob(pid,jid){const p=POOL.find(x=>x.id===pid),j=job(jid),id=Math.max(0,...CANDS.map(c=>c.id))+1,[city,prov]=p.city.split(',').map(s=>s.trim());
+function poolToJob(pid,jid){const p=POOL.find(x=>x.id===pid),j=job(jid),id=nextCandId(),[city,prov]=p.city.split(',').map(s=>s.trim());
   CANDS.push({id,n:p.n,nick:p.n.split(' ')[0],mob:p.mob,em:'',city:city||'',prov:prov||'',job:jid,stage:'screening',since:isoAgo(0),applied:isoAgo(0),src:'Talent pool',owner:j.owner,lang:'tl',quad:null,docs:false,exp:'From talent pool — '+p.reason,skills:[]});
   POOL=POOL.filter(x=>x.id!==pid);log(`Added ${p.n} from talent pool to ${jid} at Initial screening`,jid);toast(`${p.n} added to ${j.t} at Initial screening`);render();}
 
@@ -1572,7 +1574,7 @@ function rDash(){
         <p class="sub" style="margin:0">${TODAY.toLocaleDateString('en-PH',{weekday:'long',day:'numeric',month:'long',year:'numeric'})} · recruitment overview${buF?' · '+BU[buF]:' · all business units'}</p></div>
       <span style="flex:1"></span>
       <select class="inp" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
-      <button class="btn" onclick="go('s-rep');setTimeout(()=>window.print(),300)">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Management report</button>
+      <button class="btn" onclick="repTab='month';go('s-rep')">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Management report</button>
     </div>
     ${buF?`<div class="fchip">${buLogo(buF,'sm')}<span>Showing <b>${BU[buF]}</b> only</span><button class="btn sm" onclick="buF='';render()">✕ Show all business units</button></div>`:''}
 
@@ -1798,7 +1800,7 @@ function rMpr(){
     </tbody></table></div></div>`);
 }
 function submitMpr(){const g=id=>document.getElementById(id).value.trim();if(!g('mPos')||!g('mDept')){toast('Position and department are required');return;}
-  const id='MPR-'+(Math.max(...MPR.map(m=>+m.id.slice(4)))+1);
+  const id=nextMprId();
   MPR.unshift({id,bu:g('mBu'),dept:g('mDept'),pos:g('mPos'),head:Math.max(1,+g('mHead')||1),type:g('mType'),reason:g('mWhy')||'—',br:(g('mBr')&&g('mBr')!=='__tbc')?g('mBr'):'To be confirmed',by:ME(),date:isoAgo(0),status:'pending',job:null});
   mprForm=false;log(`Submitted ${id} for approval`);toast(`${id} submitted for approval`);render();}
 function approveMpr(id){const m=MPR.find(x=>x.id===id);m.status='approved';
@@ -1861,7 +1863,7 @@ function rOnb(){
         ${ONB_ITEMS.map((t,i)=>`<label class="chk"><input type="checkbox" ${c.onb&&c.onb[i]?'checked':''} onchange="cand(${c.id}).onb[${i}]=this.checked;${c.stage==='hired'?`cand(${c.id}).stage='onboarding';`:''}render()"> ${t}</label>`).join('')}
         ${d===ONB_ITEMS.length?`<button class="btn pri" style="margin-top:10px" onclick="completeOnb(${c.id})">Complete onboarding</button>`:''}</div>`;}).join('')||'<div class="empty">No one is onboarding right now.</div>'}</div>`);
 }
-function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),out:'hired',n:c.n,job:c.job,day:TODAY.getDate(),bu:job(c.job).bu,src:c.src,tth:daysSince(c.applied||isoAgo(20)),ttf:daysSince(job(c.job).open)});
+function completeOnb(id){const c=cand(id);HIST.push({month:todayKey.slice(0,7),out:'hired',n:c.n,job:c.job,applied:c.applied||null,day:TODAY.getDate(),bu:job(c.job).bu,src:c.src,tth:daysSince(c.applied||isoAgo(20)),ttf:daysSince(job(c.job).open)});
   CANDS=CANDS.filter(x=>x.id!==id);log(`${c.n} completed onboarding`,c.job);toast(`${c.n} onboarding complete — moved to employee records`);render();}
 
 /* ============================================================
@@ -1880,6 +1882,7 @@ function rSet(){
         <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
         <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
         ${REMOTE?'':`<div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div>`}</div>
+      ${msgSetupCard()}
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){if(REMOTE){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(packData(),null,1)],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();return;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
@@ -1906,7 +1909,7 @@ function rAdm(){
     <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>Account</th><th>Username</th><th>Role</th><th>Business units</th><th>Status</th><th>Last sign-in</th><th></th></tr></thead><tbody>
     ${list.map(a=>{const me=SESSION&&SESSION.user===a.u;return `<tr>
       <td><span class="chip"><span class="mini">${initials(a.name)}</span>${esc(a.name)}</span>${me?' <span class="pill mute">you</span>':''}${a.email?`<div class="mut">${esc(a.email)}</div>`:''}</td>
-      <td>${esc(a.u)}</td><td><span class="pill ${a.role==='hr_admin'?'green':''}">${a.role}</span></td><td>${esc(a.bu)}</td><td>${stBadge(a)}</td>
+      <td>${esc(a.u)}</td><td><span class="pill ${a.role==='hr_admin'?'green':''}">${a.role}</span></td><td>${buCell(a)}</td><td>${stBadge(a)}</td>
       <td>${a.last?fmtDT(a.last):'<span class="mut">never</span>'}</td>
       <td class="acts"><button class="btn sm ${a.status==='pending'?'pri':''}" onclick="resetPw('${a.u}')">${a.status==='pending'?'Set temporary password':'Reset password'}</button>
         <button class="btn sm" onclick="editAccount('${a.u}')">Edit</button>
@@ -1929,7 +1932,7 @@ function acctForm(a){return `<div class="fg">
   <label>Username *<input class="inp" id="fU" value="${esc(a?a.u:'')}" ${a?'disabled':''} placeholder="filled in from the name" oninput="this.dataset.touched=1;const c=cleanUser(this.value);if(c!==this.value)this.value=c"><small class="mut">Lowercase letters, numbers, dot, dash or underscore</small></label>
   <label>Email<input class="inp" id="fE" type="email" value="${esc(a?a.email:'')}" placeholder="name@brdc.ph"></label>
   <label>Role<select class="inp" id="fR">${Object.keys(ROLE_INFO).map(r=>`<option value="${r}" ${a&&a.role===r?'selected':(!a&&r==='hr_staff'?'selected':'')}>${r} — ${ROLE_INFO[r].split(':')[0].split(',')[0]}</option>`).join('')}</select></label>
-  <label style="grid-column:1/-1">Business units<input class="inp" id="fB" value="${esc(a?a.bu:'')}" placeholder="e.g. Smartfuels, U Hotels — or All business units" list="buList"><datalist id="buList"><option>All business units</option>${Object.values(BU).map(v=>`<option>${v}</option>`).join('')}</datalist></label></div>
+  ${buPicker(a?a.bu:'')}</div>
   <div class="ferr" id="fErr" role="alert"></div>`;}
 function fErr(msg,field){const er=document.getElementById('fErr');er.textContent=msg;er.classList.add('on');document.querySelectorAll('#modal .inp.bad').forEach(x=>x.classList.remove('bad'));if(field){const f=document.getElementById(field);if(f){f.classList.add('bad');f.focus();}}}
 function addAccount(){modal(`<h3>Add account</h3><p class="sub">A temporary password is created. Give it to the user privately; they must change it when they first sign in.</p>${acctForm(null)}
@@ -1983,7 +1986,7 @@ function saveMyPw(){if(REMOTE)return rSaveMyPw();const a=acct(SESSION.user),g=id
 /* ============================================================
    REPORTS — computed, printable
    ============================================================ */
-function rRep(){
+function rRepOverview(){
   const hs=scopedHist(),H=hs.filter(h=>h.out==='hired'),cs=scopedCands();
   const srcs=[...new Set(HIST.map(h=>h.src))].map(s=>{const a=hs.filter(h=>h.src===s).length+cs.filter(c=>c.src===s).length,h=H.filter(x=>x.src===s).length;return [s,a,h,pct(h,a)];}).sort((a,b)=>b[3]-a[3]);
   document.getElementById('s-rep').innerHTML = shell('rep',`<div class="pad">
@@ -2118,7 +2121,7 @@ function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElement
       .catch(e2=>{er.textContent=e2.message;btn.disabled=false;btn.textContent='Submit application';});return;}
   const dup=CANDS.find(c=>c.job===applyJob&&c.mob.replace(/\D/g,'').slice(-10)===g('aM').replace(/\D/g,'').slice(-10));
   if(dup){er.textContent='You have already applied for this job. HR will contact you soon.';return;}
-  const j=job(applyJob),id=Math.max(0,...CANDS.map(c=>c.id))+1,f=document.getElementById('aR').files[0];
+  const j=job(applyJob),id=nextCandId(),f=document.getElementById('aR').files[0];
   const skills=[...document.querySelectorAll('#apForm .skl input:checked')].map(x=>x.value);
   CANDS.push({id,n:g('aN'),nick:g('aK')||g('aN').split(' ')[0],mob:g('aM'),em:g('aE'),city:g('aC'),prov:g('aP'),job:applyJob,stage:'new',since:isoAgo(0),applied:isoAgo(0),
     src:g('aSrc'),owner:j.owner,lang:'tl',quad:null,docs:false,exp:g('aX')||'—',skills,salary:g('aS'),avail:g('aA'),resume:f?f.name:null});
@@ -2146,10 +2149,10 @@ async function probeApi(){try{const r=await fetch('api/public',{cache:'no-store'
 async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json',...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
-function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=Math.max(0,...CANDS.map(c=>c.id))+1,day=new Date(a.created_at).toISOString().slice(0,10);
+function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
   CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob,em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
-async function loadRemote(silent){const r=await api('state');VERSION=r.version;
+async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
   const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);
   if(!had||n)queueSave();return r;}
@@ -2157,18 +2160,18 @@ function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700
 async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.stringify(packData());if(s===lastSaved&&!pendingConsumed.length)return;
   if(SESSION.role==='viewer'){setSync('View only','');return;}
   saving=true;setSync('Saving…','busy');const consumed=[...pendingConsumed];
-  try{const r=await api('state',{method:'PUT',body:{data:JSON.parse(s),version:VERSION,consumed}});VERSION=r.version;lastSaved=s;pendingConsumed=pendingConsumed.filter(x=>!consumed.includes(x));setSync('All changes saved','ok');}
+  try{const r=await api('state',{method:'PUT',body:{data:JSON.parse(s),version:VERSION,consumed}});VERSION=r.version;if(r.maxIds)ID_FLOOR=r.maxIds;lastSaved=s;pendingConsumed=pendingConsumed.filter(x=>!consumed.includes(x));setSync('All changes saved','ok');}
   catch(e){if(e.status===409){setSync('Updated by someone else','warn');toast(`${e.data.updatedBy||'Someone'} saved changes at the same time — loading the latest. Please redo your last change.`);pendingConsumed=[];await loadRemote();refreshDerived();renderSafe();}
     else if(e.status===401){toast('Your session expired — please sign in again');logout();}
     else{setSync('Not saved — retrying','warn');setTimeout(pushRemote,5000);}}
   finally{saving=false;if(JSON.stringify(packData())!==lastSaved)queueSave();}}
 function renderSafe(){const a=document.activeElement;if(document.getElementById('modal')&&document.getElementById('modal').classList.contains('on'))return;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('.main'))return;render();}
 function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(async()=>{if(!REMOTE||!SESSION||saving||remoteBusy)return;if(JSON.stringify(packData())!==lastSaved)return;
-  try{remoteBusy=true;const r=await api('state');if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
+  try{remoteBusy=true;const r=await api('state');FILECOUNT=r.files||FILECOUNT;if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
 async function refreshAccounts(){if(!REMOTE||!isAdmin())return;try{const r=await api('accounts');ACCOUNTS=r.accounts.map(a=>({...a,hash:a.hasPassword?'set':null,status:a.hasPassword?a.status:'pending'}));}catch(e){}}
 async function enterRemote(res){TOKEN=res.token;SESSION={user:res.user.u,name:res.user.name,first:res.user.first||res.user.name.split(' ')[0],role:res.user.role,at:new Date()};
   try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-token',JSON.stringify({t:TOKEN,user:res.user}));else localStorage.removeItem('brdc-token');}catch(e){}
-  setSync('Loading…','busy');await loadRemote();await refreshAccounts();log(`${SESSION.name} signed in`);startPoll();
+  setSync('Loading…','busy');await loadRemote();await refreshAccounts();loadMsgCfg();log(`${SESSION.name} signed in`);startPoll();
   document.title='BRDC Recruit — Dashboard';const L=document.getElementById('login');L.classList.add('out');
   setTimeout(()=>{L.style.display='none';document.body.classList.remove('locked');go('s-dash');setSync('All changes saved','ok');toast(`Signed in as ${SESSION.name} · ${SESSION.role}`);},450);}
 async function remoteLogin(u,p,btn){try{const r=await api('login',{method:'POST',body:{u,p}});
@@ -2183,7 +2186,7 @@ async function remoteBoot(){const info=await probeApi();if(!info)return false;RE
   if(!info.configured&&!routeFromHash()){} // first run: admin signs in and the app seeds jobs/branches
   if(routeFromHash()&&info.jobs){JOBS=info.jobs.length?info.jobs:JOBS;}
   try{const saved=JSON.parse(localStorage.getItem('brdc-token')||'null');if(saved&&saved.t&&!routeFromHash()){TOKEN=saved.t;SESSION={user:saved.user.u,name:saved.user.name,first:saved.user.first||saved.user.name,role:saved.user.role,at:new Date()};
-      await loadRemote();await refreshAccounts();startPoll();const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}
+      await loadRemote();await refreshAccounts();loadMsgCfg();startPoll();const L=document.getElementById('login');L.style.display='none';L.classList.add('out');document.body.classList.remove('locked');document.title='BRDC Recruit — Dashboard';}}
   catch(e){TOKEN=null;SESSION=null;try{localStorage.removeItem('brdc-token');}catch(x){}}
   return true;}
 
@@ -2196,6 +2199,313 @@ async function rDoReset(u){try{const r=await remoteAccount('reset',{u});log(`Res
 async function rSetStatus(u,s){const a=acct(u);if(s==='disabled'&&!confirm(`Disable ${a.name}? They will not be able to sign in.`))return;try{await remoteAccount('status',{u,status:s});toast(`${a.name} ${s==='disabled'?'disabled':'enabled'}`);render();}catch(e){toast(e.message);}}
 async function rSaveMyPw(){const g=id=>document.getElementById(id).value,er=document.getElementById('mErr');if(g('mNew')!==g('mConf')){er.textContent='The two passwords do not match.';return;}
   try{await api('accounts',{method:'POST',body:{action:'changePw',current:g('mCur'),newPw:g('mNew')}});closeModal();toast('Password updated');}catch(e){er.textContent=e.message;}}
+/* ============================================================
+   v4 — resume & document files · SMS/email sending · business-unit access
+        · interview invitations · monthly management report
+   ============================================================ */
+let SCOPE=null, ID_FLOOR={cand:0,intv:0,mpr:0}, FILECOUNT={}, FILES={}, MSGCFG={sms:false,email:false,loaded:false};
+const BU_ALL={...BU};
+function nextCandId(){return Math.max(ID_FLOOR.cand||0,0,...CANDS.map(c=>+c.id||0))+1;}
+function nextIntvId(){return Math.max(ID_FLOOR.intv||0,0,...INTV.map(i=>+i.id||0))+1;}
+function nextMprId(){return 'MPR-'+(Math.max(ID_FLOOR.mpr||0,0,...MPR.map(m=>+String(m.id).replace(/\D/g,'')||0))+1);}
+function canEdit(){return !!SESSION&&SESSION.role!=='viewer';}
+
+/* ---------- business-unit access ---------- */
+function applyScope(sc){SCOPE=sc&&sc.length?sc:null;
+  Object.keys(BU_ALL).forEach(k=>{if(!SCOPE||SCOPE.includes(k))BU[k]=BU_ALL[k];else delete BU[k];});
+  if(buF&&!BU[buF])buF='';if(typeof jfl==='object'&&jfl.bu&&!BU[jfl.bu])jfl.bu='';}
+function scopeLabel(){return SCOPE?SCOPE.map(k=>BU_ALL[k]).join(', '):'All business units';}
+function buPicker(val){const v=String(val||'').trim(),all=!v||v==='—'||/\ball\b/i.test(v),sel=new Set(v.split(/[,;]+/).map(x=>x.trim().toLowerCase()));
+  return `<div style="grid-column:1/-1"><div class="flab">Business units this person can see</div><input type="hidden" id="fB" value="${esc(all?'All business units':v)}">
+    <div class="bupick"><label class="schip"><input type="checkbox" id="fBall" ${all?'checked':''} onchange="buPickSync(this)"><span>All business units</span></label>
+    ${Object.entries(BU_ALL).map(([k,n])=>`<label class="schip"><input type="checkbox" class="fbk" value="${esc(n)}" ${!all&&(sel.has(n.toLowerCase())||sel.has(k))?'checked':''} onchange="buPickSync(this)"><span>${esc(n)}</span></label>`).join('')}</div>
+    <small class="mut">Staff and viewers only see jobs, applicants, interviews and reports of the units ticked here. hr_admin accounts always see everything.</small></div>`;}
+function buPickSync(el){const all=document.getElementById('fBall'),ks=[...document.querySelectorAll('.fbk')];
+  if(el===all&&all.checked)ks.forEach(x=>x.checked=false);else if(el!==all&&el.checked)all.checked=false;
+  const v=ks.filter(x=>x.checked).map(x=>x.value);if(!v.length)all.checked=true;document.getElementById('fB').value=all.checked?'All business units':v.join(', ');}
+function buCell(a){if(a.role==='hr_admin')return '<span class="pill green">All (admin)</span>';const v=String(a.bu||'').trim();
+  if(!v||v==='—'||/\ball\b/i.test(v))return '<span class="pill">All business units</span>';
+  return v.split(/[,;]+/).map(x=>x.trim()).filter(Boolean).map(x=>`<span class="pill mute" style="margin:0 3px 3px 0">${esc(x)}</span>`).join('');}
+
+/* ---------- files (resumes & documents) ---------- */
+const FILE_MAX=3*1024*1024, FILE_TYPES=/^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/(jpeg|png|webp|heic|heif))$/;
+function guessType(n){const e=(String(n).split('.').pop()||'').toLowerCase();return {pdf:'application/pdf',doc:'application/msword',docx:'application/vnd.openxmlformats-officedocument.wordprocessingml.document',jpg:'image/jpeg',jpeg:'image/jpeg',png:'image/png',webp:'image/webp',heic:'image/heic',heif:'image/heif'}[e]||'';}
+function readB64(f){return new Promise((res,rej)=>{const r=new FileReader();r.onload=()=>res(String(r.result));r.onerror=()=>rej(new Error('Could not read the file.'));r.readAsDataURL(f);});}
+async function shrinkImage(f){if(!/^image\/(jpeg|png|webp)$/.test(f.type))return null;const url=URL.createObjectURL(f);
+  try{const img=await new Promise((res,rej)=>{const i=new Image();i.onload=()=>res(i);i.onerror=rej;i.src=url;});
+    const k=Math.min(1,1800/Math.max(img.width,img.height)),cv=document.createElement('canvas');cv.width=Math.round(img.width*k);cv.height=Math.round(img.height*k);
+    const x=cv.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,cv.width,cv.height);x.drawImage(img,0,0,cv.width,cv.height);
+    return {name:f.name.replace(/\.\w+$/,'')+'.jpg',type:'image/jpeg',data:cv.toDataURL('image/jpeg',0.82)};}finally{URL.revokeObjectURL(url);}}
+async function prepFile(f){if(!f)return null;let out=null;const type=f.type||guessType(f.name);
+  if(!FILE_TYPES.test(type))throw new Error('Please upload a PDF, Word document or photo.');
+  if(type.startsWith('image/')&&f.size>700*1024){try{out=await shrinkImage(f);}catch(e){}}
+  if(!out){if(f.size>FILE_MAX)throw new Error(`“${f.name}” is ${(f.size/1048576).toFixed(1)} MB. The limit is 3 MB — please upload a smaller file or a photo of it.`);out={name:f.name,type,data:await readB64(f)};}
+  if(out.data.length*3/4>FILE_MAX*1.37)throw new Error('The file is too large. Please upload a file under 3 MB.');return out;}
+function fmtSize(n){return n>1048576?(n/1048576).toFixed(1)+' MB':Math.max(1,Math.round(n/1024))+' KB';}
+function fileIcon(f){return /pdf/.test(f.type)?'📄':/image/.test(f.type)?'🖼️':'📝';}
+function kindLabel(k){return k==='resume'?'Resume':k;}
+function fileN(c){const r=candRef(c),n=FILES[r]?FILES[r].length:(FILECOUNT[r]||0);return n?` (${n})`:'';}
+let filesLoading={};
+async function loadFiles(ref,force){if(!REMOTE||!SESSION||filesLoading[ref]||(!force&&FILES[ref]))return;filesLoading[ref]=1;
+  try{const r=await api('files?ref='+encodeURIComponent(ref));FILES[ref]=r.files||[];FILECOUNT[ref]=FILES[ref].length;}catch(e){FILES[ref]=FILES[ref]||[];}
+  finally{delete filesLoading[ref];}if(cur==='s-prof')renderSafe();}
+function resumeRow(c){const ref=candRef(c),fs=FILES[ref];if(REMOTE&&SESSION&&!fs)setTimeout(()=>loadFiles(ref),0);
+  const r=(fs||[]).find(f=>f.kind==='resume');
+  if(r)return `<dt>Resume</dt><dd>${fileIcon(r)} ${esc(r.name)} <button class="btn sm" onclick="openFile(${r.id})">View</button> <button class="btn sm" onclick="downloadFile(${r.id})">Download</button></dd>`;
+  if(c.resume)return `<dt>Resume</dt><dd>📎 ${esc(c.resume)} <span class="mut">${fs?'(file not uploaded)':REMOTE?'':'(name only)'}</span></dd>`;return '';}
+function filesCard(c){const ref=candRef(c),fs=FILES[ref];
+  if(!REMOTE)return `<div class="card" style="margin-bottom:12px"><h3>Files</h3><p class="mut">Uploading resumes and documents works on the shared-database site (hr-recruitment-dashboard-nu.vercel.app).</p></div>`;
+  const kinds=['Resume',...DOCS,'Other'];
+  return `<div class="card" style="margin-bottom:12px"><div class="ch"><h3>Files</h3><span class="mut">PDF, Word or photo · up to 3 MB each</span></div>
+    ${fs?(fs.map(f=>`<div class="doc"><span>${fileIcon(f)} <b>${esc(f.name)}</b><br><small class="mut">${esc(kindLabel(f.kind))} · ${fmtSize(f.size||0)} · ${esc(f.uploaded_by||'')} · ${fmtDT(f.created_at)}</small></span>
+      <span style="display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end"><button class="btn sm" onclick="openFile(${f.id})">View</button><button class="btn sm" onclick="downloadFile(${f.id})">Download</button>${canEdit()?`<button class="btn sm" onclick="delFile(${f.id},'${ref}')">Delete</button>`:''}</span></div>`).join('')||'<p class="mut">No files yet.</p>'):'<p class="mut">Loading files…</p>'}
+    ${canEdit()?`<div class="upl"><select class="inp" id="fkind" aria-label="Document type">${kinds.map(k=>`<option>${esc(k)}</option>`).join('')}</select>
+      <label class="btn pri" id="uplBtn">Upload file<input type="file" hidden accept=".pdf,.doc,.docx,image/*" onchange="uploadCandFile(${c.id},this)"></label></div>`:''}</div>`;}
+async function uploadCandFile(cid,inp){const c=cand(cid),f=inp.files[0];if(!c||!f)return;const kindSel=document.getElementById('fkind').value,kind=kindSel==='Resume'?'resume':kindSel,ref=candRef(c),btn=document.getElementById('uplBtn');
+  try{if(btn){btn.classList.add('busy');btn.firstChild.textContent='Uploading…';}const p=await prepFile(f);
+    const r=await api('files',{method:'POST',body:{ref,kind,name:p.name,type:p.type,data:p.data}});(FILES[ref]=FILES[ref]||[]).unshift(r.file);FILECOUNT[ref]=FILES[ref].length;
+    const di=DOCS.indexOf(kindSel);if(di>=0){if(!c.docs){c.docs=true;c.docsStarted=todayKey;c.docState=DOCS.map(()=>'pending');}if(c.docState[di]==='pending')c.docState[di]='submitted';}
+    if(kind==='resume')c.resume=p.name;log(`Uploaded ${kindLabel(kind)} for ${c.n}`,c.job);toast(`${kindLabel(kind)} uploaded`);render();}
+  catch(e){toast(e.message||'Upload failed');if(btn){btn.classList.remove('busy');btn.firstChild.textContent='Upload file';}}}
+async function fileBlob(id){const r=await fetch('api/files?id='+id,{cache:'no-store',headers:TOKEN?{Authorization:'Bearer '+TOKEN}:{}});
+  if(!r.ok){let m='Could not open the file';try{m=(await r.json()).error||m;}catch(e){}throw new Error(m);}return r.blob();}
+function findFile(id){for(const k in FILES){const f=FILES[k].find(x=>x.id===id);if(f)return f;}return null;}
+async function openFile(id){const w=window.open('','_blank');try{const b=await fileBlob(id),u=URL.createObjectURL(b);if(w){w.location.href=u;}else{downloadFile(id);}setTimeout(()=>URL.revokeObjectURL(u),60000);}
+  catch(e){if(w)w.close();toast(e.message);}}
+async function downloadFile(id){try{const b=await fileBlob(id),f=findFile(id)||{name:'file'},a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=f.name;document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),60000);}catch(e){toast(e.message);}}
+async function delFile(id,ref){const f=findFile(id);if(!confirm(`Delete ${f?f.name:'this file'}? This cannot be undone.`))return;
+  try{await api('files?id='+id,{method:'DELETE'});FILES[ref]=(FILES[ref]||[]).filter(x=>x.id!==id);FILECOUNT[ref]=FILES[ref].length;log(`Deleted file ${f?f.name:id}`);toast('File deleted');render();}catch(e){toast(e.message);}}
+
+/* public application form: resume upload goes with the application */
+async function submitApply(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr');
+  const miss=[['aN','full name'],['aM','mobile number'],['aC','city'],['aP','province'],['aSrc','how you heard about us']].filter(([id])=>!g(id)).map(x=>x[1]);
+  if(miss.length){er.textContent='Please fill in: '+miss.join(', ')+'.';er.scrollIntoView({behavior:'smooth',block:'center'});return;}
+  if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('aM'))){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return;}
+  if(g('aE')&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('aE'))){er.textContent='Check your email address.';return;}
+  if(!document.getElementById('aOk').checked){er.textContent='Please tick the consent box to continue.';return;}
+  const f0=document.getElementById('aR').files[0],skills=[...document.querySelectorAll('#apForm .skl input:checked')].map(x=>x.value),nick=g('aK')||g('aN').split(' ')[0];
+  if(REMOTE){const btn=document.querySelector('#apForm .pbtn.big');btn.disabled=true;btn.textContent=f0?'Uploading resume…':'Submitting…';er.textContent='';
+    let file=null;try{file=await prepFile(f0);}catch(x){er.textContent=x.message;btn.disabled=false;btn.textContent='Submit application';return;}
+    if(f0)btn.textContent='Submitting…';
+    try{const r=await api('public',{method:'POST',body:{action:'apply',app:{job:applyJob,n:g('aN'),nick:g('aK'),mob:g('aM'),em:g('aE'),city:g('aC'),prov:g('aP'),src:g('aSrc'),exp:g('aX'),salary:g('aS'),avail:g('aA'),resume:f0?f0.name:null,file,consent:true,skills}}});
+      applyDone={ref:r.ref,nick,job:r.job,ack:r.ack};render();window.scrollTo(0,0);}
+    catch(e2){er.textContent=e2.message;btn.disabled=false;btn.textContent='Submit application';}return;}
+  const dup=CANDS.find(c=>c.job===applyJob&&c.mob.replace(/\D/g,'').slice(-10)===g('aM').replace(/\D/g,'').slice(-10));
+  if(dup){er.textContent='You have already applied for this job. HR will contact you soon.';return;}
+  const j=job(applyJob),id=nextCandId();
+  CANDS.push({id,n:g('aN'),nick,mob:g('aM'),em:g('aE'),city:g('aC'),prov:g('aP'),job:applyJob,stage:'new',since:isoAgo(0),applied:isoAgo(0),
+    src:g('aSrc'),owner:j.owner,lang:'tl',quad:null,docs:false,exp:g('aX')||'—',skills,salary:g('aS'),avail:g('aA'),resume:f0?f0.name:null});
+  const ref='C-'+String(2000+id);
+  ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${g('aN')} for ${j.t} (${ref})`,job:applyJob});
+  saveData();applyDone={ref,nick,job:j.t};render();window.scrollTo(0,0);}
+
+/* ---------- SMS & email ---------- */
+async function loadMsgCfg(){if(!REMOTE||!SESSION)return;try{const r=await api('send');MSGCFG={...r,loaded:true};}catch(e){MSGCFG={sms:false,email:false,loaded:true,recent:[],err:e.message};}
+  if(['s-msg','s-set','s-int'].includes(cur))renderSafe();}
+function msgEm(m){return m.em||((cand(m.cid)||{}).em)||'';}
+function msgRef(m){const c=cand(m.cid);return c?candRef(c):null;}
+function chanPills(){if(!REMOTE)return '<span class="pill mute">Browser-only mode — automatic sending needs the shared-database site</span>';
+  if(!MSGCFG.loaded)return '<span class="pill mute">Checking SMS and email…</span>';
+  return `<span class="pill ${MSGCFG.sms?'green':'mute'}">SMS ${MSGCFG.sms?'on':'off'}</span> <span class="pill ${MSGCFG.email?'green':'mute'}">Email ${MSGCFG.email?'on':'off'}</span>`;}
+function rMsg(){
+  const pend=MSGS.filter(m=>m.status==='pending'),sent=MSGS.filter(m=>m.status==='sent');
+  const pctv=MSGS.length?Math.round(sent.length/MSGS.length*100):0,smsable=pend.filter(m=>m.mob).length;
+  const auto=REMOTE&&(MSGCFG.sms||MSGCFG.email);
+  document.getElementById('s-msg').innerHTML=shell('msg',`<div class="pad">
+    <div class="dhead"><div><h2>Messages</h2><p class="sub" style="margin:0">Feedback, invitations and reminders to applicants</p></div><span style="flex:1"></span>
+      <span>${chanPills()}</span>${REMOTE&&MSGCFG.sms&&smsable&&canEdit()?`<button class="btn pri" onclick="sendAllSms()">Send all pending by SMS (${smsable})</button>`:''}</div>
+    ${auto?`<div class="hint">Messages go out straight from BRDC Recruit${MSGCFG.smsSender?` as <b>${esc(MSGCFG.smsSender)}</b>`:''}. Every message sent is recorded with your name. Applicants also get an automatic text when they apply, and a reminder at 8:00 AM the day before an interview.</div>`
+      :`<div class="hint">Automatic sending is off, so copy each message, send it from your phone or email, then mark it sent. ${isAdmin()?'Turn on SMS and email in <a class="lnk" onclick="go(\'s-set\')">Settings → Messaging</a>.':'An hr_admin can turn on SMS and email in Settings.'}</div>`}
+    <div class="grid kpis" style="margin-bottom:16px">
+      <div class="card kpi ${pend.length?'bad':'good'}"><div class="n">${pend.length}</div><div class="l">Pending</div></div>
+      <div class="card kpi"><div class="n">${pctv}%</div><div class="l">Feedback rate</div></div>
+    </div>
+    <h3>Pending</h3>
+    ${pend.length?pend.map(m=>{const em=msgEm(m);return `<div class="msg">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <b>${esc(m.cand)}</b><span class="pill mute">${esc(m.mob||'no mobile')}</span>${em?`<span class="pill mute">${esc(em)}</span>`:''}
+        <span class="pill">${esc(m.tpl)}</span><span class="pill mute">${m.lang==='tl'?'Tagalog':'English'}</span>
+        ${msgAge(m)?`<span class="pill amber">${msgAge(m)}d waiting</span>`:''}
+      </div>
+      <div class="msgtxt">${esc(m.body)}</div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap">
+        ${REMOTE&&MSGCFG.sms&&m.mob&&canEdit()?`<button class="btn pri" id="mb${m.id}s" onclick="sendMsg(${m.id},'sms')">Send SMS</button>`:''}
+        ${REMOTE&&MSGCFG.email&&em&&canEdit()?`<button class="btn ${MSGCFG.sms&&m.mob?'':'pri'}" id="mb${m.id}e" onclick="sendMsg(${m.id},'email')">Send email</button>`:''}
+        <button class="btn" onclick="copyMsg(${m.id})">Copy text</button>
+        <button class="btn" onclick="copyNum(${m.id})">Copy number</button>
+        <button class="btn ${auto?'':'pri'}" onclick="markSent(${m.id})">${auto?'Mark sent manually':'Mark as sent'}</button>
+      </div></div>`;}).join(''):'<div class="empty">Nothing pending. Every dispositioned candidate has been contacted.</div>'}
+    <h3 style="margin-top:18px">Sent</h3>
+    ${sent.slice(0,60).map(m=>`<div class="msg done">
+      <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+        <b>${esc(m.cand)}</b><span class="pill">${esc(m.tpl)}</span>
+        <span class="pill green">${m.via==='sms'?'SMS':m.via==='email'?'Email':'sent'} by ${esc(m.by||'—')} · ${esc(m.at||'')}</span>
+      </div><div class="msgtxt">${esc(m.body)}</div></div>`).join('')||'<div class="empty">Nothing sent yet.</div>'}`);
+}
+function stampSent(m,via){m.status='sent';m.by=ME();m.via=via||null;m.sentAt=new Date().toISOString();m.at=new Date().toLocaleString('en-PH',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'});}
+async function sendMsg(id,ch,quiet){const m=MSGS.find(x=>x.id===id);if(!m)return false;const b=document.getElementById('mb'+id+(ch==='sms'?'s':'e'));if(b){b.disabled=true;b.textContent='Sending…';}
+  try{await api('send',{method:'POST',body:{channel:ch,to:ch==='sms'?m.mob:msgEm(m),subject:`${m.tpl} — BRDC`,body:m.body,ref:msgRef(m)}});
+    stampSent(m,ch);log(`${ch==='sms'?'Texted':'Emailed'} ${m.cand}: ${m.tpl}`);if(!quiet){toast(`${ch==='sms'?'SMS':'Email'} sent to ${m.cand}`);render();}return true;}
+  catch(e){if(!quiet){toast(e.message);render();}return e.message;}}
+async function sendAllSms(){const list=MSGS.filter(m=>m.status==='pending'&&m.mob);if(!list.length)return;
+  if(!confirm(`Send ${list.length} pending message${list.length>1?'s':''} by SMS now?`))return;let ok=0,err='';
+  for(const m of list){toast(`Sending ${ok+1} of ${list.length}…`);const r=await sendMsg(m.id,'sms',true);if(r===true)ok++;else err=r;}
+  render();toast(`${ok} of ${list.length} sent${err?` · last error: ${err}`:''}`);}
+function msgSetupCard(){if(!REMOTE)return `<div class="card" style="margin-top:14px"><h3>Messaging (SMS & email)</h3><p class="mut">Available on the shared-database site.</p></div>`;
+  if(!MSGCFG.loaded){setTimeout(loadMsgCfg,0);return `<div class="card" style="margin-top:14px"><h3>Messaging (SMS & email)</h3><p class="mut">Checking…</p></div>`;}
+  const rec=(MSGCFG.recent||[]).slice(0,8);
+  return `<div class="card" style="margin-top:14px"><div class="ch"><h3>Messaging (SMS & email)</h3><span>${chanPills()}</span></div>
+    <div class="doc"><span><b>SMS — Semaphore</b><br><small class="mut">${MSGCFG.sms?`Connected${MSGCFG.smsSender?' · sender name '+esc(MSGCFG.smsSender):' · default sender name'}`:'Create an account at semaphore.co, buy credits, then add <code>SEMAPHORE_API_KEY</code> (and optionally <code>SEMAPHORE_SENDER</code>) in Vercel → Settings → Environment Variables, then redeploy.'}</small></span></div>
+    <div class="doc"><span><b>Email — Resend</b><br><small class="mut">${MSGCFG.email?`Connected · from ${esc(MSGCFG.emailFrom||'onboarding@resend.dev (test mode)')}`:'Create an account at resend.com, verify the brdc.ph domain, then add <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code> (e.g. BRDC Careers &lt;careers@brdc.ph&gt;) in Vercel, then redeploy.'}</small></span></div>
+    ${MSGCFG.sms||MSGCFG.email?`<div class="upl" style="margin-top:8px"><input class="inp" id="tTo" placeholder="${MSGCFG.sms?'0917 123 4567':'name@brdc.ph'}${MSGCFG.sms&&MSGCFG.email?' or name@brdc.ph':''}" style="flex:1;min-width:180px"><button class="btn" onclick="testSend()">Send test message</button></div>`:''}
+    ${rec.length?`<h4 style="margin:14px 0 6px">Recent deliveries</h4>${rec.map(r=>`<div class="doc"><span>${r.channel==='sms'?'💬':'✉️'} ${esc(r.recipient||'')}<br><small class="mut">${fmtDT(r.created_at)} · ${esc(r.sent_by||'')}${r.error?' · '+esc(r.error):''}</small></span><span class="pill ${r.status==='sent'?'green':'red'}">${r.status}</span></div>`).join('')}`:''}</div>`;}
+async function testSend(){const to=(document.getElementById('tTo').value||'').trim();if(!to){toast('Enter a mobile number or email');return;}
+  const ch=to.includes('@')?'email':'sms';
+  try{await api('send',{method:'POST',body:{channel:ch,to,subject:'BRDC Recruit test',body:`This is a test message from BRDC Recruit, sent by ${ME()}.`}});toast(`Test ${ch==='sms'?'SMS':'email'} sent`);MSGCFG.loaded=false;loadMsgCfg();}
+  catch(e){toast(e.message);MSGCFG.loaded=false;loadMsgCfg();}}
+
+/* ---------- interview invitations ---------- */
+let intMinutes=60;
+function acctEmail(name){const a=ACCOUNTS.find(x=>x.name===name);return a&&a.email?a.email:'';}
+function interviewers(){return [...new Set(ACCOUNTS.filter(a=>a.status!=='disabled').map(a=>a.name).concat(JOBS.flatMap(j=>j.team||[])).concat(INTV.map(i=>i.interviewer)).filter(Boolean))];}
+function icsStamp(d){return new Date(d).toISOString().replace(/[-:]/g,'').replace(/\.\d{3}/,'');}
+function icsFor(i){const c=cand(i.cid)||{n:'Candidate',mob:''},j=job(c.job),st=new Date(i.when),en=new Date(st.getTime()+(i.minutes||60)*6e4),e=s=>String(s||'').replace(/([\\;,])/g,'\\$1').replace(/\n/g,'\\n');
+  return ['BEGIN:VCALENDAR','VERSION:2.0','PRODID:-//BRDC//Recruit//EN','BEGIN:VEVENT',`UID:intv-${i.id}-${st.getTime()}@brdc-recruit`,`DTSTAMP:${icsStamp(new Date())}`,`DTSTART:${icsStamp(st)}`,`DTEND:${icsStamp(en)}`,
+    `SUMMARY:${e(`${i.type}: ${c.n} — ${j.t}`)}`,`LOCATION:${e(i.loc)}`,`DESCRIPTION:${e(`Candidate: ${c.n} (${c.mob})\nPosition: ${j.t} · ${BU_ALL[j.bu]||''}\nInterviewer: ${i.interviewer}`)}`,
+    'BEGIN:VALARM','TRIGGER:-PT30M','ACTION:DISPLAY','DESCRIPTION:Interview in 30 minutes','END:VALARM','END:VEVENT','END:VCALENDAR'].join('\r\n');}
+function dlIcs(id){const i=INTV.find(x=>x.id===id),c=cand(i.cid)||{n:'candidate'},a=document.createElement('a');a.href=URL.createObjectURL(new Blob([icsFor(i)],{type:'text/calendar'}));
+  a.download=`interview-${cleanUser(c.n)||'candidate'}.ics`;document.body.appendChild(a);a.click();a.remove();}
+function gcal(id){const i=INTV.find(x=>x.id===id),c=cand(i.cid)||{n:'Candidate',mob:''},j=job(c.job),st=new Date(i.when),en=new Date(st.getTime()+(i.minutes||60)*6e4);
+  window.open('https://calendar.google.com/calendar/render?action=TEMPLATE&text='+encodeURIComponent(`${i.type}: ${c.n} — ${j.t}`)+'&dates='+icsStamp(st)+'/'+icsStamp(en)+'&location='+encodeURIComponent(i.loc||'')+'&details='+encodeURIComponent(`Candidate: ${c.n} (${c.mob})\nPosition: ${j.t}\nInterviewer: ${i.interviewer}`),'_blank');}
+async function sendInvite(i,notify,msgId){const c=cand(i.cid);if(!c)return null;const j=job(c.job);
+  const r=await api('send',{method:'POST',body:{action:'invite',ref:candRef(c),notify,intv:{id:i.id,type:i.type,when:i.when,loc:i.loc,minutes:i.minutes||60},
+    cand:{n:c.n,nick:c.nick,mob:c.mob,em:c.em},interviewer:{name:i.interviewer,email:i.ivEmail},job:{t:j.t,bu:BU_ALL[j.bu]||''},smsText:(MSGS.find(m=>m.id===msgId)||{}).body}});
+  const res=r.results||{},done=[],fail=[];
+  [['applicantSms','SMS to applicant'],['applicantEmail','email to applicant'],['interviewer','invite to interviewer']].forEach(([k,l])=>{if(res[k])(res[k].ok?done:fail).push(res[k].ok?l:`${l} (${res[k].error})`);});
+  if(res.applicantSms&&res.applicantSms.ok&&msgId){const m=MSGS.find(x=>x.id===msgId);if(m)stampSent(m,'sms');}
+  if(done.length){i.invited=(i.invited||[]).concat(done.map(d=>({what:d,at:new Date().toISOString(),by:ME()})));log(`Interview invitation for ${c.n}: ${done.join(', ')}`,c.job);}
+  return {done,fail};}
+function notifyBoxes(prefix,hasEm){const s=REMOTE&&MSGCFG.sms,e=REMOTE&&MSGCFG.email;
+  if(!REMOTE)return '<p class="mut" style="margin-top:8px">Automatic invitations work on the shared-database site. You can still download the calendar invite after scheduling.</p>';
+  if(!s&&!e)return `<p class="mut" style="margin-top:8px">SMS and email are off, so the invitation is queued in Messages to send yourself.${isAdmin()?' Turn them on in Settings → Messaging.':''}</p>`;
+  return `<div class="bupick" style="margin-top:10px">
+    ${s?`<label class="schip"><input type="checkbox" id="${prefix}Ns" checked><span>Text the applicant</span></label>`:''}
+    ${e?`<label class="schip"><input type="checkbox" id="${prefix}Ne" ${hasEm===false?'':'checked'}><span>Email the applicant</span></label>`:''}
+    ${e?`<label class="schip"><input type="checkbox" id="${prefix}Ni" checked><span>Send calendar invite to interviewer</span></label>`:''}</div>`;}
+function readNotify(prefix){const v=id=>{const el=document.getElementById(prefix+id);return !!(el&&el.checked);};return {applicantSms:v('Ns'),applicantEmail:v('Ne'),interviewerEmail:v('Ni')};}
+function rInt(){
+  const up=INTV.filter(i=>i.status==='scheduled').sort((a,b)=>a.when.localeCompare(b.when)),aw=INTV.filter(i=>i.status==='done'&&!i.result),dn=INTV.filter(i=>i.result).sort((a,b)=>b.when.localeCompare(a.when));
+  const rows={up,await:aw,done:dn}[intTab];
+  const elig=CANDS.filter(c=>ACTIVE.includes(c.stage)),people=interviewers(),p0=people[0]||'';
+  document.getElementById('s-int').innerHTML=shell('int',`<div class="pad">
+    <h2>Interviews</h2><p class="sub">Schedule interviews, send invitations and record results${REMOTE&&MSGCFG.sms?' · applicants get an SMS reminder at 8:00 AM the day before':''}</p>
+    <div class="bar">${canEdit()?`<button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button>`:''}</div>
+    ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3>${elig.length?`<div class="fg">
+      <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
+      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
+      <label>Length<select class="inp" id="iD">${[30,45,60,90,120].map(m=>`<option value="${m}" ${m===intMinutes?'selected':''}>${m<60?m+' minutes':m/60+' hour'+(m>60?'s':'')}</option>`).join('')}</select></label>
+      <label>Interviewer<input class="inp" id="iI" list="ivList" value="${esc(p0)}" onchange="const e=acctEmail(this.value);if(e)document.getElementById('iIE').value=e"><datalist id="ivList">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</datalist></label>
+      <label>Interviewer email<input class="inp" id="iIE" type="email" value="${esc(acctEmail(p0))}" placeholder="for the calendar invite"></label>
+      <label style="grid-column:1/-1">Location<input class="inp" id="iL" value="Video call" placeholder="e.g. Smartfuels Calamba office, or a video call link"></label></div>
+      ${notifyBoxes('i')}
+      <button class="btn pri" style="margin-top:12px" id="iGo" onclick="schedInt()">Schedule${REMOTE&&(MSGCFG.sms||MSGCFG.email)?' and send invitations':' and queue invitation'}</button>`
+      :'<div class="empty">No active candidates to interview yet.</div>'}</div>`:''}
+    <div class="tabs">${[['up','Upcoming',up.length],['await','Awaiting results',aw.length],['done','Completed',dn.length]].map(([k,n,c])=>`<button class="${intTab===k?'on':''}" onclick="intTab='${k}';render()">${n} <span class="pill ${k==='await'&&c?'amber':'mute'}">${c}</span></button>`).join('')}</div>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>When</th><th>Candidate</th><th>Type</th><th>Interviewer</th><th>Location</th><th>${intTab==='done'?'Result':''}</th></tr></thead><tbody>
+    ${rows.map(i=>{const c=cand(i.cid);if(!c)return '';const today=localISO(new Date(i.when))===todayKey;
+      return `<tr><td>${today?'<span class="pill green">Today</span> ':''}${fmtDT(i.when)}${i.minutes?`<div class="mut">${i.minutes} min</div>`:''}</td><td><a class="lnk" onclick="openCand(${c.id})"><b>${esc(c.n)}</b></a><div class="mut">${esc(job(c.job).t)} · ${BU_ALL[job(c.job).bu]||''}</div></td><td>${i.type}</td><td>${esc(i.interviewer)}${i.invited&&i.invited.length?'<div><span class="pill green">invited</span></div>':''}</td><td>${esc(i.loc)}</td>
+      <td>${intTab==='up'?`<div class="acts"><button class="btn sm" onclick="dlIcs(${i.id})" title="Download calendar invite">📅 .ics</button><button class="btn sm" onclick="gcal(${i.id})">Google Calendar</button>${canEdit()?`${REMOTE&&(MSGCFG.sms||MSGCFG.email)?`<button class="btn sm" onclick="reinvite(${i.id})">Send invitation</button>`:''}<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button>`:''}</div>`
+        :intTab==='await'?(canEdit()?`<div class="rec"><select class="inp" id="sc${i.id}"><option value="">Score</option>${[5,4,3,2,1].map(s=>`<option>${s}</option>`).join('')}</select><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`:'<span class="mut">Awaiting result</span>')
+        :`<span class="pill ${i.result==='pass'?'green':i.result==='fail'?'red':'amber'}">${i.result}${i.score?' · '+i.score+'/5':''}</span>${i.remarks?`<div class="mut">${esc(i.remarks)}</div>`:''}`}</td></tr>`;}).join('')||`<tr><td colspan="6"><div class="empty">Nothing here.</div></td></tr>`}
+    </tbody></table></div></div>`);
+}
+async function schedInt(){const cid=+document.getElementById('iC').value,w=document.getElementById('iW').value;if(!cid||!w){toast('Pick a candidate and time');return;}
+  const t=document.getElementById('iT').value,iv=document.getElementById('iI').value.trim(),ive=document.getElementById('iIE').value.trim(),loc=document.getElementById('iL').value.trim()||'BRDC office';
+  if(!iv){toast('Enter the interviewer');return;}if(ive&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ive)){toast('Check the interviewer email');return;}
+  intMinutes=+document.getElementById('iD').value||60;const notify=readNotify('i'),c=cand(cid),when=new Date(w).toISOString();
+  const i={id:nextIntvId(),cid,bu:job(c.job).bu,type:t,when,minutes:intMinutes,interviewer:iv,ivEmail:ive,loc,status:'scheduled',score:null,result:null,remarks:''};INTV.push(i);
+  const k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);}
+  const msgId=Date.now();MSGS.unshift({id:msgId,cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),
+    body:c.lang==='tl'?`Hi ${c.nick}, naka-schedule po kayo para sa ${t.toLowerCase()} sa ${fmtDT(when)} (${loc}) para sa ${job(c.job).t}. Magdala po ng valid ID. Pakireply para kumpirmahin. - BRDC HR`:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(when)} (${loc}) for ${job(c.job).t}. Please bring a valid ID and reply to confirm. - BRDC HR`});
+  intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);
+  if(REMOTE&&(notify.applicantSms||notify.applicantEmail||notify.interviewerEmail)){const b=document.getElementById('iGo');if(b){b.disabled=true;b.textContent='Sending invitations…';}
+    try{const r=await sendInvite(i,notify,msgId);toast(r.done.length?`Interview scheduled · sent ${r.done.join(', ')}${r.fail.length?` · not sent: ${r.fail.join('; ')}`:''}`:`Interview scheduled · invitations not sent: ${r.fail.join('; ')||'nothing selected'}`);}
+    catch(e){toast('Interview scheduled · invitations not sent: '+e.message);}}
+  else toast('Interview scheduled · invitation queued in Messages');
+  render();}
+function reinvite(id){const i=INTV.find(x=>x.id===id),c=cand(i.cid);modal(`<h3>Send interview invitation</h3>
+  <p class="sub">${esc(c.n)} · ${esc(i.type)} · ${fmtDT(i.when)} · ${esc(i.loc)}</p>
+  <div class="fg"><label>Interviewer email<input class="inp" id="rIE" type="email" value="${esc(i.ivEmail||acctEmail(i.interviewer))}" placeholder="for the calendar invite"></label></div>
+  ${notifyBoxes('r',!!c.em)}
+  <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="rGo" onclick="doReinvite(${id})">Send</button></div>`);}
+async function doReinvite(id){const i=INTV.find(x=>x.id===id),b=document.getElementById('rGo');i.ivEmail=document.getElementById('rIE').value.trim();b.disabled=true;b.textContent='Sending…';
+  try{const r=await sendInvite(i,readNotify('r'));closeModal();toast(r.done.length?`Sent ${r.done.join(', ')}${r.fail.length?` · not sent: ${r.fail.join('; ')}`:''}`:`Not sent: ${r.fail.join('; ')||'nothing selected'}`);render();}
+  catch(e){b.disabled=false;b.textContent='Send';toast(e.message);}}
+
+/* ---------- monthly management report ---------- */
+let repTab='month', repMonth=todayKey.slice(0,7), repNote='';
+function monthName(m){const [y,mo]=m.split('-').map(Number);return new Date(y,mo-1,1).toLocaleDateString('en-PH',{month:'long',year:'numeric'});}
+function lastMonths(n){const o=[];const d=new Date(TODAY.getFullYear(),TODAY.getMonth(),1);for(let i=0;i<n;i++){o.push(localISO(d).slice(0,7));d.setMonth(d.getMonth()-1);}return o;}
+const mOf=d=>d?String(d).length>10?localISO(new Date(d)).slice(0,7):String(d).slice(0,7):'';
+function monthData(m,bu){
+  const inBu=b=>!bu||b===bu, jb=id=>job(id).bu;
+  const cands=CANDS.filter(c=>c.stage!=='draft'&&inBu(jb(c.job))), hist=HIST.filter(h=>inBu(h.bu||jb(h.job)));
+  const apps=cands.filter(c=>mOf(c.applied||c.since)===m).length+hist.filter(h=>h.applied&&mOf(h.applied)===m).length;
+  const hires=hist.filter(h=>h.out==='hired'&&h.month===m), rej=hist.filter(h=>h.out==='rejected'&&h.month===m), wd=hist.filter(h=>h.out==='withdrew'&&h.month===m);
+  const ivs=INTV.filter(i=>mOf(i.when)===m&&inBu(i.bu||jb((cand(i.cid)||{}).job)));
+  const held=ivs.filter(i=>i.status==='done'),pass=held.filter(i=>i.result==='pass').length,fail=held.filter(i=>i.result==='fail').length,ns=held.filter(i=>i.result==='no-show').length;
+  const mpr=MPR.filter(r=>mOf(r.date)===m&&inBu(r.bu));
+  const openJobs=JOBS.filter(j=>jobOpen(j)&&inBu(j.bu)&&j.rf!=='general');
+  return {apps,hires,rej,wd,ivs,held,pass,fail,ns,mpr,openJobs,cands,
+    vac:openJobs.reduce((s,j)=>s+vacancies(j),0),newJobs:JOBS.filter(j=>mOf(j.open)===m&&inBu(j.bu)).length,
+    tth:median(hires.map(h=>h.tth).filter(Number.isFinite)),ttf:median(hires.map(h=>h.ttf).filter(Number.isFinite)),
+    offers:cands.filter(c=>['offer','reqs'].includes(c.stage)).length,onb:cands.filter(c=>['hired','onboarding'].includes(c.stage))};}
+function deltaTxt(a,b,good){if(!b&&!a)return '';const d=a-b;if(!d)return '<small class="mut">same as last month</small>';const up=d>0;return `<small style="color:${(up===good)?'#256B12':'#B3261E'}">${up?'▲':'▼'} ${Math.abs(d)} vs last month</small>`;}
+function rRepMonth(){
+  const m=repMonth,bu=buF,D=monthData(m,bu),prevM=(()=>{const [y,mo]=m.split('-').map(Number);return localISO(new Date(y,mo-2,1)).slice(0,7);})(),P=monthData(prevM,bu);
+  const units=Object.keys(BU).filter(b=>!bu||b===bu).map(b=>({b,d:monthData(m,b)}));
+  const srcMap={};D.cands.filter(c=>mOf(c.applied||c.since)===m).forEach(c=>{(srcMap[c.src]=srcMap[c.src]||{a:0,h:0}).a++;});
+  HIST.filter(h=>h.applied&&mOf(h.applied)===m&&(!bu||h.bu===bu)).forEach(h=>{(srcMap[h.src]=srcMap[h.src]||{a:0,h:0}).a++;});
+  D.hires.forEach(h=>{(srcMap[h.src]=srcMap[h.src]||{a:0,h:0}).h++;});
+  const srcs=Object.entries(srcMap).filter(([s])=>s&&s!=='undefined').sort((a,b)=>b[1].a-a[1].a);
+  const slow=[...D.openJobs].sort((a,b)=>daysSince(b.open)-daysSince(a.open)).slice(0,8);
+  const hireRate=pct(D.hires.length,D.hires.length+D.rej.length+D.wd.length);
+  const k=(l,v,sub)=>`<div class="rk"><span>${l}</span><b>${v}</b>${sub||''}</div>`;
+  return `<div class="card rpt">
+    <div class="rhead"><img src="assets/brdc-logo.png" alt="BRDC" class="rlogo"><div style="flex:1;min-width:200px"><div class="rkick">Monthly recruitment report</div><h2 style="margin:2px 0">${monthName(m)}</h2>
+      <div class="mut">${bu?BU[bu]:(SCOPE?scopeLabel():'All business units')} · prepared by ${esc(ME())} on ${TODAY.toLocaleDateString('en-PH',{day:'numeric',month:'long',year:'numeric'})}</div></div></div>
+    <div class="rsec"><h3>1. Summary</h3><div class="rkpis">
+      ${k('Applications received',D.apps,deltaTxt(D.apps,P.apps,true))}${k('Interviews held',D.held.length,deltaTxt(D.held.length,P.held.length,true))}
+      ${k('Hired',D.hires.length,deltaTxt(D.hires.length,P.hires.length,true))}${k('Not selected',D.rej.length,'')}
+      ${k('Hiring rate',hireRate+'%','<small class="mut">of closed applications</small>')}${k('Time to hire',D.hires.length?D.tth+' days':'—','<small class="mut">median</small>')}
+      ${k('Open vacancies',D.vac,`<small class="mut">in ${D.openJobs.length} open jobs · today</small>`)}${k('Manpower requests',D.mpr.length,`<small class="mut">${D.mpr.filter(r=>r.status==='pending').length} still pending</small>`)}</div>
+      <p class="rtxt">${monthName(m)}: ${D.apps} application${D.apps===1?'':'s'} received, ${D.held.length} interview${D.held.length===1?'':'s'} held${D.held.length?` (${D.pass} passed, ${D.fail} failed, ${D.ns} no-show)`:''}, and ${D.hires.length} ${D.hires.length===1?'person':'people'} hired${D.hires.length?` in a median of ${D.tth} days`:''}. ${D.vac} vacanc${D.vac===1?'y remains':'ies remain'} open${D.offers?`, with ${D.offers} candidate${D.offers>1?'s':''} at the job offer or requirements stage`:''}.</p></div>
+    <div class="rsec"><h3>2. By business unit</h3><div class="tw"><table class="rtab"><thead><tr><th>Business unit</th><th>Open jobs</th><th>Vacancies</th><th>Applications</th><th>Interviews</th><th>Hired</th><th>Pending requests</th></tr></thead><tbody>
+      ${units.map(u=>`<tr><td>${BU[u.b]}</td><td>${u.d.openJobs.length}</td><td>${u.d.vac}</td><td>${u.d.apps}</td><td>${u.d.held.length}</td><td><b>${u.d.hires.length}</b></td><td>${MPR.filter(r=>r.bu===u.b&&r.status==='pending').length}</td></tr>`).join('')}
+      ${units.length>1?`<tr class="rtot"><td>Total</td><td>${D.openJobs.length}</td><td>${D.vac}</td><td>${D.apps}</td><td>${D.held.length}</td><td>${D.hires.length}</td><td>${MPR.filter(r=>(!bu||r.bu===bu)&&r.status==='pending').length}</td></tr>`:''}</tbody></table></div></div>
+    <div class="rsec"><h3>3. New hires</h3>${D.hires.length?`<div class="tw"><table class="rtab"><thead><tr><th>Name</th><th>Position</th><th>Business unit</th><th>Source</th><th>Days to hire</th></tr></thead><tbody>
+      ${D.hires.map(h=>`<tr><td>${esc(h.n||'—')}</td><td>${esc(h.job?job(h.job).t:'—')}</td><td>${BU_ALL[h.bu||job(h.job).bu]||'—'}</td><td>${esc(h.src||'—')}</td><td>${Number.isFinite(h.tth)?h.tth:'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="mut">No hires recorded this month.</p>'}</div>
+    <div class="rsec"><h3>4. Where applicants came from</h3>${srcs.length?`<div class="tw"><table class="rtab"><thead><tr><th>Source</th><th>Applications</th><th>Hired</th></tr></thead><tbody>
+      ${srcs.map(([s,v])=>`<tr><td>${esc(s)}</td><td>${v.a}</td><td>${v.h}</td></tr>`).join('')}</tbody></table></div>`:'<p class="mut">No applications this month.</p>'}</div>
+    <div class="rsec"><h3>5. Positions taking longest to fill</h3>${slow.length?`<div class="tw"><table class="rtab"><thead><tr><th>Position</th><th>Business unit</th><th>Branch</th><th>Vacancies</th><th>Days open</th><th>Candidates in process</th></tr></thead><tbody>
+      ${slow.map(j=>`<tr><td>${esc(j.t)} <span class="mut">${j.id}</span></td><td>${BU[j.bu]||''}</td><td>${esc(j.br||'—')}</td><td>${vacancies(j)}</td><td><b>${daysSince(j.open)}</b></td><td>${CANDS.filter(c=>c.job===j.id&&ACTIVE.includes(c.stage)).length}</td></tr>`).join('')}</tbody></table></div>`:'<p class="mut">No open positions.</p>'}</div>
+    <div class="rsec"><h3>6. Current pipeline and onboarding</h3><div class="rpipe">${STAGES.map(s=>{const n=D.cands.filter(c=>c.stage===s.k).length;return `<div><span class="sdot" style="background:${s.c}"></span>${s.n}<b>${n}</b></div>`;}).join('')}</div>
+      ${D.onb.length?`<p class="rtxt">${D.onb.length} new hire${D.onb.length>1?'s are':' is'} completing requirements and onboarding: ${D.onb.map(c=>`${esc(c.n)} (${(c.onb||[]).filter(Boolean).length}/${ONB_ITEMS.length})`).join(', ')}.</p>`:''}</div>
+    <div class="rsec"><h3>7. Remarks</h3><textarea class="inp rnote" rows="4" placeholder="Add notes for management before downloading (not saved)…" oninput="repNote=this.value">${esc(repNote)}</textarea></div>
+    <div class="rfoot">BRDC Recruit · Bahama Realty and Development Corporation · ${monthName(m)} report · Confidential</div></div>`;}
+function downloadReport(){const t=document.title;document.title=`BRDC Recruitment Report - ${monthName(repMonth)}${buF?' - '+BU[buF]:''}`;window.print();setTimeout(()=>{document.title=t;},800);}
+function rRep(){
+  if(repTab!=='month'){rRepOverview();const el=document.getElementById('s-rep');el.querySelector('.pad').insertAdjacentHTML('afterbegin',repTabs());return;}
+  document.getElementById('s-rep').innerHTML=shell('rep',`<div class="pad">${repTabs()}
+    <div class="dhead noprint"><div><h2>Monthly management report</h2><p class="sub" style="margin:0">Pick a month, add remarks, then download it as a PDF for management</p></div><span style="flex:1"></span>
+      <select class="inp" onchange="repMonth=this.value;render()" aria-label="Month">${lastMonths(12).map(x=>`<option value="${x}" ${x===repMonth?'selected':''}>${monthName(x)}</option>`).join('')}</select>
+      <select class="inp" onchange="buF=this.value;render()" aria-label="Business unit"><option value="">${SCOPE?'All my business units':'All business units'}</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
+      <button class="btn pri" onclick="downloadReport()">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Download PDF</button></div>
+    <p class="mut noprint" style="margin:-4px 0 12px">In the print window choose <b>Save as PDF</b> as the destination.</p>
+    ${rRepMonth()}`);}
+function repTabs(){return `<div class="tabs noprint">${[['month','Monthly report'],['overview','Overview']].map(([k,n])=>`<button class="${repTab===k?'on':''}" onclick="repTab='${k}';render()">${n}</button>`).join('')}</div>`;}
+
 (async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

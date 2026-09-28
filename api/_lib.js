@@ -29,6 +29,10 @@ export async function ensureSchema() {
   await q(`CREATE TABLE IF NOT EXISTS app_state (id text PRIMARY KEY, data jsonb NOT NULL DEFAULT '{}'::jsonb, version integer NOT NULL DEFAULT 1, updated_at timestamptz NOT NULL DEFAULT now(), updated_by text)`);
   await q(`CREATE TABLE IF NOT EXISTS accounts (u text PRIMARY KEY, name text NOT NULL, first text, email text, role text NOT NULL DEFAULT 'hr_staff', bu text, status text NOT NULL DEFAULT 'active', hash text, must_change boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), last_login timestamptz)`);
   await q(`CREATE TABLE IF NOT EXISTS applications (id serial PRIMARY KEY, ref text NOT NULL, job text NOT NULL, mobile_key text NOT NULL, data jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`);
+  await q(`CREATE TABLE IF NOT EXISTS files (id serial PRIMARY KEY, ref text NOT NULL, kind text NOT NULL DEFAULT 'resume', name text NOT NULL, type text, size integer, b64 text NOT NULL, uploaded_by text, created_at timestamptz NOT NULL DEFAULT now())`);
+  await q(`CREATE INDEX IF NOT EXISTS files_ref ON files (ref)`);
+  await q(`CREATE TABLE IF NOT EXISTS outbox (id serial PRIMARY KEY, channel text NOT NULL, recipient text, subject text, body text, status text NOT NULL, provider_id text, error text, sent_by text, ref text, created_at timestamptz NOT NULL DEFAULT now())`);
+  await q(`CREATE TABLE IF NOT EXISTS reminders (key text PRIMARY KEY, created_at timestamptz NOT NULL DEFAULT now())`);
   await q(`INSERT INTO app_state (id, data) VALUES ('main', '{}'::jsonb) ON CONFLICT (id) DO NOTHING`);
   const n = await q(`SELECT count(*)::int AS n FROM accounts`);
   if (!n[0].n) {
@@ -63,7 +67,7 @@ export function verify(token) {
 export async function requireUser(req, { admin = false } = {}) {
   const t = (req.headers.authorization || '').replace(/^Bearer\s+/i, ''); const p = verify(t);
   if (!p || p.kind !== 'session') throw Object.assign(new Error('Please sign in again'), { status: 401 });
-  const a = (await q(`SELECT u, name, first, role, status FROM accounts WHERE u=$1`, [p.u]))[0];
+  const a = (await q(`SELECT u, name, first, email, role, bu, status FROM accounts WHERE u=$1`, [p.u]))[0];
   if (!a || a.status !== 'active') throw Object.assign(new Error('Account is disabled or missing'), { status: 401 });
   if (admin && a.role !== 'hr_admin') throw Object.assign(new Error('hr_admin only'), { status: 403 });
   return a;
