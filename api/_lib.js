@@ -10,7 +10,9 @@ async function driver() {
     _q = { query: async (t, p = []) => (await db.query(t, p)).rows,
            tx: async (list) => { const out = []; await db.transaction(async (tx) => { for (const [t, p] of list) out.push((await tx.query(t, p || [])).rows); }); return out; } };
   } else {
-    const url = process.env.DATABASE_URL || process.env.POSTGRES_URL;
+    const E = process.env, keys = Object.keys(E);
+    const pick = (re) => { const k = keys.find(k => re.test(k) && /^postgres(ql)?:\/\//.test(E[k] || '')); return k ? E[k] : null; };
+    const url = E.DATABASE_URL || E.POSTGRES_URL || pick(/(^|_)DATABASE_URL$/) || pick(/(^|_)POSTGRES_URL$/) || pick(/_URL$/);
     if (!url) throw Object.assign(new Error('Database is not connected (DATABASE_URL missing)'), { status: 503 });
     const { neon } = await import('@neondatabase/serverless');
     const sql = neon(url);
