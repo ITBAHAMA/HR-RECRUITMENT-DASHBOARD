@@ -1,3 +1,17 @@
 {
-  "crons": [{ "path": "/api/cron", "schedule": "0 0 * * *" }]
+  "crons": [
+    {
+      "path": "/api/cron",
+      "schedule": "0 0 * * *"
+    },
+    {
+      "path": "/api/mailcheck",
+      "schedule": "*/5 * * * *"
+    }
+  ],
+  "functions": {
+    "api/mailcheck.js": {
+      "maxDuration": 60
+    }
+  }
 }

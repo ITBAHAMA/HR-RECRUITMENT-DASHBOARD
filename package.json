@@ -6,6 +6,8 @@
     "node": ">=20"
   },
   "dependencies": {
-    "@neondatabase/serverless": "^1.1.0"
+    "@neondatabase/serverless": "^1.1.0",
+    "imapflow": "^2.1.2",
+    "mailparser": "^3.9.31"
   }
 }
