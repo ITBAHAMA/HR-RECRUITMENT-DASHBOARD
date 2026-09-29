@@ -1,4 +1,4 @@
-import { q, handle, body, send, requireUser } from './_lib.js';
+import { q, handle, body, send, requireUser, derivedKey } from './_lib.js';
 import { providers, sendSms, sendEmail, interviewIcs } from './_msg.js';
 // GET: which channels are set up + recent deliveries. POST: send an SMS / email, or an interview invitation.
 const s = (v, n = 500) => String(v ?? '').trim().slice(0, n);
@@ -9,7 +9,10 @@ export default handle(async (req, res) => {
   if (req.method === 'GET') {
     const p = providers();
     const recent = await q(`SELECT id, channel, recipient, subject, status, error, sent_by, ref, created_at FROM outbox ORDER BY id DESC LIMIT 50`);
-    return send(res, 200, { sms: p.sms, email: p.email, smsSender: p.smsSender, emailFrom: p.emailFrom, recent });
+    const host = req.headers['x-forwarded-host'] || req.headers.host || '';
+    const inbound = me.role === 'hr_admin' ? `${/localhost|127\.0\.0\.1/.test(host) ? 'http' : 'https'}://${host}/api/inbound?key=${process.env.INBOUND_KEY || derivedKey('inbound')}` : null;
+    const imported = (await q(`SELECT count(*)::int n, max(created_at) last FROM reminders WHERE key LIKE 'mail:%'`))[0];
+    return send(res, 200, { sms: p.sms, email: p.email, smsSender: p.smsSender, emailFrom: p.emailFrom, recent, inbound, mailSeen: imported.n, mailLast: imported.last });
   }
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
   if (me.role === 'viewer') return send(res, 403, { error: 'Viewers cannot send messages' });

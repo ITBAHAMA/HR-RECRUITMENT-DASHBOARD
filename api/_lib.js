@@ -57,6 +57,7 @@ function secret() { if (_sec) return _sec; let s = process.env.SESSION_SECRET;
   if (!s || s.length < 16) { const db = process.env.DATABASE_URL || process.env.POSTGRES_URL || Object.values(process.env).find(v => /^postgres(ql)?:\/\//.test(v || ''));
     if (db) s = crypto.createHash('sha256').update('brdc-recruit-session:' + db).digest('hex'); }
   if (!s || s.length < 16) throw Object.assign(new Error('SESSION_SECRET is not set'), { status: 503 }); return (_sec = s); }
+export function derivedKey(label) { return crypto.createHmac('sha256', secret()).update('brdc-key:' + label).digest('hex').slice(0, 32); }
 export function sign(payload, hours = 12) { const body = Buffer.from(JSON.stringify({ ...payload, exp: Date.now() + hours * 3600e3 })).toString('base64url'); const mac = crypto.createHmac('sha256', secret()).update(body).digest('base64url'); return `${body}.${mac}`; }
 export function verify(token) {
   if (!token || !token.includes('.')) return null; const [body, mac] = token.split('.');
