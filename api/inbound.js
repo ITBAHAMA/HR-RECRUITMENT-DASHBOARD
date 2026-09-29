@@ -54,6 +54,8 @@ export default handle(async (req, res) => {
   const mid = String(m.id || `${m.from}|${m.subject}|${(m.text || m.html).length}`).slice(0, 300);
   const seen = await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING RETURNING key`, ['mail:' + mid]);
   if (!seen.length) return send(res, 200, { skipped: 'Already imported' });
+  // job-seeker emails (job alerts / recommendations) are not applications — ignore them
+  if (/job alert|job recommendations?|recommended jobs|jobs? for you|\+\s*\d+\s+new jobs|new jobs? (?:match|near)|we've got new job|saved search/i.test(`${m.subject}\n${String(m.text || strip(m.html)).slice(0, 600)}`)) return send(res, 200, { skipped: 'Job alert, not an application' });
   const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
   const jobs = s.JOBS || [];
   const p = parseApplication(m, jobs);
