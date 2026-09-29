@@ -7,15 +7,27 @@ const setKv = (k, v) => q(`INSERT INTO kv (k, v, updated_at) VALUES ($1, $2::jso
 
 export function mailConfig() {
   const E = process.env;
-  return { user: E.MAIL_USER || '', pass: E.MAIL_PASSWORD || '', host: E.MAIL_IMAP_HOST || 'imappro.zoho.com', port: +(E.MAIL_IMAP_PORT || 993), folder: E.MAIL_FOLDER || 'INBOX' };
+  const clean = (v) => String(v || '').trim().replace(/^["']|["']$/g, '');
+  // app passwords never contain spaces — Zoho shows them in groups, so remove any that were pasted
+  return { user: clean(E.MAIL_USER).toLowerCase(), pass: clean(E.MAIL_PASSWORD).replace(/\s+/g, ''), host: clean(E.MAIL_IMAP_HOST).replace(/^imaps?:\/\//, '') || 'imappro.zoho.com', port: +(E.MAIL_IMAP_PORT || 993), folder: E.MAIL_FOLDER || 'INBOX' };
 }
 const SENDERS = ['indeed', 'jobstreet', 'seek'];
 
-async function openClient(cfg) {
-  if (globalThis.__mockImap) return globalThis.__mockImap(cfg); // local tests only
+async function connectOne(cfg, host) {
+  if (globalThis.__mockImap) return globalThis.__mockImap({ ...cfg, host }); // local tests only
   const { ImapFlow } = await import('imapflow');
-  const c = new ImapFlow({ host: cfg.host, port: cfg.port, secure: true, auth: { user: cfg.user, pass: cfg.pass }, logger: false, socketTimeout: 30000 });
+  const c = new ImapFlow({ host, port: cfg.port, secure: true, auth: { user: cfg.user, pass: cfg.pass }, logger: false, socketTimeout: 30000 });
   await c.connect(); return c;
+}
+// Try the configured server first, then the other Zoho servers (company / personal / regional data centres)
+async function openClient(cfg, tried) {
+  const hosts = [...new Set([cfg.host, 'imappro.zoho.com', 'imap.zoho.com', 'imappro.zoho.in', 'imappro.zoho.eu', 'imappro.zoho.com.au'])];
+  let last;
+  for (const h of hosts) {
+    try { const c = await connectOne(cfg, h); tried.push(h + ': ok'); cfg.usedHost = h; return c; }
+    catch (e) { last = e; tried.push(h + ': ' + String(e.responseText || e.response || e.code || e.message || e).slice(0, 160)); }
+  }
+  throw last;
 }
 
 export async function checkMailbox({ days = 3, max = 25 } = {}) {
@@ -25,7 +37,7 @@ export async function checkMailbox({ days = 3, max = 25 } = {}) {
   const started = Date.now(), res = { configured: true, checked: 0, added: 0, skipped: 0, people: [] };
   let client;
   try {
-    client = await openClient(cfg);
+    res.tried = []; client = await openClient(cfg, res.tried); res.host = cfg.usedHost;
     const lock = await client.getMailboxLock(cfg.folder, { readOnly: true });
     try {
       const since = new Date(Date.now() - days * 864e5);
@@ -53,6 +65,7 @@ export async function checkMailbox({ days = 3, max = 25 } = {}) {
     res.error = /auth|login|credential|invalid|password/i.test(msg) ? 'Zoho refused the sign-in. Check MAIL_USER, that IMAP access is turned on for this mailbox, and that MAIL_PASSWORD is a Zoho app password.'
       : /ENOTFOUND|getaddrinfo/i.test(msg) ? `Mail server “${cfg.host}” not found. Use imappro.zoho.com (company mail) or imap.zoho.com (personal).`
       : /timeout|ETIMEDOUT|ECONNREFUSED/i.test(msg) ? 'Could not reach the Zoho mail server. It will try again in 5 minutes.' : 'Mailbox check failed: ' + msg.slice(0, 200);
+    res.detail = `Signed in as “${cfg.user}” (password ${cfg.pass.length} characters). Zoho replied — ${(res.tried || []).join(' | ')}`;
   }
   res.at = new Date().toISOString();
   const prev = (await getKv('imap:status')) || {};
@@ -73,5 +86,5 @@ export default handle(async (req, res) => {
     if (st && Date.now() - Date.parse(st.at) < 60000) return send(res, 200, { skipped: 'Checked less than a minute ago' });
   }
   const r = await checkMailbox();
-  return send(res, 200, r);
+  return send(res, 200, admin || cron ? r : { configured: r.configured, ok: r.ok, added: r.added });
 });

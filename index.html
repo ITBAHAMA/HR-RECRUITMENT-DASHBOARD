@@ -2684,7 +2684,7 @@ async function loadMailSt(){if(!REMOTE||!isAdmin())return;try{MAILST=await api('
 async function checkMailNow(){if(mailBusy)return;mailBusy=true;render();
   try{const r=await api('mailcheck',{method:'POST'});
     if(r.configured===false)toast('Mailbox not connected yet — add the MAIL_ settings in Vercel first');
-    else if(r.ok===false)toast(r.error||'Mailbox check failed');
+    else if(r.ok===false)toast((r.error||'Mailbox check failed')+' — details below');
     else{toast(r.added?`${r.added} new applicant${r.added>1?'s':''} added from the mailbox`:`Mailbox checked · ${r.checked} new email${r.checked===1?'':'s'}, no new applicants`);if(r.added){await loadRemote(true);refreshDerived();}}}
   catch(e){toast(e.message);}finally{mailBusy=false;await loadMailSt();render();}}
 function mailboxBlock(){if(!REMOTE)return `<p class="mut">Available on the shared-database site.</p>`;
@@ -2701,7 +2701,7 @@ function mailboxBlock(){if(!REMOTE)return `<p class="mut">Available on the share
     <button class="btn" onclick="checkMailNow()" ${mailBusy?'disabled':''}>${mailBusy?'Checking…':'Check mailbox now'}</button>`;
   return `<div class="doc"><span><b>Connected: ${esc(MAILST.user)}</b><br><small class="mut">Checked every 5 minutes · ${st.at?`last check ${fmtDT(st.at)}${st.ok===false?'':` · ${st.checked||0} new email${st.checked===1?'':'s'}`}`:'not checked yet'}${st.totalAdded?` · ${st.totalAdded} applicant${st.totalAdded>1?'s':''} added so far`:''}</small></span>
       <span class="pill ${st.ok===false?'red':st.at?'green':'mute'}">${st.ok===false?'problem':st.at?'working':'waiting'}</span></div>
-    ${st.ok===false?`<div class="ferr on" style="display:block;margin:8px 0">${esc(st.error||'Mailbox check failed')}</div>`:''}
+    ${st.ok===false?`<div class="ferr on" style="display:block;margin:8px 0">${esc(st.error||'Mailbox check failed')}${st.detail?`<div style="margin-top:6px;font-size:12px;opacity:.85;word-break:break-word">${esc(st.detail)}</div>`:''}</div>`:''}
     ${st.people&&st.people.length?`<p class="mut" style="margin:6px 0">Last added: ${st.people.slice(0,6).map(esc).join(', ')}${st.lastAdded?` · ${fmtDT(st.lastAdded)}`:''}</p>`:''}
     <button class="btn" style="margin-top:6px" onclick="checkMailNow()" ${mailBusy?'disabled':''}>${mailBusy?'Checking…':'Check mailbox now'}</button>`;}
 function jobBoardCard(){if(!isAdmin())return '';const url=REMOTE?MSGCFG.inbound:null;
