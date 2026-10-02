@@ -601,7 +601,7 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .sync{font-size:11.5px;color:#C8D8C0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:3px 10px;white-space:nowrap}
 .sync.ok::before{content:"● ";color:#7EE06A}.sync.busy::before{content:"● ";color:#E3C47E}.sync.warn{color:#FFD2CC}.sync.warn::before{content:"● ";color:#FF8A7A}
 @media (max-width:860px){.sync{display:none}}
-</style>
+.btn.sm.del{color:#B42318;border-color:#F3C1BC}.btn.sm.del:hover{background:#FDECEA}</style>
 </head>
 <body class="locked">
 
@@ -1758,9 +1758,9 @@ function rJobs(){
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
         <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
-          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}</td></tr>`}).join('')}</tbody>
+          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&canEdit()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
     </table></div></div>
-    <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten.</div>`);
+    <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten. Delete removes a job entered by mistake (and its applicants); jobs with hired staff can only be closed.</div>`);
 }
 
 /* ============================================================
@@ -2756,6 +2756,28 @@ async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').t
     catch(e){toast('Candidate added, but the resume did not upload: '+e.message);}}
   closeModal();toast(`${c.n} added`);openCand(c.id);}
 
+/* ===== v9: delete a job ===== */
+function deleteJob(id){
+  const j=job(id);if(!j||!j.id)return;
+  if(!canEdit()){toast('Viewers cannot delete jobs');return;}
+  if(j.rf==='general'){toast('The general application job cannot be deleted');return;}
+  const cs=CANDS.filter(c=>c.job===id),hired=cs.filter(c=>c.stage==='hired'||c.stage==='onboarding');
+  if(hired.length){alert(`Cannot delete job ${id}:\n\n${hired.length} candidate(s) were already hired from it (${hired.map(c=>c.n).join(', ')}).\n\nKeep the job for their records — use Close instead.`);return;}
+  const live=cs.filter(c=>c.stage!=='draft');
+  const msg=`Delete job ${id} — ${j.t}?\n\n`+(live.length?`${live.length} applicant(s) on this job will also be deleted, with their interviews and messages:\n${live.slice(0,8).map(c=>'• '+c.n).join('\n')}${live.length>8?`\n• …and ${live.length-8} more`:''}\n\nTip: to keep good applicants, add them to the Talent pool first.\n\n`:'')+'This cannot be undone.';
+  if(!confirm(msg))return;
+  const ids=new Set(cs.map(c=>c.id)),names=new Set(cs.map(c=>c.n));
+  CANDS=CANDS.filter(c=>!ids.has(c.id));
+  INTV=INTV.filter(i=>!ids.has(i.cid));
+  MSGS=MSGS.filter(m=>m.cid!=null?!ids.has(m.cid):!(names.has(m.cand)&&(!m.job||m.job===id)));
+  if(NOTES&&NOTES[id])delete NOTES[id];
+  MPR.forEach(m=>{if(m.job===id){m.job=null;if(m.status==='approved')m.note=(m.note?m.note+' · ':'')+`Job ${id} deleted`;}});
+  JOBS=JOBS.filter(x=>x.id!==id);
+  log(`Deleted job ${id} (${j.t}, ${BU[j.bu]||j.bu})${live.length?` and ${live.length} applicant(s)`:''}`);
+  saveData();toast(`Job ${id} deleted`);
+  if(cur==='s-job'||cur==='s-prof')cur='s-jobs';
+  render();
+}
 (async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
