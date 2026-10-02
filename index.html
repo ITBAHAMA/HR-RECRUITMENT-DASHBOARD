@@ -601,7 +601,7 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .sync{font-size:11.5px;color:#C8D8C0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:3px 10px;white-space:nowrap}
 .sync.ok::before{content:"● ";color:#7EE06A}.sync.busy::before{content:"● ";color:#E3C47E}.sync.warn{color:#FFD2CC}.sync.warn::before{content:"● ";color:#FF8A7A}
 @media (max-width:860px){.sync{display:none}}
-.btn.sm.del{color:#B42318;border-color:#F3C1BC}.btn.sm.del:hover{background:#FDECEA}</style>
+.btn.sm.del{color:#B42318;border-color:#F3C1BC}.btn.sm.del:hover{background:#FDECEA}.inp.autof{background:#FFF8E1;border-color:#E0B64A}.spin{display:inline-block;width:12px;height:12px;border:2px solid #ccc;border-top-color:#1F5A2A;border-radius:50%;animation:spn .8s linear infinite;vertical-align:-2px}@keyframes spn{to{transform:rotate(360deg)}}</style>
 </head>
 <body class="locked">
 
@@ -1709,7 +1709,7 @@ function rPipe(){
   document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
     <h2>Candidates</h2><p class="sub">${list.length} of ${CANDS.length} candidates · click a column to sort</p>
     <div class="bar">
-      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>`:''}<input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
+      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="bulkResumes()">📄 Upload resumes (PDF)</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>`:''}<input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
       <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
       <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
@@ -2728,14 +2728,15 @@ function txtSize(){let v=null;try{v=parseFloat(localStorage.getItem('brdc-text')
 function applyTxt(){document.documentElement.style.zoom=txtSize();}
 function cycleTxt(){const i=TXT_SIZES.findIndex(s=>s[0]===txtSize()),n=TXT_SIZES[(i+1)%TXT_SIZES.length];try{localStorage.setItem('brdc-text',n[0]);}catch(e){}applyTxt();toast(`Text size: ${n[1]}`);render();}
 applyTxt();
-function addCandidate(jid){const open=JOBS.filter(j=>jobOpen(j));if(!open.length){toast('Create a job first');return;}
+function addCandidate(jid){window._nSkills=null;const open=JOBS.filter(j=>jobOpen(j));if(!open.length){toast('Create a job first');return;}
   modal(`<h3>Add candidate</h3><p class="sub">For walk-ins, referrals or anyone who applied outside the careers page.</p><div class="fg">
     <label>Full name *<input class="inp" id="nN" placeholder="Juan Dela Cruz"></label><label>Nickname<input class="inp" id="nK"></label>
     <label>Mobile number<input class="inp" id="nM" inputmode="tel" placeholder="0917 123 4567"></label><label>Email<input class="inp" id="nE" type="email"></label>
     <label>City / municipality<input class="inp" id="nC"></label><label>Province<input class="inp" id="nP" list="provs2"><datalist id="provs2">${['NCR','Laguna','Cavite','Batangas','Rizal','Quezon','Bulacan','Pampanga'].map(p=>`<option>${p}</option>`).join('')}</datalist></label>
     <label style="grid-column:1/-1">Position *<select class="inp" id="nJ">${open.map(j=>`<option value="${j.id}" ${j.id===jid?'selected':''}>${esc(j.t)} — ${BU[j.bu]||''}${j.br&&j.br!=='—'?' · '+esc(j.br):''}</option>`).join('')}</select></label>
     <label>Source<select class="inp" id="nS">${['Walk-in (QR)','Referral','Jobstreet','Indeed','Facebook','Job fair','Kalibrr','LinkedIn','Other'].map(s=>`<option>${s}</option>`).join('')}</select></label>
-    <label>Resume (optional)<input class="inp" id="nR" type="file" accept=".pdf,.doc,.docx,image/*" ${REMOTE?'':'disabled title="Works on the shared-database site"'}></label>
+    <label>Resume (optional — PDF fills the form)<input class="inp" id="nR" type="file" accept=".pdf,.doc,.docx,image/*" onchange="resumeAutofill(this)"></label>
+    <div id="nRst" class="mut" style="grid-column:1/-1;margin-top:-4px">Tip: choose the PDF resume first — name, mobile, email, address and experience are filled in for you. <a href="#" onclick="event.preventDefault();bulkResumes(document.getElementById('nJ').value)">Have several resumes? Upload PDFs in bulk</a></div>
     <label style="grid-column:1/-1">Work experience / notes<textarea class="inp" id="nX" rows="3" style="width:100%"></textarea></label></div>
     <div class="ferr" id="fErr" role="alert"></div>
     <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="nGo" onclick="saveNewCand()">Add candidate</button></div>`,'wide');}
@@ -2750,7 +2751,7 @@ async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').t
   b.disabled=true;b.textContent='Adding…';
   const j=job(jid),id=nextCandId();
   const c={id,n:g('nN'),nick:g('nK')||g('nN').split(' ')[0],mob:g('nM'),em:g('nE'),city:g('nC')||'—',prov:g('nP'),job:jid,stage:'new',since:isoAgo(0),applied:isoAgo(0),src:g('nS'),owner:j.owner||ME(),lang:'tl',quad:null,docs:false,
-    exp:g('nX')||'—',skills:[],resume:file?file.name:null,notes:[{by:ME(),at:new Date().toISOString(),text:`Added by ${ME()} (${g('nS')})`}]};
+    exp:g('nX')||'—',skills:(f&&window._nSkills)||[],resume:file?file.name:null,review:!!document.querySelector('#modal .inp.autof')||undefined,notes:[{by:ME(),at:new Date().toISOString(),text:`Added by ${ME()} (${g('nS')})`}]};
   CANDS.push(c);log(`Added candidate ${c.n} for ${j.t} (${g('nS')})`,jid);
   if(file&&REMOTE){try{clearTimeout(saveTimer);await pushRemote();const r=await api('files',{method:'POST',body:{ref:candRef(c),kind:'resume',name:file.name,type:file.type,data:file.data}});(FILES[candRef(c)]=FILES[candRef(c)]||[]).unshift(r.file);}
     catch(e){toast('Candidate added, but the resume did not upload: '+e.message);}}
@@ -2778,6 +2779,97 @@ function deleteJob(id){
   if(cur==='s-job'||cur==='s-prof')cur='s-jobs';
   render();
 }
+/* ===== v10: read applicant details from PDF resumes ===== */
+function loadPdfJs(){if(window.pdfjsLib)return Promise.resolve();return new Promise((res,rej)=>{const s=document.createElement('script');s.src='assets/pdf.min.js';
+  s.onload=()=>{try{pdfjsLib.GlobalWorkerOptions.workerSrc='assets/pdf.worker.min.js';res();}catch(e){rej(e);}};s.onerror=()=>rej(new Error('Could not load the PDF reader. Check your connection and try again.'));document.head.appendChild(s);});}
+async function pdfText(f){await loadPdfJs();const doc=await pdfjsLib.getDocument({data:new Uint8Array(await f.arrayBuffer())}).promise,lines=[];
+  for(let p=1;p<=Math.min(doc.numPages,4);p++){const tc=await (await doc.getPage(p)).getTextContent(),rows=[];
+    tc.items.forEach(it=>{if(!it.str||!it.str.trim())return;const y=Math.round(it.transform[5]),x=it.transform[4];let r=rows.find(r=>Math.abs(r.y-y)<=3);if(!r){r={y,parts:[]};rows.push(r);}r.parts.push({x,s:it.str});});
+    rows.sort((a,b)=>b.y-a.y).forEach(r=>{const t=r.parts.sort((a,b)=>a.x-b.x).map(q=>q.s).join(' ').replace(/\s+/g,' ').trim();if(t)lines.push(t);});}
+  return lines;}
+const NCR_CITIES=['Quezon City','Manila','Makati','Pasig','Taguig','Caloocan','Marikina','Parañaque','Paranaque','Las Piñas','Las Pinas','Muntinlupa','Mandaluyong','San Juan','Valenzuela','Malabon','Navotas','Pasay','Pateros'];
+const PH_PROVS=['Laguna','Cavite','Batangas','Rizal','Bulacan','Pampanga','Tarlac','Nueva Ecija','Pangasinan','Zambales','Bataan','Quezon','Cebu','Davao','Iloilo','Negros Occidental','Negros Oriental','Bohol','Leyte','Albay','Camarines Sur','Camarines Norte','Isabela','Cagayan','Ilocos Norte','Ilocos Sur','La Union','Benguet','Aurora','Nueva Vizcaya','Mindoro','Oriental Mindoro','Occidental Mindoro','Marinduque','Romblon','Palawan','Sorsogon','Masbate','Samar','Misamis Oriental','Misamis Occidental','Bukidnon','Zamboanga','Cotabato','South Cotabato','Sultan Kudarat','Agusan','Surigao','Capiz','Aklan','Antique'];
+const RS_HEAD=/^(work\s+experience|professional\s+experience|employment(\s+history)?|experience|work\s+history|career\s+history|education(al)?(\s+background|\s+attainment)?|skills?|technical\s+skills|key\s+skills|qualifications|summary\s+of\s+qualifications|objectives?|career\s+objective|profile|personal\s+(information|data|details|background)|character\s+references?|references?|seminars?|trainings?(\s+attended)?|certifications?|achievements|awards|affiliations|languages?|interests|hobbies)\s*:?$/i;
+function titleCase(s){return s.toLowerCase().replace(/(^|[\s'-])(\p{L})/gu,(m,a,b)=>a+b.toUpperCase()).replace(/\b(Dela|De|Del|Delos|Los|La|Y)\b/g,w=>w==='Y'?'y':w).replace(/^(\p{L})/u,m=>m.toUpperCase());}
+function nameFromFile(n){const b=String(n||'').replace(/\.[a-z0-9]+$/i,'').replace(/[_.\-]+/g,' ').replace(/\b(resume|cv|curriculum vitae|biodata|bio data|scan|scanned|updated|final|copy|new|\d+)\b/gi,'').replace(/\s+/g,' ').trim();
+  const w=b.split(' ').filter(Boolean);return w.length>=2&&w.length<=5&&/^[\p{L}\s'.]+$/u.test(b)?titleCase(b):'';}
+function section(lines,re){const i=lines.findIndex(l=>re.test(l.replace(/[:\s]+$/,'')));if(i<0)return [];const out=[];
+  for(let k=i+1;k<lines.length&&out.length<14;k++){if(RS_HEAD.test(lines[k]))break;out.push(lines[k]);}return out;}
+function parseResume(lines,fileName){
+  const all=lines.join('\n'),r={n:'',mob:'',em:'',city:'',prov:'',exp:'',skills:[],textLen:all.replace(/\s/g,'').length};
+  const em=all.match(/[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}/);if(em)r.em=em[0].replace(/\.$/,'');
+  const mb=all.replace(/[()]/g,' ').match(/(?:\+?\s?63|0)\s?9\d{2}[\s.-]?\d{3}[\s.-]?\d{4}/);if(mb){const d=mb[0].replace(/\D/g,'').slice(-10);r.mob='0'+d.slice(0,3)+' '+d.slice(3,6)+' '+d.slice(6);}
+  const lab=all.match(/^\s*(?:full\s+)?name\s*[:\-]\s*(.+)$/im);
+  const okName=s=>{s=s.replace(/\s+/g,' ').trim();if(!s||s.length>45||/[@\d]|resume|curriculum|vitae|objective|address|contact|mobile|phone|email|profile|applicant|position/i.test(s))return false;
+    const w=s.split(' ');return w.length>=2&&w.length<=6&&/^[\p{L}\s'.,-]+$/u.test(s)&&!RS_HEAD.test(s);};
+  if(lab&&okName(lab[1].split(/\s{2,}|\|/)[0]))r.n=lab[1].split(/\s{2,}|\|/)[0].trim();
+  if(!r.n)for(const l of lines.slice(0,8)){const s=l.split(/\s+[|•·]\s+/)[0].replace(/,$/,'');if(okName(s)){r.n=s;break;}}
+  if(r.n){r.n=r.n.replace(/,\s*/,', ');if(/^[^,]+,\s*[^,]+$/.test(r.n)){const [a,b]=r.n.split(/,\s*/);r.n=b+' '+a;}if(r.n===r.n.toUpperCase()||r.n===r.n.toLowerCase())r.n=titleCase(r.n);}
+  if(!r.n)r.n=nameFromFile(fileName);
+  const addr=(all.match(/^\s*(?:home\s+|present\s+|permanent\s+|current\s+)?address\s*[:\-]\s*(.+)$/im)||[])[1]||lines.slice(0,12).join(' ');
+  const low=addr.toLowerCase(),ncr=NCR_CITIES.find(c=>low.includes(c.toLowerCase()));
+  if(ncr){r.city=ncr.replace('Paranaque','Parañaque').replace('Las Pinas','Las Piñas');r.prov='NCR';}
+  else{const pv=PH_PROVS.slice().sort((a,b)=>b.length-a.length).find(p=>new RegExp('\\b'+p+'\\b','i').test(addr));if(pv){r.prov=pv;const parts=addr.split(',').map(s=>s.trim()),pi=parts.findIndex(s=>new RegExp('\\b'+pv+'\\b','i').test(s));
+      const c=pi>0?parts[pi-1]:'';if(c&&c.length<40&&!/\d/.test(c))r.city=c.replace(/^(city of)\s+/i,'');}}
+  const ex=section(lines,/^(work\s+experience|professional\s+experience|employment(\s+history)?|experience|work\s+history|career\s+history)$/i);
+  const ob=section(lines,/^(objectives?|career\s+objective|profile|summary)$/i);
+  r.exp=(ex.length?ex:ob).join(' · ').replace(/\s+/g,' ').slice(0,500);
+  const sk=section(lines,/^(skills?|technical\s+skills|key\s+skills|qualifications|summary\s+of\s+qualifications)$/i);
+  r.skills=[...new Set(sk.join(',').split(/[,•·;|]|\s{2,}/).map(s=>s.replace(/^[-–*\s]+/,'').trim()).filter(s=>s.length>1&&s.length<40))].slice(0,8);
+  return r;}
+async function readResume(f){if(!/pdf/i.test(f.type||'')&&!/\.pdf$/i.test(f.name))return null;return parseResume(await pdfText(f),f.name);}
+
+/* Add candidate: fill the form from the resume */
+async function resumeAutofill(inp){const f=inp.files[0],st=document.getElementById('nRst');if(!f||!st)return;
+  if(!/\.pdf$/i.test(f.name)&&!/pdf/.test(f.type)){st.innerHTML='Details are read automatically from PDF resumes only. Please type them in.';return;}
+  st.innerHTML='<span class="spin"></span> Reading the resume…';
+  try{const r=await readResume(f);const set=(id,v)=>{const e=document.getElementById(id);if(e&&v&&!e.value.trim()){e.value=v;e.classList.add('autof');return 1;}return 0;};
+    let n=set('nN',r.n)+set('nM',r.mob)+set('nE',r.em)+set('nC',r.city)+set('nP',r.prov)+set('nX',[r.exp,r.skills.length?'Skills: '+r.skills.join(', '):''].filter(Boolean).join('\n'));
+    if(r.n&&!document.getElementById('nK').value)document.getElementById('nK').value=r.n.split(' ')[0];
+    window._nSkills=r.skills;
+    st.innerHTML=r.textLen<40?'⚠️ This PDF looks like a scanned image — no text could be read. Please type the details.':n?`✓ Filled ${n} field${n>1?'s':''} from the resume (highlighted). <b>Please check them before saving.</b>`:'Nothing new found in the resume — please type the details.';}
+  catch(e){st.innerHTML='Could not read this PDF ('+esc(e.message||'error')+'). Please type the details.';}}
+
+/* Upload several PDF resumes at once */
+let BULK={rows:[],job:'',src:'Walk-in (QR)'};
+function bulkResumes(jid){const open=JOBS.filter(j=>jobOpen(j));if(!open.length){toast('Create a job first');return;}BULK={rows:[],job:jid||open[0].id,src:BULK.src||'Walk-in (QR)'};drawBulk();}
+function drawBulk(){const open=JOBS.filter(j=>jobOpen(j)),R=BULK.rows,busy=R.some(r=>r.busy);
+  modal(`<h3>Upload resumes (PDF)</h3><p class="sub">Choose one or more PDF resumes. Name, mobile, email, address, experience and skills are read automatically, and each PDF is saved as the candidate's resume.</p>
+    <div class="fg"><label>Position *<select class="inp" id="bJ" onchange="BULK.job=this.value">${open.map(j=>`<option value="${j.id}" ${j.id===BULK.job?'selected':''}>${esc(j.t)} — ${BU[j.bu]||''}${j.br&&j.br!=='—'?' · '+esc(j.br):''}</option>`).join('')}</select></label>
+    <label>Source<select class="inp" id="bS" onchange="BULK.src=this.value">${['Walk-in (QR)','Referral','Jobstreet','Indeed','Facebook','Job fair','Kalibrr','LinkedIn','Email','Other'].map(s=>`<option ${s===BULK.src?'selected':''}>${s}</option>`).join('')}</select></label>
+    <label style="grid-column:1/-1" class="btn${R.length?'':' pri'}" style="justify-content:center">${R.length?'+ Add more PDFs':'Choose PDF resumes'}<input type="file" hidden multiple accept=".pdf,application/pdf" onchange="bulkFiles(this)"></label></div>
+    ${R.length?`<div class="tw" style="max-height:46vh;overflow:auto;margin-top:10px"><table><thead><tr><th>File</th><th>Name *</th><th>Mobile</th><th>Email</th><th></th></tr></thead><tbody>
+      ${R.map((r,i)=>`<tr><td class="mut" style="max-width:160px;word-break:break-all">📄 ${esc(r.file.name)}${r.busy?'<br><span class="spin"></span> reading…':r.warn?`<br><span style="color:#B4620E">${esc(r.warn)}</span>`:''}</td>
+        <td><input class="inp" value="${esc(r.n)}" oninput="BULK.rows[${i}].n=this.value" style="min-width:150px"></td>
+        <td><input class="inp" value="${esc(r.mob)}" oninput="BULK.rows[${i}].mob=this.value" style="width:130px"></td>
+        <td><input class="inp" value="${esc(r.em)}" oninput="BULK.rows[${i}].em=this.value" style="min-width:150px"></td>
+        <td><button class="btn sm" onclick="BULK.rows.splice(${i},1);drawBulk()" aria-label="Remove">✕</button></td></tr>`).join('')}</tbody></table></div>
+      <p class="hint" style="margin-top:8px">Check the names and numbers — they are read automatically. Imported candidates get a “Check details” flag until someone reviews them.${REMOTE?'':' (On this offline copy only the file name is kept; resumes are stored on the shared-database site.)'}</p>`:''}
+    <div class="ferr" id="fErr" role="alert"></div>
+    <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="bGo" onclick="saveBulk()" ${!R.length||busy?'disabled':''}>${R.length?`Add ${R.length} candidate${R.length>1?'s':''}`:'Add candidates'}</button></div>`,'wide');}
+async function bulkFiles(inp){const fs=[...inp.files].filter(f=>/\.pdf$/i.test(f.name)||/pdf/.test(f.type));if(!fs.length){toast('Please choose PDF files');return;}
+  const add=fs.slice(0,40).map(f=>({file:f,n:'',mob:'',em:'',busy:true}));BULK.rows.push(...add);drawBulk();
+  for(const r of add){try{const p=await readResume(r.file);Object.assign(r,{n:p.n,mob:p.mob,em:p.em,city:p.city,prov:p.prov,exp:p.exp,skills:p.skills});
+      if(p.textLen<40)r.warn='Scanned image — type the details';else if(!p.mob&&!p.em)r.warn='No mobile or email found';
+      if(r.file.size>FILE_MAX)r.warn=(r.warn?r.warn+' · ':'')+'Over 3 MB — resume will not be attached';}
+    catch(e){r.warn='Could not read this PDF';r.n=r.n||nameFromFile(r.file.name);}
+    r.busy=false;if(document.getElementById('bGo'))drawBulk();}
+  if(fs.length>40)toast('Up to 40 resumes at a time — the rest were skipped');}
+async function saveBulk(){const b=document.getElementById('bGo'),jid=BULK.job,j=job(jid),R=BULK.rows;if(!jid||!j.id)return fErr('Pick a position.');
+  const bad=R.findIndex(r=>!String(r.n||'').trim());if(bad>=0)return fErr(`Enter a name for ${R[bad].file.name}.`);
+  b.disabled=true;b.textContent='Adding…';let add=0,dup=0;const made=[];
+  for(const r of R){const mk=String(r.mob||'').replace(/\D/g,'').slice(-10),em=String(r.em||'').trim().toLowerCase();
+    if(CANDS.some(c=>c.job===jid&&((mk.length>=10&&(c.mob||'').replace(/\D/g,'').slice(-10)===mk)||(em&&(c.em||'').toLowerCase()===em)))){dup++;continue;}
+    const id=nextCandId(),n=r.n.trim();
+    const c={id,n,nick:n.split(' ')[0],mob:r.mob||'',em:r.em||'',city:r.city||'—',prov:r.prov||'',job:jid,stage:'new',since:isoAgo(0),applied:isoAgo(0),src:BULK.src,owner:j.owner||ME(),lang:'tl',quad:null,docs:false,
+      exp:r.exp||'—',skills:r.skills||[],resume:r.file.name,review:true,notes:[{by:ME(),at:new Date().toISOString(),text:`Added from PDF resume ${r.file.name} by ${ME()} (${BULK.src}) — details read automatically`}]};
+    CANDS.push(c);made.push([c,r.file]);add++;}
+  if(!add){b.disabled=false;b.textContent='Add candidates';return fErr(`Nothing added — ${dup} already applied for this position.`);}
+  log(`Added ${add} candidate${add>1?'s':''} from PDF resumes for ${j.t} (${BULK.src})`,jid);
+  let upFail=0;if(REMOTE){try{clearTimeout(saveTimer);await pushRemote();}catch(e){}
+    for(const [c,f] of made){try{b.textContent=`Uploading resumes… ${made.indexOf(made.find(m=>m[0]===c))+1}/${made.length}`;const p=await prepFile(f);const res=await api('files',{method:'POST',body:{ref:candRef(c),kind:'resume',name:p.name,type:p.type,data:p.data}});(FILES[candRef(c)]=FILES[candRef(c)]||[]).unshift(res.file);FILECOUNT[candRef(c)]=(FILECOUNT[candRef(c)]||0)+1;}catch(e){upFail++;}}}
+  saveData();closeModal();toast(`${add} candidate${add>1?'s':''} added${dup?` · ${dup} already applied`:''}${upFail?` · ${upFail} resume${upFail>1?'s':''} not uploaded`:''}`);
+  pf={job:jid,bu:'',stage:'new',q:'',sort:'days',dir:-1,late:false};go('s-pipe');}
 (async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
