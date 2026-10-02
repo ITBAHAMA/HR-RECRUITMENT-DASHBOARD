@@ -5,7 +5,7 @@ export const MAX_BYTES = 3 * 1024 * 1024;
 export const OK_TYPES = /^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/(jpeg|png|webp|heic|heif))$/;
 const refOf = (c) => c.ref || 'C-' + (2000 + c.id);
 
-async function buOfRef(ref) {
+export async function buOfRef(ref) {
   const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
   const c = (s.CANDS || []).find((x) => refOf(x) === ref);
   if (c) return jobBuOf(s, c.job);

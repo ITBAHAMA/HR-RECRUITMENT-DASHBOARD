@@ -601,7 +601,22 @@ textarea.pin{height:auto;padding:10px 14px;resize:vertical}
 .sync{font-size:11.5px;color:#C8D8C0;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:99px;padding:3px 10px;white-space:nowrap}
 .sync.ok::before{content:"● ";color:#7EE06A}.sync.busy::before{content:"● ";color:#E3C47E}.sync.warn{color:#FFD2CC}.sync.warn::before{content:"● ";color:#FF8A7A}
 @media (max-width:860px){.sync{display:none}}
-.btn.sm.del{color:#B42318;border-color:#F3C1BC}.btn.sm.del:hover{background:#FDECEA}.inp.autof{background:#FFF8E1;border-color:#E0B64A}.spin{display:inline-block;width:12px;height:12px;border:2px solid #ccc;border-top-color:#1F5A2A;border-radius:50%;animation:spn .8s linear infinite;vertical-align:-2px}@keyframes spn{to{transform:rotate(360deg)}}</style>
+.btn.sm.del{color:#B42318;border-color:#F3C1BC}.btn.sm.del:hover{background:#FDECEA}.inp.autof{background:#FFF8E1;border-color:#E0B64A}.spin{display:inline-block;width:12px;height:12px;border:2px solid #ccc;border-top-color:#1F5A2A;border-radius:50%;animation:spn .8s linear infinite;vertical-align:-2px}@keyframes spn{to{transform:rotate(360deg)}}.afm{max-width:820px}.afhead{display:flex;align-items:center;gap:14px;background:#fff;border-radius:16px;padding:14px 18px;box-shadow:0 10px 30px -20px rgba(16,40,16,.35);margin-bottom:12px}
+.aflogo{height:46px;width:auto}.afhead h2{margin:0;font-size:20px;letter-spacing:.3px}.afhead p{margin:2px 0 0;color:var(--muted);font-size:13px}
+.afprog{margin:0 0 12px}.afprog>div{height:8px;background:#E4EBDF;border-radius:99px;overflow:hidden}.afprog i{display:block;height:100%;background:linear-gradient(90deg,#2F7D22,#1C5A12);border-radius:99px;transition:width .3s}.afprog span{display:block;margin-top:6px;font-size:13px;color:#46514A}
+.afst{display:flex;align-items:center;gap:10px;margin:0 0 12px}.afsec{display:inline-flex;align-items:center;justify-content:center;min-width:30px;height:24px;padding:0 6px;border-radius:7px;background:#E7F0E2;color:#1C5A12;font-size:12px;font-weight:700;margin-right:8px}
+.afh{margin:14px 0 6px;font-size:14.5px;grid-column:1/-1;display:flex;align-items:center}.afnote{background:#F3F7EF;border:1px solid #DDE8D5;border-radius:10px;padding:10px 12px;font-size:13px;color:#33402F;margin:0 0 12px;grid-column:1/-1}
+.afpara{grid-column:1/-1}.afpara p{margin:0 0 4px;font-size:13.5px;line-height:1.55;color:#33402F}
+.afn3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:6px}.pf>span{display:block}
+.aftbl{display:flex;flex-direction:column;gap:10px;margin-top:8px}.afrow{border:1.5px solid #E4EBDF;border-radius:12px;padding:8px 12px 12px;margin:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:8px 10px}
+.afrow legend{font-weight:700;font-size:12.5px;color:#1C5A12;padding:0 6px}.afrow label{display:block;font-weight:500}.afrow small{display:block;color:var(--muted);font-size:11.5px;margin-bottom:3px}.afrow .pin{width:100%;box-sizing:border-box;height:42px}
+.afdrop{margin-top:6px}.afsig{position:relative;margin-top:6px}.afsig canvas{width:100%;height:auto;aspect-ratio:900/260;border:1.5px dashed #9BB08F;border-radius:12px;background:#fff;touch-action:none;display:block}.afsig button{position:absolute;right:8px;top:8px}
+.afnav{display:flex;justify-content:space-between;gap:10px;margin-top:16px}.afnav .pbtn{min-width:130px}
+.pin.afbad,.afbad .pin,.afbad .afrow,.afbad canvas,.afbad .pdrop,.pconsent.afbad{border-color:#D0453E!important;box-shadow:0 0 0 3px rgba(208,69,62,.12)}.afbad>span:first-child,.afbad .afh{color:#B3352F}
+.afview{max-height:62vh;overflow:auto}.afsect h4{margin:12px 0 4px;color:#1C5A12}.afkv{width:100%;border-collapse:collapse;font-size:13px}.afkv td{border-bottom:1px solid #EEF1EC;padding:5px 6px;vertical-align:top}.afkv td:first-child{width:45%;color:var(--muted)}.afsub{text-align:left;padding:8px 6px 2px}
+.aft{width:100%;border-collapse:collapse;margin-top:4px;font-size:12px}.aft th,.aft td{border:1px solid #E1E6DD;padding:4px 6px;text-align:left}
+@media (max-width:520px){.afn3{grid-template-columns:1fr}.afhead{padding:12px}.aflogo{height:36px}.afhead h2{font-size:17px}.afnav .pbtn{min-width:0;flex:1}.afrow{grid-template-columns:1fr 1fr}}
+@media (max-width:360px){.afrow{grid-template-columns:1fr}}</style>
 </head>
 <body class="locked">
 
@@ -1345,6 +1360,7 @@ function rProf(){
     </div>
     <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents'+fileN(c))}${tab('sens','Sensitive')}</div>
     <div class="tp ${profTab==='app'?'on':''}">
+      ${appFormCard(c)}
       <div class="grid" style="grid-template-columns:1fr 1fr">
         <div class="card"><h3>Employment history</h3><p style="font-size:13px;color:var(--muted);white-space:pre-wrap">${esc(c.exp||'—')}</p></div>
         <div class="card"><h3>Skills</h3>${c.skills.length?c.skills.map(s=>`<span class="pill ${(j.skills||[]).includes(s)?'green':''}" style="margin:0 4px 4px 0">${esc(s)}</span>`).join(''):'<span class="pill mute">none recorded</span>'}
@@ -2153,7 +2169,7 @@ async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.meth
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
 function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
-  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
@@ -2870,6 +2886,257 @@ async function saveBulk(){const b=document.getElementById('bGo'),jid=BULK.job,j=
     for(const [c,f] of made){try{b.textContent=`Uploading resumes… ${made.indexOf(made.find(m=>m[0]===c))+1}/${made.length}`;const p=await prepFile(f);const res=await api('files',{method:'POST',body:{ref:candRef(c),kind:'resume',name:p.name,type:p.type,data:p.data}});(FILES[candRef(c)]=FILES[candRef(c)]||[]).unshift(res.file);FILECOUNT[candRef(c)]=(FILECOUNT[candRef(c)]||0)+1;}catch(e){upFail++;}}}
   saveData();closeModal();toast(`${add} candidate${add>1?'s':''} added${dup?` · ${dup} already applied`:''}${upFail?` · ${upFail} resume${upFail>1?'s':''} not uploaded`:''}`);
   pf={job:jid,bu:'',stage:'new',q:'',sort:'days',dir:-1,late:false};go('s-pipe');}
+/* ===== v11: Application for Employment (same questions as the BRDC Jotform) ===== */
+const YN=['Yes','No'],YNA=['Yes','No','Not Applicable'];
+const AF_SRC=['Facebook','Indeed','Jobstreet','Company website/walkin','Job Fair','Referral','Other'];
+const AF_STEPS=[
+ {t:'Position',items:[
+  {k:'position',l:'Position applied for',req:1},{k:'department',l:'Department',req:1},
+  {k:'app_date',l:'Date of application',type:'date',req:1,ro:1},{k:'salary',l:'Expected salary',req:1,ph:'₱ 18,000',im:'numeric'},
+  {k:'source',l:'How did you learn about Bahama Realty and Development Corp.?',type:'checks',opts:AF_SRC,req:1,full:1},
+  {k:'photo',l:'Photo',type:'file',req:1,accept:'image/*',hint:'2x2 picture with white background',full:1}]},
+ {t:'Personal information',sec:'I',items:[
+  {k:'name',l:'Full name',type:'name3',req:1,full:1},{k:'nick',l:'Preferred name / nickname'},
+  {k:'dob',l:'Date of birth',type:'date',req:1},{k:'pob',l:'Place of birth',req:1},
+  {k:'sex',l:'Sex assigned at birth',type:'radio',opts:['Male','Female'],req:1},
+  {k:'gender',l:'Gender identity',type:'radio',opts:['Male','Female','LGBTQ','Prefer to self-describe'],req:1,then:{v:'Prefer to self-describe',k:'gender_other',l:'Please type how you self-describe'}},
+  {k:'civil',l:'Civil status',type:'radio',opts:['Single','Married','Widowed','Separated (legally)','Common Law Relationship'],req:1,full:1,then:{v:'Common Law Relationship',k:'commonlaw',l:'Common-law partner name (first and last name)'}},
+  {k:'livewith',l:'You live with',type:'radio',opts:['Parents/Family','Relatives','Own House','Boarding House'],req:1,full:1},
+  {k:'nationality',l:'Nationality',req:1,def:'Filipino'},{k:'mobile',l:'Mobile number',type:'tel',req:1,ph:'0917 123 4567'},
+  {k:'email',l:'Email address',type:'email',req:1},
+  {k:'addr',l:'Home address (house no., street, barangay)',req:1,full:1},{k:'city',l:'City / municipality',req:1},{k:'prov',l:'Province',req:1,list:'provs3'},
+  {k:'prov_addr',l:'Provincial address',req:1,full:1,hint:'Type “Same as home address” if the same'},
+  {k:'religion',l:'Religion',req:1},{k:'height',l:'Height',req:1,ph:'5\'6" or 168 cm'},{k:'weight',l:'Weight',req:1,ph:'60 kg'},
+  {k:'sss',l:'SSS no.',req:1,hint:'Type N/A if none'},{k:'tin',l:'TIN',req:1,hint:'Type N/A if none'},{k:'philhealth',l:'PhilHealth no.',req:1,hint:'Type N/A if none'},{k:'pagibig',l:'Pag-IBIG no.',req:1,hint:'Type N/A if none'},
+  {k:'passport',l:'Passport no.'},{k:'gid_type',l:'Government ID presented — type',req:1,ph:'e.g. Driver’s license'},{k:'gid_no',l:'Government ID number',req:1},
+  {k:'valid_id',l:'Upload any valid ID',type:'file',req:1,accept:'image/*,.pdf',hint:'Passport, SSS ID, driver’s license, postal ID',full:1}]},
+ {t:'Family & dependents',items:[
+  {k:'family',sec:'II',l:'Family information',type:'table',cols:['Name','Age','Occupation','Employer'],rows:['Father','Mother','Spouse','Sibling','Sibling','Sibling'],req:1},
+  {k:'dependents',sec:'III',l:'Dependents',type:'table',cols:['Full name','Relationship','Age','Occupation / school'],n:4,hint:'Leave blank if you have no dependents'}]},
+ {t:'Education & employment',items:[
+  {k:'education',sec:'IV',l:'Educational background',type:'table',cols:['School attended','From','To','Degree / course','Major field'],rows:['Elementary','High school','College','Graduate','Vocational / other training'],req:1},
+  {k:'employment',sec:'V',l:'Employment history',type:'table',cols:['Name / address of company','Inclusive period (mm/yy–mm/yy)','Position held','Gross pay','Reason for leaving'],n:5,hint:'List your most recent employment first. Leave blank if this is your first job.'}]},
+ {t:'Availability',note:'There are questions that might not apply to your position. In that case, please answer “Not applicable” or type N/A.',items:[
+  {k:'start',l:'Date available to start',type:'date',req:1},
+  {k:'fit',l:'Physically fit to work on-site / field / construction area?',type:'radio',opts:YN,req:1,full:1},
+  {k:'group',l:'Willing to be assigned to other group companies?',type:'radio',opts:YN,req:1,full:1},
+  {k:'transfer',l:'Willing to be transferred if business requires?',type:'radio',opts:YN,req:1,full:1},
+  {k:'work_in',l:'Willing to work in',type:'checks',opts:['Construction site','Hotel','Gas Station','Office','Not Applicable'],req:1,full:1},
+  {k:'work_on',l:'Willing to work on',type:'checks',opts:['Project-based','Seasonal','Reliever/Floating','Full-Time'],req:1,full:1},
+  {k:'ot',l:'Willing to work overtime / weekends / holidays?',type:'radio',opts:YNA,req:1,full:1},
+  {k:'night',l:'Willing to work night shift (if required)?',type:'radio',opts:YNA,req:1,full:1},
+  {k:'limit',l:'Any work limitation or restrictions?',type:'radio',opts:YNA,req:1,full:1,then:{v:'Yes',k:'limit_x',l:'If yes, please explain'}},
+  {k:'abroad',l:'Do you have any pending application to go abroad?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'abroad_x',l:'If yes, what country?'}},
+  {k:'othercos',l:'Do you have any pending application to other companies?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'othercos_x',l:'If yes, what companies?'}},
+  {k:'terminated',l:'Have you ever been terminated or dismissed for cause from previous employment?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'terminated_x',l:'If yes, what reason?'}},
+  {k:'accused',l:'Have you ever been accused or convicted of any misdemeanor or crime?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'accused_x',l:'If yes, state particulars'}},
+  {k:'bond',l:'Do you have any existing employment bond, contract, or non-compete agreement?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'bond_x',l:'If yes, please explain'}},
+  {k:'relatives',l:'Do you have any relatives or close friends currently employed in this company?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'relatives_x',l:'If yes, indicate their name and relationship'}},
+  {k:'location_map',l:'Location screenshot in Google Maps',type:'file',accept:'image/*',hint:'A screenshot showing where you live',full:1},
+  {k:'resume',l:'Attach resume',type:'file',accept:'.pdf,.doc,.docx,image/*',full:1}]},
+ {t:'Skills & other info',sec:'VI',items:[
+  {k:'hard',l:'Hard skills (check all that apply)',type:'checks',opts:['Computer proficiency (MS Office, Google Workspace)','Email and calendar management','Data entry','Report preparation','Basic accounting/bookkeeping','Driving skills (with license type)','Adaptable','Filing and Records Management','Other'],full:1},
+  {k:'soft',l:'Soft skills (check all that apply)',type:'checks',opts:['Leadership','Teamwork','Communication','Problem-solving','Time management','Customer service oriented','Can work under pressure','Adaptable','Other'],full:1},
+  {k:'computer',l:'Computer skills / system knowledge',full:1},{k:'licenses',l:'Professional licenses or certifications',full:1},{k:'trainings',l:'Relevant trainings / seminars attended',full:1,area:1},
+  {k:'_h1',type:'head',l:'Other / additional information — languages'},
+  {k:'lang_spoken',l:'Spoken'},{k:'lang_dialect',l:'Dialect'},{k:'lang_written',l:'Written'},
+  {k:'membership',l:'Membership in any organization (school / social / religion)',full:1},{k:'hobbies',l:'Activities / hobbies and outside interests',full:1}]},
+ {t:'Medical declaration',sec:'VII',note:'The following information is requested to help the Company understand potential health considerations and to ensure that appropriate support, assistance, or workplace accommodations may be provided when necessary.',items:[
+  {k:'med_preg',l:'1. Pregnant',type:'radio',opts:YN,full:1},
+  {k:'med_surg',l:'2. Have you undergone any surgery, hospitalization, or major medical procedure?',type:'radio',opts:YN,full:1,then:{v:'Yes',k:'med_surg_x',l:'If yes, please specify'}},
+  {k:'med_meds',l:'3. Are you currently taking any medication or undergoing medical treatment?',type:'radio',opts:YN,full:1,then:{v:'Yes',k:'med_meds_x',l:'If yes, please specify'}},
+  {k:'med_cond',l:'4. Do you have any medical condition that may require health assistance or accommodation?',type:'radio',opts:YN,full:1,then:{v:'Yes',k:'med_cond_x',l:'If yes, under what medical condition or minor/major operation?'}},
+  {k:'med_psych',l:'5. Are you currently under medical consultation, therapy, or psychological treatment?',type:'radio',opts:YN,full:1,then:{v:'Yes',k:'med_psych_x',l:'If yes, under what medical condition or minor/major operation?'}},
+  {k:'_n1',type:'notice',l:'Information collected regarding sex, gender identity, or medical condition is not part of the criteria for hiring and will not be used to discriminate against any applicant. Such information is requested solely so that, in the event the applicant is hired, the Company will be in a better position to provide appropriate medical support, health assistance, or workplace accommodations when necessary.'}]},
+ {t:'References & emergency',items:[
+  {k:'refs',sec:'VIII',l:'Character references — three (3) persons who are not your relatives',type:'table',cols:['Name','Address','Occupation','Contact #','Name of company'],n:3,req:1,hint:'Preference: HR head; former immediate superior'},
+  {k:'_h2',type:'head',sec:'IX',l:'Emergency contact — person to notify in case of emergency'},
+  {k:'em_name',l:'Name',req:1},{k:'em_rel',l:'Relationship',req:1},{k:'em_mob',l:'Contact number',type:'tel',req:1},{k:'em_addr',l:'Address',req:1,full:1}]},
+ {t:'Consent & signature',items:[
+  {k:'_c1',type:'para',sec:'X',l:'Authorization for background verification',x:'I hereby authorize the Company to verify the information I have provided in this application form, including my educational background, employment history, and character references, for the purpose of evaluating my application for employment. I understand that the verification process will be conducted with confidentiality and only by authorized personnel.'},
+  {k:'_c2',type:'para',sec:'XI',l:'Data privacy consent',x:'I understand that the personal information provided in this form will be collected, processed, and stored for recruitment and employment evaluation purposes. I hereby give my consent for the Company to process my personal information in accordance with the Data Privacy Act of 2012.'},
+  {k:'_c3',type:'para',sec:'XII',l:'Applicant certification',x:'I certify that the information provided in this Applicant Information Form is true, complete, and accurate to the best of my knowledge. I understand that any false statement, misrepresentation, or omission of information may result in the rejection of my application or termination of employment should I be hired. I also acknowledge that completing this form does not constitute an employment contract nor guarantee employment with the Company.'},
+  {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
+  {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
+];
+const AF_FILES=['photo','valid_id','location_map','resume'];
+let AF=null; /* {mode:'apply'|'link', step, d:{}, files:{}, sig:dataURL, job, ref, tok, info, done} */
+const afKey=()=>'brdc-af-'+(AF.mode==='link'?AF.ref:AF.job);
+function afSave(){if(!AF)return;clearTimeout(AF._t);AF._t=setTimeout(()=>{try{localStorage.setItem(afKey(),JSON.stringify({d:AF.d,step:AF.step,sig:AF.sig||null,at:Date.now()}));}catch(e){}},400);}
+function afLoadDraft(){try{const x=JSON.parse(localStorage.getItem(afKey())||'null');if(x&&Date.now()-x.at<14*864e5){AF.d={...AF.d,...x.d};AF.step=Math.min(x.step||0,AF_STEPS.length-1);AF.sig=x.sig||null;AF.restored=true;}}catch(e){}}
+function afSrcDefault(){const m={'Facebook':'Facebook','Indeed':'Indeed','Jobstreet':'Jobstreet','Referral':'Referral','Job fair':'Job Fair','Walk-in (QR)':'Company website/walkin','Career page':'Company website/walkin'};return APPLY_SRC&&m[APPLY_SRC]?[m[APPLY_SRC]]:[];}
+function afStart(mode,o){AF={mode,step:0,d:{},files:{},sig:null,...o};
+  const j=job(AF.job)||{},gen=j.rf==='general';
+  AF.d={position:gen?'':(j.t&&j.t!=='—'?j.t:''),department:j.dept||'',app_date:todayKey,source:afSrcDefault(),nationality:'Filipino'};
+  if(o.info){const p=String(o.info.n||'').trim().split(/\s+/);let li=p.length-1;while(li>1&&/^(de|dela|del|delos|de los|san|sta\.?|santa|santo|la|los|y)$/i.test(p[li-1]))li--;AF.d.name={first:p.slice(0,Math.max(1,li)).join(' '),middle:'',last:p.length>1?p.slice(Math.max(1,li)).join(' '):''};AF.d.nick=o.info.nick||'';AF.d.mobile=o.info.mob||'';AF.d.email=o.info.em||'';if(o.info.job){AF.d.position=o.info.job.t||AF.d.position;AF.d.department=o.info.job.dept||AF.d.department;}}
+  afLoadDraft();AF.d.app_date=todayKey;}
+/* careers "Apply" now opens the full form */
+function rApply(){const el=document.getElementById('s-apply');
+  if(applyDone)return rApplyDone(el);
+  if(AF_LINK){if(!AF||AF.mode!=='link'||AF.ref!==AF_LINK.ref){el.innerHTML=`${pubHero(3)}<main class="pmain"><div class="psec"><p><span class="spin"></span> Opening your application form…</p></div></main>`;afOpenLink();return;}}
+  else{const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
+    if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
+    if(!AF||AF.mode!=='apply'||AF.job!==applyJob)afStart('apply',{job:applyJob});}
+  drawAF(el);}
+function rApplyDone(el){const a=applyDone;el.innerHTML=`${pubHero(4)}<main class="pmain"><div class="pdone"><div class="okc">✓</div><h2>Application received!</h2>
+    <p>Thank you, <b>${esc(a.nick)}</b>. We received your application form for <b>${esc(a.job)}</b>.</p>
+    <div class="pref"><span>Your reference number</span><b>${esc(a.ref)}</b><small>Screenshot or write this down</small></div>
+    ${a.warn?`<div class="err" style="display:block;margin:10px 0">${esc(a.warn)}</div>`:''}
+    <ol class="pnext"><li><b>HR reviews</b> your application within 2 working days</li><li><b>We text or email you</b> if you move to the interview stage</li><li><b>Bring a valid ID</b> and your resume to the interview</li></ol>
+    ${a.link?'':`<button class="pbtn ghost" onclick="applyDone=null;AF=null;apBu=null;history.replaceState(null,'','#careers');go('s-careers')">See other openings</button>`}</div></main>`;}
+function afVal(k){const v=AF.d[k];return v==null?'':v;}
+function afIn(it){const v=afVal(it.k),id='af_'+it.k,t=it.type||'text';
+  const lab=`${esc(it.l)}${it.req?' <em>*</em>':''}`,cls=`pf${it.full?' full':''}`;
+  if(t==='head')return `<h4 class="afh">${it.sec?`<span class="afsec">${it.sec}</span>`:''}${esc(it.l)}</h4>`;
+  if(t==='notice')return `<div class="afnote full">${esc(it.l)}</div>`;
+  if(t==='para')return `<div class="afpara full"><h4 class="afh"><span class="afsec">${it.sec}</span>${esc(it.l)}</h4><p>${esc(it.x)}</p></div>`;
+  if(t==='name3'){const n=v||{};return `<div class="${cls}" id="${id}"><span>${lab}</span><div class="afn3">${[['first','First name'],['middle','Middle name'],['last','Last name']].map(([s,p])=>`<input class="pin" aria-label="${p}" placeholder="${p}" value="${esc(n[s]||'')}" oninput="afSetSub('name','${s}',this.value)">`).join('')}</div></div>`;}
+  if(t==='radio'||t==='checks'){const multi=t==='checks',cur=multi?(Array.isArray(v)?v:[]):v;
+    let h=`<div class="${cls}" id="${id}"><span>${lab}</span><div class="psrc">${it.opts.map(o=>`<label class="schip${multi?'':' r'}"><input type="${multi?'checkbox':'radio'}" name="${id}" value="${esc(o)}" ${multi?(cur.includes(o)?'checked':''):(cur===o?'checked':'')} onchange="afPick('${it.k}',this,${multi})"><span>${esc(o)}</span></label>`).join('')}</div></div>`;
+    if(it.then&&cur===it.then.v)h+=afIn({k:it.then.k,l:it.then.l,full:1,req:1});return h;}
+  if(t==='table'){const rows=it.rows||Array.from({length:it.n},(_,i)=>String(i+1)),val=Array.isArray(v)?v:[];
+    return `<div class="pf full" id="${id}">${it.sec?`<h4 class="afh"><span class="afsec">${it.sec}</span>${esc(it.l)}${it.req?' <em>*</em>':''}</h4>`:`<span>${lab}</span>`}${it.hint?`<small>${esc(it.hint)}</small>`:''}
+      <div class="aftbl">${rows.map((r,ri)=>`<fieldset class="afrow"><legend>${esc(r)}</legend>${it.cols.map((c,ci)=>`<label><small>${esc(c)}</small><input class="pin" value="${esc((val[ri]||[])[ci]||'')}" oninput="afCell('${it.k}',${ri},${ci},this.value)"></label>`).join('')}</fieldset>`).join('')}</div></div>`;}
+  if(t==='file'){const f=AF.files[it.k];return `<div class="${cls}" id="${id}"><span>${lab}</span><label class="pdrop afdrop"><input type="file" accept="${it.accept}" onchange="afFile('${it.k}',this)"><b>${f?'📎 '+esc(f.name):'Choose file'}</b><span>${f?'Tap to change':esc(it.hint||'PDF, Word or photo · up to 3 MB')}</span></label></div>`;}
+  if(t==='ack')return `<label class="pconsent full" id="${id}"><input type="checkbox" ${v?'checked':''} onchange="AF.d.ack=this.checked;afSave()"><span><b>Acknowledged.</b> I have read and agree to sections X, XI and XII above. <em style="color:#B3352F;font-style:normal">*</em></span></label>`;
+  if(t==='sign')return `<div class="pf full" id="${id}"><span>${lab}</span><small>Sign with your finger or mouse inside the box.</small><div class="afsig"><canvas id="afCanvas" width="900" height="260"></canvas><button type="button" class="pbtn ghost sm" onclick="afSigClear()">Clear</button></div></div>`;
+  const inp=it.area?`<textarea class="pin" id="${id}" rows="2" oninput="AF.d['${it.k}']=this.value;afSave()">${esc(v)}</textarea>`
+    :`<input class="pin" id="${id}" type="${t==='tel'?'tel':t==='email'?'email':t==='date'?'date':'text'}" ${it.im?`inputmode="${it.im}"`:t==='tel'?'inputmode="tel"':''} ${it.list?`list="${it.list}"`:''} ${it.ro?'readonly':''} placeholder="${esc(it.ph||'')}" value="${esc(v||it.def||'')}" oninput="AF.d['${it.k}']=this.value;afSave()">`;
+  return `<label class="${cls}">${lab}${inp}${it.hint&&t!=='file'?`<small>${esc(it.hint)}</small>`:''}</label>`;}
+function drawAF(el){el=el||document.getElementById('s-apply');const S=AF_STEPS[AF.step],n=AF_STEPS.length,j=job(AF.job)||{},gen=j.rf==='general';
+  const pos=AF.mode==='link'?(AF.info.job.t||'your application'):gen?'General application':j.t;
+  el.innerHTML=`${pubHero(3)}<main class="pmain afm">
+    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application for Employment</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
+    <div class="afprog" aria-label="Step ${AF.step+1} of ${n}"><div><i style="width:${(AF.step+1)/n*100}%"></i></div><span>Step ${AF.step+1} of ${n} · <b>${esc(S.t)}</b></span></div>
+    ${AF.restored&&AF.step===0?`<div class="afnote">We restored the answers you started earlier on this device.</div>`:''}
+    <form class="psec" onsubmit="event.preventDefault();afNext()" novalidate>
+      ${S.sec?`<h3 class="afst"><span class="afsec">${S.sec}</span>${esc(S.t)}</h3>`:`<h3 class="afst">${esc(S.t)}</h3>`}
+      ${S.note?`<div class="afnote">${esc(S.note)}</div>`:''}
+      <div class="pg2">${S.items.map(afIn).join('')}</div>
+      <datalist id="provs3">${['NCR','Laguna','Cavite','Batangas','Rizal','Quezon','Bulacan','Pampanga','Tarlac','Nueva Ecija','Pangasinan','Cebu','Davao del Sur','Iloilo'].map(p=>`<option>${p}</option>`).join('')}</datalist>
+      <div class="err" id="aErr" role="alert"></div>
+      <div class="afnav">${AF.step?`<button type="button" class="pbtn ghost" onclick="afBack()">← Back</button>`:'<span></span>'}
+        <button type="submit" class="pbtn${AF.step===n-1?' big':''}" id="afGo">${AF.step===n-1?'Submit application':'Next →'}</button></div>
+      ${AF.step===0?`<div class="psafe" style="margin-top:12px">🔒 Your information is protected under the Data Privacy Act of 2012 and used only for recruitment. Your answers are kept on this device until you submit.</div>`:''}
+    </form></main>`;
+  if(S.items.some(i=>i.type==='sign'))afSigInit();}
+function afSetSub(k,s,v){AF.d[k]={...(AF.d[k]||{}),[s]:v};afSave();}
+function afPick(k,el,multi){if(multi){const a=new Set(Array.isArray(AF.d[k])?AF.d[k]:[]);el.checked?a.add(el.value):a.delete(el.value);AF.d[k]=[...a];}else{AF.d[k]=el.value;const it=AF_STEPS[AF.step].items.find(i=>i.k===k);if(it&&it.then){afSave();const y=scrollY;drawAF();scrollTo(0,y);return;}}afSave();}
+function afCell(k,r,c,v){const t=Array.isArray(AF.d[k])?AF.d[k]:[];while(t.length<=r)t.push([]);t[r]=t[r]||[];t[r][c]=v;AF.d[k]=t;afSave();}
+async function afFile(k,inp){const f=inp.files[0];if(!f)return;const er=document.getElementById('aErr');
+  try{const p=await prepFile(f);AF.files[k]={name:f.name,type:p.type,data:p.data};er.textContent='';}catch(e){er.textContent=e.message;return;}const y=scrollY;drawAF();scrollTo(0,y);}
+function afSigInit(){const c=document.getElementById('afCanvas');if(!c)return;const x=c.getContext('2d');x.lineWidth=4;x.lineCap='round';x.lineJoin='round';x.strokeStyle='#14306B';
+  if(AF.sig){const im=new Image();im.onload=()=>x.drawImage(im,0,0);im.src=AF.sig;}
+  let down=false,last=null;const pt=e=>{const r=c.getBoundingClientRect();return [(e.clientX-r.left)*c.width/r.width,(e.clientY-r.top)*c.height/r.height];};
+  c.onpointerdown=e=>{down=true;last=pt(e);c.setPointerCapture(e.pointerId);e.preventDefault();};
+  c.onpointermove=e=>{if(!down)return;const p=pt(e);x.beginPath();x.moveTo(...last);x.lineTo(...p);x.stroke();last=p;AF.sigDirty=true;};
+  c.onpointerup=c.onpointercancel=()=>{if(down&&AF.sigDirty){AF.sig=c.toDataURL('image/png');afSave();}down=false;};}
+function afSigClear(){const c=document.getElementById('afCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);AF.sig=null;AF.sigDirty=false;afSave();}
+function afMissing(step){const miss=[];AF_STEPS[step].items.forEach(it=>{if(!it.req)return;const v=AF.d[it.k];let ok=true;
+    if(it.type==='name3')ok=!!(v&&String(v.first||'').trim()&&String(v.last||'').trim());
+    else if(it.type==='checks')ok=Array.isArray(v)&&v.length>0;
+    else if(it.type==='table')ok=Array.isArray(v)&&v.some(r=>r&&String(r[0]||'').trim());
+    else if(it.type==='file')ok=!!AF.files[it.k];
+    else if(it.type==='ack')ok=!!v;else if(it.type==='sign')ok=!!AF.sig;
+    else ok=!!String(v||it.def||'').trim();
+    if(!ok)miss.push(it);
+    if(it.then&&v===it.then.v&&!String(AF.d[it.then.k]||'').trim())miss.push({k:it.then.k,l:it.then.l});});
+  return miss;}
+function afCheck(){const er=document.getElementById('aErr');document.querySelectorAll('.afbad').forEach(x=>x.classList.remove('afbad'));
+  const miss=afMissing(AF.step);if(miss.length){er.textContent='Please complete: '+miss.map(m=>m.l.replace(/\s*\(.*\)$/,'')).join(' · ');
+    miss.forEach(m=>{const e=document.getElementById('af_'+m.k);if(e)e.classList.add('afbad');});const f=document.getElementById('af_'+miss[0].k);(f||er).scrollIntoView({behavior:'smooth',block:'center'});return false;}
+  const d=AF.d;if(AF.step===1){if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(String(d.mobile||'').trim())){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return false;}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(d.email||'').trim())){er.textContent='Check your email address.';return false;}
+    if(d.dob&&(Date.now()-Date.parse(d.dob))/3.156e10<15){er.textContent='Check your date of birth.';return false;}}
+  if(AF.step===7){const r=(d.refs||[])[0]||[];if(!String(r[3]||'').trim()){er.textContent='Please give the contact number of your first character reference.';return false;}}
+  er.textContent='';return true;}
+function afBack(){AF.step=Math.max(0,AF.step-1);AF.restored=false;afSave();drawAF();scrollTo(0,0);}
+function afNext(){if(!afCheck())return;if(AF.step<AF_STEPS.length-1){AF.step++;AF.restored=false;afSave();drawAF();scrollTo(0,0);return;}afSubmit();}
+function afSummary(){const d=AF.d,nm=d.name||{},n=[nm.first,nm.middle,nm.last].map(x=>String(x||'').trim()).filter(Boolean).join(' ');
+  const srcMap={'Company website/walkin':'Career page','Job Fair':'Job fair'},src=(d.source||[])[0];
+  const exp=(d.employment||[]).filter(r=>r&&String(r[0]||'').trim()).map(r=>`${r[2]||'—'} – ${r[0]}${r[1]?` (${r[1]})`:''}`).join('\n');
+  const skills=[...(d.hard||[]),...(d.soft||[])].filter(s=>s!=='Other');
+  return {n,nick:String(d.nick||'').trim()||String(nm.first||'').split(' ')[0],mob:String(d.mobile||'').trim(),em:String(d.email||'').trim(),city:String(d.city||'').trim(),prov:String(d.prov||'').trim(),
+    src:srcMap[src]||src||'Career page',exp,skills:[...new Set(skills)],salary:String(d.salary||'').trim(),avail:d.start||'',resume:AF.files.resume?AF.files.resume.name:null};}
+async function afUploads(tok,btn){const list=AF_FILES.filter(k=>AF.files[k]).map(k=>[k,AF.files[k]]);if(AF.sig)list.push(['signature',{name:'signature.png',type:'image/png',data:AF.sig}]);
+  let fail=[];for(let i=0;i<list.length;i++){const [k,f]=list[i];btn.textContent=`Uploading files… ${i+1}/${list.length}`;
+    try{await api('public',{method:'POST',body:{action:'upload',tok,kind:k,file:f}});}catch(e){fail.push(k.replace('_',' '));}}
+  return fail;}
+async function afSubmit(){const btn=document.getElementById('afGo'),er=document.getElementById('aErr');const all=AF_STEPS.map((_,i)=>afMissing(i).length?i:-1).filter(i=>i>=0);
+  if(all.length){AF.step=all[0];drawAF();afCheck();return;}
+  const s=afSummary(),form={...AF.d,_v:1,_files:AF_FILES.filter(k=>AF.files[k]).concat(AF.sig?['signature']:[])};
+  btn.disabled=true;btn.textContent='Submitting…';
+  if(REMOTE){try{let r;
+      if(AF.mode==='link')r=await api('public',{method:'POST',body:{action:'formsubmit',tok:AF.tok,form}});
+      else r=await api('public',{method:'POST',body:{action:'apply',app:{job:AF.job,...s,consent:true,form}}});
+      const fail=r.tok?await afUploads(r.tok,btn):[];
+      try{localStorage.removeItem(afKey());}catch(e){}
+      applyDone={ref:r.ref,nick:s.nick,job:r.job,link:AF.mode==='link',warn:fail.length?`Some files did not upload (${fail.join(', ')}). Please bring them on your interview.`:''};AF=null;render();scrollTo(0,0);}
+    catch(e){er.textContent=e.message;btn.disabled=false;btn.textContent='Submit application';}return;}
+  /* browser-only copy */
+  const dup=CANDS.find(c=>c.job===AF.job&&String(c.mob||'').replace(/\D/g,'').slice(-10)===s.mob.replace(/\D/g,'').slice(-10));
+  if(dup){er.textContent='You have already applied for this job. HR will contact you soon.';btn.disabled=false;btn.textContent='Submit application';return;}
+  const j=job(AF.job),id=nextCandId();
+  CANDS.push({id,...s,exp:s.exp||'—',job:AF.job,stage:'new',since:isoAgo(0),applied:isoAgo(0),owner:j.owner,lang:'tl',quad:null,docs:false,form:true,formData:form});
+  const ref='C-'+String(2000+id);ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${s.n} for ${j.t} (${ref})`,job:AF.job});
+  try{localStorage.removeItem(afKey());}catch(e){}saveData();applyDone={ref,nick:s.nick,job:j.t};AF=null;render();scrollTo(0,0);}
+/* link sent by HR: #form=<token> */
+let AF_LINK=null;
+async function afOpenLink(){const el=document.getElementById('s-apply');
+  try{const r=await api('public',{method:'POST',body:{action:'formload',tok:AF_LINK.tok}});AF_LINK.ref=r.ref;afStart('link',{tok:AF_LINK.tok,ref:r.ref,info:r,job:r.job.id});
+    if(r.submittedAt)AF.already=r.submittedAt;drawAF(el);}
+  catch(e){el.innerHTML=`${pubHero(3)}<main class="pmain"><div class="psec"><h3>Application form</h3><p>${esc(e.message)}</p></div></main>`;}}
+const _routeFromHash0=routeFromHash;
+routeFromHash=function(){const h=location.hash||'';if(h.startsWith('#form=')){AF_LINK={tok:decodeURIComponent(h.slice(6)),ref:null};AF=null;applyDone=null;return 's-apply';}
+  if(h.startsWith('#apply='))AF_LINK=null;return _routeFromHash0();};
+
+/* ----- staff side: show / print / send the form ----- */
+let AFC={};
+async function loadAppForm(c,force){const ref=candRef(c);if(c.formData){AFC[ref]={form:c.formData};return;}if(!REMOTE||!SESSION||(AFC[ref]&&!force)||AFC[ref+'_l'])return;AFC[ref+'_l']=1;
+  try{const r=await api('forms?ref='+encodeURIComponent(ref));AFC[ref]={form:r.form,at:r.updatedAt};}catch(e){AFC[ref]={err:e.message};}delete AFC[ref+'_l'];if(cur==='s-prof')renderSafe();}
+function afText(v){if(v==null||v==='')return '—';if(Array.isArray(v))return v.length?v.join(', '):'—';if(typeof v==='object')return [v.first,v.middle,v.last].filter(Boolean).join(' ')||'—';return String(v);}
+function afSections(f,print){let h='';AF_STEPS.forEach(S=>{let rows='';
+    S.items.forEach(it=>{const t=it.type||'text';if(['head','notice','para','file','sign'].includes(t)){if(t==='head')rows+=`<tr><th colspan="2" class="afsub">${esc(it.l)}</th></tr>`;return;}
+      if(t==='table'){const rl=it.rows||Array.from({length:it.n},(_,i)=>String(i+1)),v=(f[it.k]||[]);const used=rl.map((r,i)=>[r,v[i]||[]]).filter(([,x])=>x.some(y=>String(y||'').trim()));
+        rows+=`<tr><td colspan="2"><b>${esc(it.l)}</b>${used.length?`<table class="aft"><thead><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${used.map(([r,x])=>`<tr><td>${esc(r)}</td>${it.cols.map((_,ci)=>`<td>${esc(x[ci]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`:' <span class="mut">— none</span>'}</td></tr>`;return;}
+      if(t==='ack'){rows+=`<tr><td>${esc(it.l)}</td><td>${f.ack?'✓ Yes':'—'}</td></tr>`;return;}
+      rows+=`<tr><td>${esc(it.l)}</td><td>${esc(afText(f[it.k]))}</td></tr>`;
+      if(it.then&&f[it.k]===it.then.v)rows+=`<tr><td>${esc(it.then.l)}</td><td>${esc(afText(f[it.then.k]))}</td></tr>`;});
+    h+=`<section class="afsect"><h4>${S.sec?S.sec+'. ':''}${esc(S.t)}</h4><table class="afkv">${rows}</table></section>`;});return h;}
+function appFormCard(c){const ref=candRef(c),st=AFC[ref];if(!st)setTimeout(()=>loadAppForm(c),0);const f=st&&st.form;
+  return `<div class="card" style="margin-bottom:12px"><div class="ch"><h3>Application for Employment</h3>${f?`<span class="pill green">filled ${st.at?fmtD(String(st.at).slice(0,10)):''}</span>`:''}</div>
+    ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">Submitted by the applicant${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendLink(${c.id})">Send link to update</button>`:''}</div>`
+    :`<p class="sub">Not filled yet. Send the applicant a link to the full application form (personal information, family, education, employment history, references, signature).</p>${canEdit()?`<button class="btn pri" onclick="afSendLink(${c.id})">Send application form link</button>`:''}`}</div>`;}
+function afView(id){const c=cand(id),f=(AFC[candRef(c)]||{}).form;if(!f)return;
+  modal(`<h3>Application for Employment — ${esc(c.n)}</h3><div class="afview">${afSections(f)}</div><div class="mdl-f"><button class="btn" onclick="closeModal()">Close</button><button class="btn pri" onclick="afPrint(${id})">Print / save as PDF</button></div>`,'wide');}
+async function afImg(c,kind){if(!REMOTE)return '';const ref=candRef(c);if(!FILES[ref])await loadFiles(ref,true);const f=(FILES[ref]||[]).find(x=>x.kind===kind&&/^image\//.test(x.type||''));if(!f)return '';
+  try{const b=await fileBlob(f.id);return await new Promise(r=>{const fr=new FileReader();fr.onload=()=>r(fr.result);fr.readAsDataURL(b);});}catch(e){return '';}}
+async function afPrint(id){const c=cand(id),f=(AFC[candRef(c)]||{}).form;if(!f)return;const w=window.open('','_blank');if(!w){toast('Allow pop-ups to print the form');return;}
+  w.document.write('<p style="font-family:sans-serif">Preparing the form…</p>');
+  const [photo,sig]=await Promise.all([afImg(c,'photo'),afImg(c,'signature')]);const logo=new URL('assets/brdc-logo.png',location.href).href;
+  w.document.open();w.document.write(`<!doctype html><html><head><meta charset="utf-8"><title>Application for Employment — ${esc(c.n)}</title><style>
+    body{font:11.5px/1.4 Arial,sans-serif;color:#111;margin:24px}header{display:flex;align-items:center;gap:16px;border-bottom:2px solid #1C5A12;padding-bottom:10px;margin-bottom:10px}
+    header img.l{height:54px}header h1{font-size:18px;margin:0;letter-spacing:.5px}header .ph{margin-left:auto;width:96px;height:96px;border:1px solid #999;object-fit:cover;display:flex;align-items:center;justify-content:center;font-size:10px;color:#777}
+    .afsect{break-inside:avoid;margin:10px 0}.afsect h4{background:#1C5A12;color:#fff;margin:0 0 4px;padding:4px 8px;font-size:12px}
+    table{border-collapse:collapse;width:100%}.afkv td{border-bottom:1px solid #ddd;padding:3px 6px;vertical-align:top}.afkv td:first-child{width:42%;color:#444}.afsub{text-align:left;padding:6px 6px 2px;font-size:11.5px}
+    .aft{margin-top:4px}.aft th,.aft td{border:1px solid #bbb;padding:3px 5px;font-size:10.5px;text-align:left}.aft th{background:#f1f4ef}
+    .sig{margin-top:18px;display:flex;justify-content:space-between;align-items:flex-end}.sig>div{text-align:center;width:260px}.sig .ln{border-top:1px solid #000;padding-top:3px}.sig img{max-height:70px;display:block;margin:0 auto -4px}
+    .ref{color:#555}@media print{body{margin:10mm}}</style></head><body>
+    <header><img class="l" src="${logo}" alt=""><div><h1>APPLICATION FOR EMPLOYMENT</h1><div class="ref">Bahama Realty and Development Corporation · Ref ${esc(candRef(c))}</div></div>${photo?`<img class="ph" src="${photo}" alt="">`:'<div class="ph">2x2 photo</div>'}</header>
+    ${afSections(f,true)}
+    <div class="sig"><span class="ref">Date of application: ${esc(f.app_date||'')}</span><div>${sig?`<img src="${sig}" alt="">`:''}<div class="ln">${esc(afText(f.name))}<br><small>Applicant signature over printed name</small></div></div></div>
+    <script>window.onload=()=>setTimeout(()=>print(),300)<\/script></body></html>`);w.document.close();}
+async function afSendLink(id){const c=cand(id);if(!REMOTE){toast('Form links work on the shared-database site');return;}
+  let tok;try{tok=(await api('forms',{method:'POST',body:{ref:candRef(c)}})).token;}catch(e){toast(e.message);return;}
+  const url=location.origin+location.pathname+'#form='+tok,first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
+  const sms=`Hi ${first}, please complete your BRDC Application for Employment for ${j.t}: ${url} - BRDC HR`;
+  modal(`<h3>Application form link — ${esc(c.n)}</h3><p class="sub">The applicant opens this link on their phone, fills in the full form and signs it. Their answers appear on this profile. The link works for 30 days.</p>
+    <input class="inp" style="width:100%" readonly value="${esc(url)}" onclick="this.select()">
+    <div class="mdl-f" style="flex-wrap:wrap"><button class="btn" onclick="closeModal()">Close</button><button class="btn" onclick="copyText(${esc(JSON.stringify(url))},'Link copied')">Copy link</button>
+    ${c.mob?`<button class="btn pri" onclick="afSmsLink(${id},${esc(JSON.stringify(sms))})">Text it to ${esc(c.mob)}</button>`:''}</div>`);}
+async function afSmsLink(id,text){const c=cand(id);try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:text,ref:candRef(c)}});toast(r.ok?'Link sent by SMS':'SMS not sent');log(`Sent application form link to ${c.n}`,c.job);saveData();closeModal();}
+  catch(e){toast(e.message+' — copy the link and send it instead');}}
 (async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
