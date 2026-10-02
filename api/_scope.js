@@ -10,7 +10,7 @@ export function scopeOf(a) {
   s.split(/[,;/|]+/).map((x) => x.trim().toLowerCase()).filter(Boolean).forEach((x) => {
     for (const [k, n] of Object.entries(BU_NAMES)) if (x === k || x === n.toLowerCase()) keys.add(k);
   });
-  return keys.size ? keys : null;
+  return keys; // nothing recognised → no access (never silently all units)
 }
 
 const arr = (x) => (Array.isArray(x) ? x : []);
@@ -50,9 +50,12 @@ export function mergeFor(full, sub, S) {
   const ps = preds({ ...sub, JOBS: out.JOBS }, S);
   out.CANDS = arr(full.CANDS).filter((x) => !pf.CANDS(x)).concat(arr(sub.CANDS).filter(ps.CANDS));
   const pm = preds({ ...sub, JOBS: out.JOBS, CANDS: out.CANDS }, S);
-  ['MPR', 'HIST', 'INTV', 'MSGS', 'ACT'].forEach((k) => { out[k] = arr(full[k]).filter((x) => !pf[k](x)).concat(arr(sub[k]).filter(pm[k])); });
+  ['MPR', 'HIST', 'INTV', 'MSGS'].forEach((k) => { out[k] = arr(full[k]).filter((x) => !pf[k](x)).concat(arr(sub[k]).filter(pm[k])); });
+  // activity: keep everyone's general entries, add only new general entries + this unit's job entries
+  const fullAct = arr(full.ACT), key = (a) => `${a.at}|${a.text}`, have = new Set(fullAct.map(key));
+  out.ACT = fullAct.filter((a) => !a.job || !S.has(jobBuOf(out, a.job))).concat(arr(sub.ACT).filter((a) => (a.job ? S.has(jobBuOf(out, a.job)) : !have.has(key(a)))));
   out.ACT.sort((a, b) => String(b.at || '').localeCompare(String(a.at || ''))); out.ACT = out.ACT.slice(0, 400);
-  out.POOL = arr(sub.POOL); // the talent pool is shared by the whole group
+  out.POOL = Array.isArray(sub.POOL) ? sub.POOL : arr(full.POOL); // the talent pool is shared by the whole group
   const jb = (jid) => (out.JOBS.find((j) => j.id === jid) || {}).bu;
   out.NOTES = { ...Object.fromEntries(Object.entries(full.NOTES || {}).filter(([jid]) => !S.has(jb(jid)))), ...Object.fromEntries(Object.entries(sub.NOTES || {}).filter(([jid]) => S.has(jb(jid)))) };
   out.BRANCHES = { ...(full.BRANCHES || {}) }; Object.entries(sub.BRANCHES || {}).forEach(([k, v]) => { if (S.has(k)) out.BRANCHES[k] = v; });

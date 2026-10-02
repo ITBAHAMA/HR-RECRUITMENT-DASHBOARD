@@ -19,8 +19,10 @@ export default handle(async (req, res) => {
   const url = new URL(req.url || '/', 'http://x');
   const allowed = async (ref) => !S || S.has(await buOfRef(ref));
 
+  const fid = Number(url.searchParams.get('id'));
+  if (url.searchParams.get('id') && !(Number.isInteger(fid) && fid > 0)) return send(res, 400, { error: 'Invalid file id' });
   if (req.method === 'GET' && url.searchParams.get('id')) {
-    const f = (await q(`SELECT * FROM files WHERE id=$1`, [+url.searchParams.get('id')]))[0];
+    const f = (await q(`SELECT * FROM files WHERE id=$1`, [fid]))[0];
     if (!f) return send(res, 404, { error: 'File not found' });
     if (!(await allowed(f.ref))) return send(res, 403, { error: 'Not your business unit' });
     const buf = Buffer.from(f.b64, 'base64');
@@ -48,7 +50,7 @@ export default handle(async (req, res) => {
     return send(res, 200, { file: row });
   }
   if (req.method === 'DELETE') {
-    const id = +url.searchParams.get('id'); const f = (await q(`SELECT ref FROM files WHERE id=$1`, [id]))[0];
+    const id = fid; const f = (await q(`SELECT ref FROM files WHERE id=$1`, [id]))[0];
     if (!f) return send(res, 404, { error: 'File not found' });
     if (!(await allowed(f.ref))) return send(res, 403, { error: 'Not your business unit' });
     await q(`DELETE FROM files WHERE id=$1`, [id]); return send(res, 200, { ok: true });

@@ -29,6 +29,8 @@ export async function ensureSchema() {
   await q(`CREATE TABLE IF NOT EXISTS app_state (id text PRIMARY KEY, data jsonb NOT NULL DEFAULT '{}'::jsonb, version integer NOT NULL DEFAULT 1, updated_at timestamptz NOT NULL DEFAULT now(), updated_by text)`);
   await q(`CREATE TABLE IF NOT EXISTS accounts (u text PRIMARY KEY, name text NOT NULL, first text, email text, role text NOT NULL DEFAULT 'hr_staff', bu text, status text NOT NULL DEFAULT 'active', hash text, must_change boolean NOT NULL DEFAULT true, created_at timestamptz NOT NULL DEFAULT now(), last_login timestamptz)`);
   await q(`CREATE TABLE IF NOT EXISTS applications (id serial PRIMARY KEY, ref text NOT NULL, job text NOT NULL, mobile_key text NOT NULL, data jsonb NOT NULL, created_at timestamptz NOT NULL DEFAULT now())`);
+  // one application per job + mobile (skipped if older duplicates already exist)
+  try { await q(`CREATE UNIQUE INDEX IF NOT EXISTS applications_job_mk ON applications (job, mobile_key)`); } catch (e) { /* duplicates present — app-level checks still apply */ }
   await q(`CREATE TABLE IF NOT EXISTS files (id serial PRIMARY KEY, ref text NOT NULL, kind text NOT NULL DEFAULT 'resume', name text NOT NULL, type text, size integer, b64 text NOT NULL, uploaded_by text, created_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE INDEX IF NOT EXISTS files_ref ON files (ref)`);
   await q(`CREATE TABLE IF NOT EXISTS outbox (id serial PRIMARY KEY, channel text NOT NULL, recipient text, subject text, body text, status text NOT NULL, provider_id text, error text, sent_by text, ref text, created_at timestamptz NOT NULL DEFAULT now())`);
@@ -63,8 +65,9 @@ export function sign(payload, hours = 12) { const body = Buffer.from(JSON.string
 export function verify(token) {
   if (!token || !token.includes('.')) return null; const [body, mac] = token.split('.');
   const good = crypto.createHmac('sha256', secret()).update(body).digest('base64url');
-  if (mac.length !== good.length || !crypto.timingSafeEqual(Buffer.from(mac), Buffer.from(good))) return null;
-  const p = JSON.parse(Buffer.from(body, 'base64url').toString()); return p.exp > Date.now() ? p : null;
+  const a = Buffer.from(String(mac)), g = Buffer.from(good);
+  if (a.length !== g.length || !crypto.timingSafeEqual(a, g)) return null;
+  try { const p = JSON.parse(Buffer.from(body, 'base64url').toString()); return p && p.exp > Date.now() ? p : null; } catch { return null; }
 }
 export async function requireUser(req, { admin = false } = {}) {
   const t = (req.headers.authorization || '').replace(/^Bearer\s+/i, ''); const p = verify(t);

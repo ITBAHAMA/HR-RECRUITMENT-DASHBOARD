@@ -1191,7 +1191,7 @@ const LVL={crit:['#B3352F','Overdue'],warn:['#B4620E','Needs action'],info:['#24
 /* ---------- tooltip ---------- */
 document.addEventListener('mouseover',e=>{const t=e.target.closest('[data-tip]');const tip=document.getElementById('tip');if(!tip)return;
   if(t){tip.innerHTML=t.getAttribute('data-tip');tip.classList.add('on');}else tip.classList.remove('on');});
-document.addEventListener('mousemove',e=>{const tip=document.getElementById('tip');if(tip&&tip.classList.contains('on')){const x=Math.min(e.clientX+14,innerWidth-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=(e.clientY+14)+'px';}});
+document.addEventListener('mousemove',e=>{const tip=document.getElementById('tip');if(tip&&tip.classList.contains('on')){const z=parseFloat(document.documentElement.style.zoom)||1;const x=Math.min((e.clientX+14)/z,innerWidth/z-tip.offsetWidth-8);tip.style.left=x+'px';tip.style.top=((e.clientY+14)/z)+'px';}});
 
 /* ---------- charts (plain HTML/SVG, single brand hue unless status) ---------- */
 function hbars(rows,o={}){const max=o.max||Math.max(1,...rows.map(r=>r.v));
@@ -2701,7 +2701,7 @@ function mailboxBlock(){if(!REMOTE)return `<p class="mut">Available on the share
     <button class="btn" onclick="checkMailNow()" ${mailBusy?'disabled':''}>${mailBusy?'Checking…':'Check mailbox now'}</button>`;
   return `<div class="doc"><span><b>Connected: ${esc(MAILST.user)}</b><br><small class="mut">Checked every 5 minutes · ${st.at?`last check ${fmtDT(st.at)}${st.ok===false?'':` · ${st.checked||0} new email${st.checked===1?'':'s'}`}`:'not checked yet'}${st.totalAdded?` · ${st.totalAdded} applicant${st.totalAdded>1?'s':''} added so far`:''}</small></span>
       <span class="pill ${st.ok===false?'red':st.at?'green':'mute'}">${st.ok===false?'problem':st.at?'working':'waiting'}</span></div>
-    ${st.ok===false?`<div class="ferr on" style="display:block;margin:8px 0">${esc(st.error||'Mailbox check failed')}${st.detail?`<div style="margin-top:6px;font-size:12px;opacity:.85;word-break:break-word">${esc(st.detail)}</div>`:''}</div>`:''}
+    ${st.ok===false?`<div class="ferr on" style="display:block;margin:8px 0">${esc(st.error||'Mailbox check failed')}${st.detail?`<div style="margin-top:6px;font-size:12px;opacity:.85;word-break:break-word">${esc(st.detail)}</div>`:''}${st.authFailed?`<div style="margin-top:6px;font-size:12px"><b>Automatic checks are paused</b> so Zoho doesn't lock the mailbox for too many failed sign-ins. Fix the setting, redeploy, then click <b>Check mailbox now</b>.</div>`:''}</div>`:''}
     ${st.people&&st.people.length?`<p class="mut" style="margin:6px 0">Last added: ${st.people.slice(0,6).map(esc).join(', ')}${st.lastAdded?` · ${fmtDT(st.lastAdded)}`:''}</p>`:''}
     <button class="btn" style="margin-top:6px" onclick="checkMailNow()" ${mailBusy?'disabled':''}>${mailBusy?'Checking…':'Check mailbox now'}</button>`;}
 function jobBoardCard(){if(!isAdmin())return '';const url=REMOTE?MSGCFG.inbound:null;

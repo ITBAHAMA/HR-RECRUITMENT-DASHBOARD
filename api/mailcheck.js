@@ -1,3 +1,4 @@
+import crypto from 'node:crypto';
 import { q, handle, send, verify } from './_lib.js';
 import { ingest } from './_ingest.js';
 // Reads the HR mailbox (Zoho Mail over IMAP, read-only) every 5 minutes and imports new Indeed / Jobstreet applicants.
@@ -20,8 +21,9 @@ async function connectOne(cfg, host) {
   await c.connect(); return c;
 }
 // Try the configured server first, then the other Zoho servers (company / personal / regional data centres)
-async function openClient(cfg, tried) {
-  const hosts = [...new Set([cfg.host, 'imappro.zoho.com', 'imap.zoho.com', 'imappro.zoho.in', 'imappro.zoho.eu', 'imappro.zoho.com.au'])];
+async function openClient(cfg, tried, all) {
+  // automatic runs use one server only, so a wrong password never causes a burst of failed sign-ins
+  const hosts = all ? [...new Set([cfg.host, 'imappro.zoho.com', 'imap.zoho.com', 'imappro.zoho.in', 'imappro.zoho.eu', 'imappro.zoho.com.au'])] : [cfg.lastGood || cfg.host];
   let last;
   for (const h of hosts) {
     try { const c = await connectOne(cfg, h); tried.push(h + ': ok'); cfg.usedHost = h; return c; }
@@ -30,14 +32,19 @@ async function openClient(cfg, tried) {
   throw last;
 }
 
-export async function checkMailbox({ days = 3, max = 25 } = {}) {
+const fingerprint = (c) => crypto.createHash('sha256').update(`${c.user}|${c.pass}|${c.host}`).digest('hex').slice(0, 16);
+export async function checkMailbox({ days = 3, max = 25, manual = false } = {}) {
   const cfg = mailConfig();
   if (!cfg.user || !cfg.pass) return { configured: false };
+  const fp = fingerprint(cfg), prevSt = (await getKv('imap:status')) || {};
+  if (prevSt.fp === fp && prevSt.lastGood) cfg.lastGood = prevSt.lastGood;
+  // after a refused sign-in, stop automatic retries until the settings change or an admin presses "Check mailbox now"
+  if (!manual && prevSt.fp === fp && prevSt.authFailed) return { configured: true, ok: false, paused: true, error: prevSt.error };
   const { simpleParser } = await import('mailparser');
   const started = Date.now(), res = { configured: true, checked: 0, added: 0, skipped: 0, people: [] };
   let client;
   try {
-    res.tried = []; client = await openClient(cfg, res.tried); res.host = cfg.usedHost;
+    res.tried = []; client = await openClient(cfg, res.tried, manual); res.host = cfg.usedHost;
     const lock = await client.getMailboxLock(cfg.folder, { readOnly: true });
     try {
       const since = new Date(Date.now() - days * 864e5);
@@ -62,6 +69,7 @@ export async function checkMailbox({ days = 3, max = 25 } = {}) {
     try { client && client.close(); } catch {}
     const msg = String(e.responseText || e.message || e);
     res.ok = false;
+    res.authFailed = /auth|login|credential|invalid|password/i.test(msg + ' ' + (res.tried || []).join(' '));
     res.error = /auth|login|credential|invalid|password/i.test(msg) ? 'Zoho refused the sign-in. Check MAIL_USER, that IMAP access is turned on for this mailbox, and that MAIL_PASSWORD is a Zoho app password.'
       : /ENOTFOUND|getaddrinfo/i.test(msg) ? `Mail server “${cfg.host}” not found. Use imappro.zoho.com (company mail) or imap.zoho.com (personal).`
       : /timeout|ETIMEDOUT|ECONNREFUSED/i.test(msg) ? 'Could not reach the Zoho mail server. It will try again in 5 minutes.' : 'Mailbox check failed: ' + msg.slice(0, 200);
@@ -69,13 +77,14 @@ export async function checkMailbox({ days = 3, max = 25 } = {}) {
   }
   res.at = new Date().toISOString();
   const prev = (await getKv('imap:status')) || {};
-  await setKv('imap:status', { ...res, people: res.people.slice(0, 20), totalAdded: (prev.totalAdded || 0) + res.added, lastAdded: res.added ? res.at : prev.lastAdded || null });
+  await setKv('imap:status', { ...res, fp, lastGood: res.ok ? res.host : (prev.fp === fp ? prev.lastGood : null), people: res.people.slice(0, 20), totalAdded: (prev.totalAdded || 0) + res.added, lastAdded: res.added ? res.at : prev.lastAdded || null });
   return res;
 }
 
 export default handle(async (req, res) => {
   const auth = req.headers.authorization || '';
-  const cron = process.env.CRON_SECRET ? auth === 'Bearer ' + process.env.CRON_SECRET : /vercel-cron/i.test(req.headers['user-agent'] || '');
+  const trustedCron = !!process.env.CRON_SECRET && auth === 'Bearer ' + process.env.CRON_SECRET;
+  const cron = trustedCron || (!process.env.CRON_SECRET && /vercel-cron/i.test(req.headers['user-agent'] || ''));
   const tok = verify(auth.replace(/^Bearer\s+/i, ''));
   const admin = tok && tok.kind === 'session' && ((await q(`SELECT role FROM accounts WHERE u=$1 AND status='active'`, [tok.u]))[0] || {}).role === 'hr_admin';
   if (req.method === 'GET' && admin && new URL(req.url || '/', 'http://x').searchParams.get('status')) {
@@ -83,8 +92,8 @@ export default handle(async (req, res) => {
   }
   if (!cron && !admin) {
     const st = await getKv('imap:status'); // anyone else may only nudge it, at most once a minute
-    if (st && Date.now() - Date.parse(st.at) < 60000) return send(res, 200, { skipped: 'Checked less than a minute ago' });
+    if (st && Date.now() - Date.parse(st.at) < 4 * 60000) return send(res, 200, { skipped: 'Checked recently' });
   }
-  const r = await checkMailbox();
-  return send(res, 200, admin || cron ? r : { configured: r.configured, ok: r.ok, added: r.added });
+  const r = await checkMailbox({ manual: !!admin });
+  return send(res, 200, admin || trustedCron ? r : { configured: r.configured, ok: r.ok, added: r.added });
 });

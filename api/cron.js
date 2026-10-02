@@ -12,7 +12,7 @@ export default handle(async (req, res) => {
   const jobs = d.JOBS || [], cands = d.CANDS || [];
   const BU = { br: 'BRDC', sf: 'Smartfuels', nb: 'Neo Bros Ventures', uh: 'U Hotels', th: 'Toilena Hotel', ex: 'Exelhaul Logistics', pp: 'Pan Pacific', lf: 'La Ferme Organique' };
   const accounts = await q(`SELECT name, email FROM accounts WHERE status='active' AND email IS NOT NULL AND email <> ''`);
-  const due = (d.INTV || []).filter((i) => i.status === 'scheduled' && i.when && phDay(i.when) === tomorrow);
+  const due = (d.INTV || []).filter((i) => i.status === 'scheduled' && i.when && !isNaN(Date.parse(i.when)) && phDay(i.when) === tomorrow);
   const done = [];
   for (const i of due) {
     const key = `intv-${i.id}-${phDay(i.when)}`;

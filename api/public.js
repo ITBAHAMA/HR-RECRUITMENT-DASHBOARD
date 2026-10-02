@@ -39,7 +39,8 @@ export default handle(async (req, res) => {
       if (!OK_TYPES.test(String(file.type || ''))) return send(res, 400, { error: 'Resume must be a PDF, Word document or photo.' });
     }
     const clean = { n: str(a.n, 80), nick: str(a.nick, 40), mob: str(a.mob, 20), em: str(a.em, 120), city: str(a.city, 60), prov: str(a.prov, 60), job: job.id, src: str(a.src, 40), exp: str(a.exp, 2000), skills: (Array.isArray(a.skills) ? a.skills : []).slice(0, 30).map((x) => str(x, 60)), salary: str(a.salary, 20), avail: str(a.avail, 10), resume: a.file && a.file.name ? str(a.file.name, 120) : a.resume ? str(a.resume, 120) : null };
-    const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending', $1, $2, $3::jsonb) RETURNING id`, [job.id, mk, JSON.stringify(clean)]))[0];
+    const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending', $1, $2, $3::jsonb) ON CONFLICT DO NOTHING RETURNING id`, [job.id, mk, JSON.stringify(clean)]))[0];
+    if (!row) return send(res, 409, { error: 'You have already applied for this job. HR will contact you soon.' });
     const ref = 'C-' + (5000 + row.id); await q(`UPDATE applications SET ref=$1 WHERE id=$2`, [ref, row.id]);
     if (file) await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,'resume',$2,$3,$4,$5,'Applicant')`, [ref, str(file.name, 120) || 'resume', String(file.type), Math.floor(fb64.length * 3 / 4), fb64]);
     // acknowledgment (only when a provider is set up; never blocks the application)

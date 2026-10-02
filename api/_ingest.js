@@ -37,11 +37,13 @@ export function parseApplication(m, jobs) {
   ];
   let name = '';
   for (const p of pats) { for (const hay of [m.subject, text]) { const r = hay.match(p); const n = r && cleanName(r[1]); if (n) { name = n; break; } } if (name) break; }
+  const PLACE = /\b(city|province|municipality|metro|manila|makati|quezon|pasig|taguig|laguna|cavite|batangas|rizal|bulacan|pampanga|cebu|davao|ncr|philippines|calabarzon|region|branch|head office|full[- ]time|part[- ]time)\b/i;
+  const places = new Set(jobs.flatMap((j) => [norm(j.br), norm(j.prov), norm(j.city)]).filter(Boolean));
   const others = +((m.subject + '\n' + text).match(/\band\s+(\d+)\s+others?\s+applied/i) || [])[1] || 0;
   const extra = [];
   if (others && name) { const bad = /^(qualifications?|indeed|see |view |job |location|bachelor|managerial|hi |dear |regards)/i;
     for (const line of text.split('\n').map((l) => l.trim())) { if (extra.length >= others) break;
-      if (!/^[A-ZÑ][A-Za-zñÑ.'-]*(?:[ \t]+[A-ZÑ][A-Za-zñÑ.'-]*){1,4}$/.test(line) || bad.test(line) || line.includes('•')) continue;
+      if (!/^[A-ZÑ][A-Za-zñÑ.'-]*(?:[ \t]+[A-ZÑ][A-Za-zñÑ.'-]*){1,4}$/.test(line) || bad.test(line) || line.includes('•') || PLACE.test(line) || places.has(norm(line))) continue;
       const n = cleanName(line); if (n && n.toLowerCase() !== name.toLowerCase() && !open.some((j) => norm(j.t) === norm(n)) && !extra.some((x) => x.toLowerCase() === n.toLowerCase())) extra.push(n); } }
   if (!name) { const f = (m.attachments || []).find((a) => /pdf|doc|word/i.test(a.type || a.name || '')); if (f) { const base = String(f.name).replace(/\.\w+$/, '').replace(/[_\-.]+/g, ' ').replace(/\b(resume|cv|curriculum vitae|application|updated|final|\d+)\b/gi, ' ').trim(); if (/^[a-zñ ]{3,60}$/i.test(base) && base.split(' ').length >= 2) name = titleCase(base); } }
   // contact details (Indeed relay addresses like …@indeedemail.com are kept, they forward to the applicant)
@@ -67,13 +69,14 @@ export async function ingest(m, via) {
   const jobs = s.JOBS || [];
   const p = parseApplication(m, jobs);
   if (!/indeed|jobstreet|seek|linkedin|kalibrr|appl(y|ied|icant|ication)|candidate|resume|cv\b/i.test(`${m.from} ${m.subject} ${p.text.slice(0, 2000)}`)) return { skipped: 'Not an application email' };
-  const job = p.job || jobs.find((j) => j.rf === 'general' && j.status === 'open') || jobs.find((j) => j.id === 'GEN-SF') || jobs[0];
-  if (!job) return { error: 'No jobs set up yet' };
+  const job = p.job || jobs.find((j) => j.rf === 'general' && j.status === 'open');
+  if (!job) { await q(`DELETE FROM reminders WHERE key=$1`, ['mail:' + mid]); return { error: 'Position not recognised and no open general application job — create one, then the email is retried' }; }
   const files = (m.attachments || []).map((a) => ({ name: String(a.name || 'file').slice(0, 120), type: a.type && OK_TYPES.test(a.type) ? a.type : guess(a.name), data: String(a.data || '').replace(/^data:[^,]*,/, '') }))
     .filter((a) => OK_TYPES.test(a.type) && a.data && a.data.length * 3 / 4 <= MAX && !/logo|banner|icon|image\d{3}/i.test(a.name));
   const resume = files.find((f) => /pdf|word/.test(f.type)) || files[0];
   const people = [{ name: p.name, email: p.email, phone: p.phone, withFiles: true }, ...p.extra.map((n) => ({ name: n, email: '', phone: '' }))];
   const out = [];
+  try {
   for (const person of people) {
     const mk = mobileKey(person.phone);
     const dupKey = mk.length >= 10 ? mk : person.email ? 'e:' + person.email.toLowerCase() : person.name ? 'n:' + person.name.toLowerCase() : 'm:' + mid.slice(-40);
@@ -82,10 +85,12 @@ export async function ingest(m, via) {
     const note = `Imported from ${p.src} email${via ? ' (' + via + ')' : ''}${p.job ? '' : ' — position not recognised, please set the correct job'}.${p.others ? `\nThis email listed ${p.others + 1} applicants; open it on ${p.src} for contact details.` : ''}\nSubject: ${m.subject}\n\n${p.text.slice(0, 1500)}`;
     const data = { n: person.name || `${p.src} applicant (check email)`, nick: (person.name || '').split(' ')[0], mob: person.phone, em: person.email, city: p.city || '—', prov: p.prov || '', job: job.id, src: p.src,
       exp: '—', skills: [], resume: person.withFiles && resume ? resume.name : null, review: true, inNote: note, jobGuess: !!p.job };
-    const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending',$1,$2,$3::jsonb) RETURNING id`, [job.id, dupKey, JSON.stringify(data)]))[0];
+    const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending',$1,$2,$3::jsonb) ON CONFLICT DO NOTHING RETURNING id`, [job.id, dupKey, JSON.stringify(data)]))[0];
+    if (!row) { out.push({ skipped: 'Already in BRDC Recruit', name: person.name }); continue; }
     const ref = 'C-' + (5000 + row.id); await q(`UPDATE applications SET ref=$1 WHERE id=$2`, [ref, row.id]);
     if (person.withFiles) for (const f of files.slice(0, 5)) await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,$7)`, [ref, f === resume ? 'resume' : 'Other', f.name, f.type, Math.floor(f.data.length * 3 / 4), f.data, p.src + ' email']);
     out.push({ ok: true, ref, name: data.n });
   }
+  } catch (e) { if (!out.some((x) => x.ok)) await q(`DELETE FROM reminders WHERE key=$1`, ['mail:' + mid]); throw e; }
   return { ok: true, job: job.id, source: p.src, matchedJob: !!p.job, files: files.length, added: out.filter((x) => x.ok).length, people: out };
 }

@@ -16,7 +16,7 @@ export default handle(async (req, res) => {
   if (req.method === 'PUT') {
     if (me.role === 'viewer') return send(res, 403, { error: 'Viewers cannot make changes' });
     const b = body(req); if (!b.data || typeof b.data !== 'object') return send(res, 400, { error: 'Missing data' });
-    let consumed = (Array.isArray(b.consumed) ? b.consumed : []).map(Number).filter(Number.isFinite);
+    let consumed = (Array.isArray(b.consumed) ? b.consumed : []).map(Number).filter((n) => Number.isInteger(n) && n > 0 && n < 2147483647);
     let data = b.data;
     if (S) {
       const cur = (await q(`SELECT data, version FROM app_state WHERE id='main'`))[0];

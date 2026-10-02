@@ -28,7 +28,7 @@ export default handle(async (req, res) => {
   if (b.action === 'update') {
     const role = ['hr_admin', 'hr_staff', 'viewer'].includes(b.role) ? b.role : a.role;
     if (a.role === 'hr_admin' && role !== 'hr_admin' && (await admins()) <= 1) return send(res, 400, { error: 'Keep at least one active hr_admin.' });
-    await q(`UPDATE accounts SET name=$1, first=$2, email=$3, role=$4, bu=$5 WHERE u=$6`, [b.name || a.name, String(b.name || a.name).split(' ')[0], b.email || '', role, b.bu || '—', a.u]); return send(res, 200, { ok: true });
+    await q(`UPDATE accounts SET name=$1, first=$2, email=$3, role=$4, bu=$5 WHERE u=$6`, [b.name || a.name, String(b.name || a.name).split(' ')[0], b.email !== undefined ? b.email : (a.email || ''), role, b.bu !== undefined ? (b.bu || '—') : (a.bu || '—'), a.u]); return send(res, 200, { ok: true });
   }
   if (b.action === 'status') {
     if (a.u === me.u) return send(res, 400, { error: 'You cannot disable your own account.' });

@@ -1,4 +1,5 @@
 import { q, handle, body, send, requireUser, derivedKey } from './_lib.js';
+import { scopeOf } from './_scope.js';
 import { providers, sendSms, sendEmail, interviewIcs } from './_msg.js';
 // GET: which channels are set up + recent deliveries. POST: send an SMS / email, or an interview invitation.
 const s = (v, n = 500) => String(v ?? '').trim().slice(0, n);
@@ -8,7 +9,7 @@ export default handle(async (req, res) => {
   const me = await requireUser(req);
   if (req.method === 'GET') {
     const p = providers();
-    const recent = await q(`SELECT id, channel, recipient, subject, status, error, sent_by, ref, created_at FROM outbox ORDER BY id DESC LIMIT 50`);
+    const recent = scopeOf(me) ? [] : await q(`SELECT id, channel, recipient, subject, status, error, sent_by, ref, created_at FROM outbox ORDER BY id DESC LIMIT 50`);
     const host = req.headers['x-forwarded-host'] || req.headers.host || '';
     const inbound = me.role === 'hr_admin' ? `${/localhost|127\.0\.0\.1/.test(host) ? 'http' : 'https'}://${host}/api/inbound?key=${process.env.INBOUND_KEY || derivedKey('inbound')}` : null;
     const imported = (await q(`SELECT count(*)::int n, max(created_at) last FROM reminders WHERE key LIKE 'mail:%'`))[0];
