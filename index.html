@@ -973,6 +973,8 @@ async function doLogin(e){
   if(Date.now()<lgLockUntil){lgShowErr(`Too many attempts. Try again in ${Math.ceil((lgLockUntil-Date.now())/1000)}s.`);return;}
   if(!u||!p){lgShowErr('Enter your username and password.');return;}
   btn.disabled=true;btn.innerHTML='<span class="lg-spin"></span>AUTHENTICATING';
+  if(!REMOTE&&/^https?:/.test(location.protocol)&&!/^(localhost|127\.)/.test(location.hostname)){await remoteBoot();if(REMOTE&&SESSION){render();return;}
+    if(!REMOTE){btn.disabled=false;btn.textContent='SIGN IN';lgShowErr('Could not reach the BRDC Recruit database. Check your internet connection and try again in a minute.');return;}}
   if(REMOTE)return remoteLogin(u,p,btn);
   await new Promise(r=>setTimeout(r,700));
   const a=findLogin(u);
@@ -2164,7 +2166,9 @@ function packData(){return {v:2,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST,TAR
 function unpackData(d){if(!d||!Array.isArray(d.JOBS))return false;
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST}=d);CANDS=CANDS||[];MSGS=MSGS||[];POOL=POOL||[];MPR=MPR||[];INTV=INTV||[];NOTES=NOTES||{};ACT=ACT||[];HIST=HIST||[];
   if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
-async function probeApi(){try{const r=await fetch('api/public',{cache:'no-store'});if(!r.ok)return null;const j=await r.json();return j&&j.ready?j:null;}catch(e){return null;}}
+async function probeApi(){if(!/^https?:/.test(location.protocol))return null;
+  for(let i=0;i<3;i++){try{const r=await fetch('api/public',{cache:'no-store'});if(r.ok){const j=await r.json();return j&&j.ready?j:null;}if(r.status===404)return null;}catch(e){}
+    await new Promise(z=>setTimeout(z,1200*(i+1)));}return null;}
 async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.method||'GET',cache:'no-store',headers:{'Content-Type':'application/json',...(TOKEN?{Authorization:'Bearer '+TOKEN}:{})},body:opt.body?JSON.stringify(opt.body):undefined});
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
