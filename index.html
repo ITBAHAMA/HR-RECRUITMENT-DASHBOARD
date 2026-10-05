@@ -1807,8 +1807,8 @@ function rMpr(){
     <h2>Manpower requests</h2><p class="sub">Department requests → approval → job vacancy. Approving a request opens the job automatically.</p>
     <div class="bar"><button class="btn pri" onclick="mprForm=!mprForm;render()">${mprForm?'Cancel':'+ New request'}</button></div>
     ${mprForm?`<div class="card" style="margin-bottom:14px"><h3>New manpower request</h3><div class="fg">
-      <label>Business unit<select class="inp" id="mBu" onchange="document.getElementById('mBr').innerHTML=branchOpts(this.value)">${Object.entries(BU).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label>
-      <label>Branch<select class="inp" id="mBr">${branchOpts(Object.keys(BU)[0])}</select></label>
+      <label>Business unit<select class="inp" id="mBu" onchange="document.getElementById('mBr').innerHTML=mprBrOpts(this.value)">${Object.entries(BU).map(([k,v])=>`<option value="${k}">${v}</option>`).join('')}</select></label>
+      <label>Branch<select class="inp" id="mBr">${mprBrOpts(Object.keys(BU)[0])}</select></label>
       <label>Department<input class="inp" id="mDept" placeholder="e.g. Front Office"></label>
       <label>Position<input class="inp" id="mPos" placeholder="e.g. Barista"></label>
       <label>Headcount<input class="inp" id="mHead" type="number" min="1" value="1"></label>
@@ -1820,7 +1820,15 @@ function rMpr(){
       <td>${m.status==='pending'?(admin?`<button class="btn sm pri" onclick="approveMpr('${m.id}')">Approve</button> <button class="btn sm" onclick="rejectMpr('${m.id}')">Reject</button>`:'<span class="mut">awaiting hr_admin</span>'):m.job?`<button class="btn sm" onclick="openJob('${m.job}')">Open job</button>`:esc(m.note||'')}</td></tr>`).join('')}
     </tbody></table></div></div>`);
 }
+/* default branch per business unit for manpower requests */
+const MPR_DEFAULT_BR={br:'Makati',uh:'Makati',th:'Manila'};
+function mprDefBranch(k){const d=MPR_DEFAULT_BR[k];if(!d)return null;const L=branchesOf(k).filter(b=>b.active!==false);
+  return (L.find(b=>b.n.toLowerCase()===d.toLowerCase())||L.find(b=>new RegExp('\\b'+d+'\\b','i').test(b.n+' '+(b.city||'')))||{n:d,missing:true});}
+function mprBrOpts(k){const d=mprDefBranch(k);if(!d)return branchOpts(k);let h=branchOpts(k,d.n);
+  if(d.missing)h=h.replace('<option value="__tbc"',`<option selected>${esc(d.n)}</option><option value="__tbc"`);return h;}
 function submitMpr(){const g=id=>document.getElementById(id).value.trim();if(!g('mPos')||!g('mDept')){toast('Position and department are required');return;}
+  const _bu=g('mBu'),_br=g('mBr'),_d=mprDefBranch(_bu);
+  if(_d&&_d.missing&&_br===_d.n&&!branchesOf(_bu).some(b=>b.n===_d.n)){(BRANCHES[_bu]=BRANCHES[_bu]||[]).push({id:brId(_bu),n:_d.n,city:_d.n,prov:'NCR',mgr:'',active:true});}
   const id=nextMprId();
   MPR.unshift({id,bu:g('mBu'),dept:g('mDept'),pos:g('mPos'),head:Math.max(1,+g('mHead')||1),type:g('mType'),reason:g('mWhy')||'—',br:(g('mBr')&&g('mBr')!=='__tbc')?g('mBr'):'To be confirmed',by:ME(),date:isoAgo(0),status:'pending',job:null});
   mprForm=false;log(`Submitted ${id} for approval`);toast(`${id} submitted for approval`);render();}
