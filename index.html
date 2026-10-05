@@ -2185,7 +2185,7 @@ function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsume
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
-  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
   if(!had||n)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
 async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.stringify(packData());if(s===lastSaved&&!pendingConsumed.length)return;
@@ -3155,7 +3155,21 @@ async function delAccount(u){const a=acct(u);if(!a)return;if(SESSION&&a.u===SESS
   if(REMOTE){try{await remoteAccount('delete',{u});}catch(e){toast(e.message);return;}}
   else{const n=ACCOUNTS.filter(x=>x.role==='hr_admin'&&x.status==='active').length;if(a.role==='hr_admin'&&a.status==='active'&&n<=1){toast('Keep at least one active hr_admin');return;}ACCOUNTS=ACCOUNTS.filter(x=>x.u!==u);saveAccounts();}
   audit(`Deleted account ${a.name} (${a.u})`);saveData();toast(`Account ${a.u} deleted`);render();}
-(async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+/* ===== v13: Smartfuels branch list (added once; HR can edit or remove them afterwards) ===== */
+const BRANCH_SEEDS={'sf-2026-10':{bu:'sf',list:[
+ ['SF Sta. Cruz','Sta. Cruz','Laguna'],['SF SP1','',''],['SF SP2','',''],['SF SP3','',''],['SF Pagsanjan','Pagsanjan','Laguna'],
+ ['SF Sariaya','Sariaya','Quezon'],['SF Candelaria','Candelaria','Quezon'],['SF Tanza','Tanza','Cavite'],['SF Tambo','',''],['SF Lemery','Lemery','Batangas'],
+ ['SF Marawoy','Lipa','Batangas'],['SF San Pascual','San Pascual','Batangas'],['SF Lemery 2','Lemery','Batangas'],['SF Teresa','Teresa','Rizal'],['SF Dalig','',''],
+ ['SF Baras 1','Baras','Rizal'],['SF Mayamot','Antipolo','Rizal'],['SF Tanay','Tanay','Rizal'],['SF Pasig','Pasig','NCR'],['SF Dimasalang','Manila','NCR'],
+ ['SF Abad','',''],['SF Sanmar','',''],['SF Marilao','Marilao','Bulacan'],['SF Baliuag','Baliuag','Bulacan'],['SF San Miguel','San Miguel','Bulacan'],
+ ['SF Abucay','Abucay','Bataan'],['SF Bacolor','Bacolor','Pampanga'],['SF Baliuag 2','Baliuag','Bulacan'],['SF Mexico','Mexico','Pampanga'],['SF Tarlac','Tarlac City','Tarlac'],
+ ['SF San Fernando','San Fernando','Pampanga']]}};
+function seedBranches(){if(!BRANCHES||(REMOTE&&!isAdmin()))return false;const done=Array.isArray(BRANCHES._seed)?BRANCHES._seed:[];let added=0;
+  Object.entries(BRANCH_SEEDS).forEach(([id,sd])=>{if(done.includes(id))return;const L=(BRANCHES[sd.bu]=BRANCHES[sd.bu]||[]);
+    sd.list.forEach(([n,city,prov])=>{if(L.some(b=>b.n.toLowerCase().replace(/[.\s]/g,'')===n.toLowerCase().replace(/[.\s]/g,'')))return;L.push({id:brId(sd.bu),n,city,prov,mgr:'',active:true});added++;});
+    done.push(id);});
+  BRANCHES._seed=done;if(added)log(`Added ${added} Smartfuels branches`);return true;}
+(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
 </body>
