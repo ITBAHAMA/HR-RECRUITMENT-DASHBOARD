@@ -1934,7 +1934,7 @@ function rAdm(){
       <td>${a.last?fmtDT(a.last):'<span class="mut">never</span>'}</td>
       <td class="acts"><button class="btn sm ${a.status==='pending'?'pri':''}" onclick="resetPw('${a.u}')">${a.status==='pending'?'Set temporary password':'Reset password'}</button>
         <button class="btn sm" onclick="editAccount('${a.u}')">Edit</button>
-        ${me?'':a.status==='disabled'?`<button class="btn sm" onclick="setStatus('${a.u}','active')">Enable</button>`:`<button class="btn sm" onclick="setStatus('${a.u}','disabled')" ${a.role==='hr_admin'&&nAdmins<=1?'disabled title="Keep at least one active admin"':''}>Disable</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No accounts match.</div></td></tr>'}
+        ${me?'':a.status==='disabled'?`<button class="btn sm" onclick="setStatus('${a.u}','active')">Enable</button>`:`<button class="btn sm" onclick="setStatus('${a.u}','disabled')" ${a.role==='hr_admin'&&nAdmins<=1?'disabled title="Keep at least one active admin"':''}>Disable</button>`}${me?'':` <button class="btn sm del" onclick="delAccount('${a.u}')" ${a.role==='hr_admin'&&a.status==='active'&&nAdmins<=1?'disabled title="Keep at least one active admin"':''}>Delete</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No accounts match.</div></td></tr>'}
     </tbody></table></div></div>
     <div class="hint" style="margin-top:14px">Resetting a password creates a one-time temporary password. The user must choose a new password at their next sign-in. Passwords are stored only as hashes.</div>`;
   const rolesTab=`<div class="dg2"><div class="card"><h3>Roles</h3>${Object.entries(ROLE_INFO).map(([r,d])=>`<div class="doc"><span><b>${r}</b> — ${d}</span><span class="pill mute">${ACCOUNTS.filter(a=>a.role===r).length} account(s)</span></div>`).join('')}</div>
@@ -3141,6 +3141,12 @@ async function afSendLink(id){const c=cand(id);if(!REMOTE){toast('Form links wor
     ${c.mob?`<button class="btn pri" onclick="afSmsLink(${id},${esc(JSON.stringify(sms))})">Text it to ${esc(c.mob)}</button>`:''}</div>`);}
 async function afSmsLink(id,text){const c=cand(id);try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:text,ref:candRef(c)}});toast(r.ok?'Link sent by SMS':'SMS not sent');log(`Sent application form link to ${c.n}`,c.job);saveData();closeModal();}
   catch(e){toast(e.message+' — copy the link and send it instead');}}
+/* ===== v12: delete an account ===== */
+async function delAccount(u){const a=acct(u);if(!a)return;if(SESSION&&a.u===SESSION.user){toast('You cannot delete your own account');return;}
+  if(!confirm(`Delete the account of ${a.name} (${a.u})?\n\nThey will no longer be able to sign in, and the username can be reused. Their past activity stays in the audit trail.\n\nThis cannot be undone. To block sign-in only for a while, use Disable instead.`))return;
+  if(REMOTE){try{await remoteAccount('delete',{u});}catch(e){toast(e.message);return;}}
+  else{const n=ACCOUNTS.filter(x=>x.role==='hr_admin'&&x.status==='active').length;if(a.role==='hr_admin'&&a.status==='active'&&n<=1){toast('Keep at least one active hr_admin');return;}ACCOUNTS=ACCOUNTS.filter(x=>x.u!==u);saveAccounts();}
+  audit(`Deleted account ${a.name} (${a.u})`);saveData();toast(`Account ${a.u} deleted`);render();}
 (async()=>{const ok=await remoteBoot();if(!ok)localAutoLogin();const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

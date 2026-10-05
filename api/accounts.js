@@ -35,5 +35,10 @@ export default handle(async (req, res) => {
     if (b.status === 'disabled' && a.role === 'hr_admin' && (await admins()) <= 1) return send(res, 400, { error: 'Keep at least one active hr_admin.' });
     await q(`UPDATE accounts SET status=$1 WHERE u=$2`, [b.status === 'disabled' ? 'disabled' : 'active', a.u]); return send(res, 200, { ok: true });
   }
+  if (b.action === 'delete') {
+    if (a.u === me.u) return send(res, 400, { error: 'You cannot delete your own account.' });
+    if (a.role === 'hr_admin' && a.status === 'active' && (await admins()) <= 1) return send(res, 400, { error: 'Keep at least one active hr_admin.' });
+    await q(`DELETE FROM accounts WHERE u=$1`, [a.u]); return send(res, 200, { ok: true });
+  }
   return send(res, 400, { error: 'Unknown action' });
 });
