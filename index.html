@@ -1923,7 +1923,7 @@ function rSet(){
         <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
         <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
         ${REMOTE?'':`<div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div>`}</div>
-      ${msgSetupCard()}${jobBoardCard()}
+      ${msgSetupCard()}${jobBoardCard()}${jotformCard()}
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){if(REMOTE){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(packData(),null,1)],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();return;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
@@ -3126,10 +3126,13 @@ function afSections(f,print){let h='';AF_STEPS.forEach(S=>{let rows='';
       if(t==='ack'){rows+=`<tr><td>${esc(it.l)}</td><td>${f.ack?'✓ Yes':'—'}</td></tr>`;return;}
       rows+=`<tr><td>${esc(it.l)}</td><td>${esc(afText(f[it.k]))}</td></tr>`;
       if(it.then&&f[it.k]===it.then.v)rows+=`<tr><td>${esc(it.then.l)}</td><td>${esc(afText(f[it.then.k]))}</td></tr>`;});
-    h+=`<section class="afsect"><h4>${S.sec?S.sec+'. ':''}${esc(S.t)}</h4><table class="afkv">${rows}</table></section>`;});return h;}
+    h+=`<section class="afsect"><h4>${S.sec?S.sec+'. ':''}${esc(S.t)}</h4><table class="afkv">${rows}</table></section>`;});
+  if(Array.isArray(f._other)&&f._other.length)h+=`<section class="afsect"><h4>Other answers (Jotform)</h4><table class="afkv">${f._other.map(([l,v])=>`<tr><td>${esc(l)}</td><td>${esc(v)}</td></tr>`).join('')}</table></section>`;
+  if(!print&&Array.isArray(f._missing)&&f._missing.length)h+=`<section class="afsect"><h4>Files not copied from Jotform</h4><table class="afkv">${f._missing.map(m=>`<tr><td>${esc(m.kind.replace('_',' '))}</td><td><a href="${esc(m.url)}" target="_blank" rel="noopener">Open in Jotform</a> <span class="mut">(${esc(m.why)})</span></td></tr>`).join('')}</table></section>`;
+  return h;}
 function appFormCard(c){const ref=candRef(c),st=AFC[ref];if(!st)setTimeout(()=>loadAppForm(c),0);const f=st&&st.form;
   return `<div class="card" style="margin-bottom:12px"><div class="ch"><h3>Application for Employment</h3>${f?`<span class="pill green">filled ${st.at?fmtD(String(st.at).slice(0,10)):''}</span>`:''}</div>
-    ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">Submitted by the applicant${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
+    ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">${f._source==='Jotform'?'Imported from Jotform':'Submitted by the applicant'}${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
       <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendLink(${c.id})">Send link to update</button>`:''}</div>`
     :`<p class="sub">Not filled yet. Send the applicant a link to the full application form (personal information, family, education, employment history, references, signature).</p>${canEdit()?`<button class="btn pri" onclick="afSendLink(${c.id})">Send application form link</button>`:''}`}</div>`;}
 function afView(id){const c=cand(id),f=(AFC[candRef(c)]||{}).form;if(!f)return;
@@ -3240,6 +3243,36 @@ document.addEventListener('click',e=>{const t=e.target.closest(ANIM_TRIGGERS);if
     if(inTabs){const tb=scr.querySelector(inTabs.classList.contains('brtabs')?'.brtabs':'.tabs');let n=tb&&tb.nextElementSibling,list=[];while(n&&list.length<6){if(n.offsetParent!==null)list.push(n);n=n.nextElementSibling;}
       const tp=scr.querySelector('.tp.on');if(tp)list=[...tp.children];animIn(list.length?list:[scr]);return;}
     const root=scr.querySelector('.pad')||scr.querySelector('main')||scr;animIn(root.children.length>1?root.children:[root]);},0);},true);
+/* ===== v15: Jotform connection (Settings card) ===== */
+let JOT={loaded:false};
+async function loadJot(){if(!REMOTE||!isAdmin()||JOT.loading)return;JOT.loading=1;try{JOT={...(await api('jotform?status=1')),loaded:true};}catch(e){JOT={loaded:true,err:e.message};}if(cur==='s-set')renderSafe();}
+function jotformCard(){if(!isAdmin())return '';if(!REMOTE)return `<div class="card" style="margin-top:12px"><h3>Jotform — Application for Employment</h3><p class="mut">Works on the shared-database site.</p></div>`;
+  if(!JOT.loaded){setTimeout(loadJot,0);return `<div class="card" style="margin-top:12px"><h3>Jotform — Application for Employment</h3><p class="mut">Loading…</p></div>`;}
+  const st=JOT.status||{};
+  return `<div class="card" style="margin-top:12px"><div class="ch"><h3>Jotform — Application for Employment</h3>${JOT.configured?(st.ok===false?'<span class="pill red">error</span>':'<span class="pill green">connected</span>'):'<span class="pill mute">not connected</span>'}</div>
+    ${JOT.err?`<p class="mut">${esc(JOT.err)}</p>`:JOT.configured?`<p class="sub">Form ${esc(JOT.form)} · checked every 5 minutes and right after each submission. New submissions become candidates with the full application form and files.</p>
+      <p style="font-size:13px">${st.at?`Last check: <b>${fmtDT(st.at)}</b>`:'Not checked yet'}${st.totalImported?` · ${st.totalImported} imported so far`:''}${st.total!=null?` · ${st.total} submissions in Jotform`:''}</p>
+      ${st.ok===false?`<div class="ferr on" style="display:block">${esc(st.error||'')}${/401|key|unauthor/i.test(st.error||'')?' — check JOTFORM_API_KEY in Vercel.':''}</div>`:''}
+      ${(st.errors||[]).length?`<div class="hint" style="margin:8px 0">${st.errors.map(esc).join('<br>')}</div>`:''}
+      <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn pri" id="jotSync" onclick="syncJot(false)">Check now</button><button class="btn" id="jotAll" onclick="syncJot(true)">Import all past submissions</button></div>
+      <details style="margin-top:12px"><summary style="cursor:pointer;font-weight:600">Instant import (optional) — Jotform webhook</summary>
+        <p class="mut" style="margin:6px 0">In Jotform open the form → Settings → Integrations → <b>Webhooks</b>, paste this link and save. Submissions then arrive within seconds instead of up to 5 minutes.</p>
+        <div style="display:flex;gap:6px"><input class="inp" style="flex:1" readonly value="${esc(JOT.webhook)}" onclick="this.select()"><button class="btn" onclick="copyText(${esc(JSON.stringify(JOT.webhook))},'Webhook link copied')">Copy</button></div></details>`
+    :`<p class="sub">Bring submissions of your Jotform <b>Application for Employment</b> into BRDC Recruit automatically.</p>
+      <ol style="font-size:13px;line-height:1.7;padding-left:18px;margin:8px 0">
+        <li>In Jotform: your avatar → <b>Settings</b> → <b>API</b> → <b>Create new key</b> (permission: Read access). Copy the key.</li>
+        <li>In Vercel: project → Settings → <b>Environment Variables</b> → add <code>JOTFORM_API_KEY</code> = the key (Production). Do not paste it anywhere else.</li>
+        <li>Redeploy (Deployments → ⋯ → Redeploy), then come back here and click <b>Import all past submissions</b>.</li></ol>
+      <p class="mut" style="font-size:12px">Form ID used: ${esc(JOT.form)} (change with <code>JOTFORM_FORM_ID</code> if needed).</p>`}</div>`;}
+async function syncJot(all){const b=document.getElementById(all?'jotAll':'jotSync');if(b){b.disabled=true;b.textContent=all?'Importing…':'Checking…';}
+  let tot=0,skip=0,offset=0,errs=[],guard=0;
+  try{do{const r=await api('jotform',{method:'POST',body:{all,offset}});if(r.error)throw new Error(r.error);if(r.configured===false)throw new Error('Jotform is not connected yet');
+      tot+=r.imported||0;skip+=r.skipped||0;errs.push(...(r.errors||[]));offset=r.offset||0;if(b&&all)b.textContent=`Importing… ${tot} added`;
+      if(r.done)break;}while(++guard<60);
+    toast(tot?`${tot} application${tot>1?'s':''} imported from Jotform`:`No new Jotform submissions${skip?` (${skip} already in BRDC Recruit)`:''}`);
+    if(tot){try{await loadRemote(true);}catch(e){}}}
+  catch(e){toast(e.message);}
+  JOT.loaded=false;JOT.loading=0;loadJot();if(errs.length)setTimeout(()=>toast(errs[0]),2500);render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

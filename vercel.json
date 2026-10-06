@@ -7,10 +7,17 @@
     {
       "path": "/api/mailcheck",
       "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/jotform",
+      "schedule": "*/5 * * * *"
     }
   ],
   "functions": {
     "api/mailcheck.js": {
+      "maxDuration": 60
+    },
+    "api/jotform.js": {
       "maxDuration": 60
     }
   }
