@@ -1359,7 +1359,7 @@ function rProf(){
           <dt>Mobile</dt><dd>${esc(c.mob)} <a class="lnk" style="font-size:12px" onclick="copyText('${esc(c.mob)}','Mobile number copied')">copy</a></dd>
           <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
           <dt>Location</dt><dd>${esc([c.city,c.prov].filter(x=>x&&x!=='—').join(', ')||'—')}</dd>
-          <dt>Applied for</dt><dd>${esc(j.t)} · ${BU[j.bu]||''} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':''} <span class="pill"><span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)} · ${c.days}d</span></dd>
+          <dt>Applied for</dt><dd>${esc(j.t)} · ${BU[j.bu]||''} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':''} <span class="pill"><span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)} · ${stageAge(c)}</span></dd>
           <dt>Source</dt><dd>${esc(c.src)}</dd><dt>Received via</dt><dd>${originHtml(c)}</dd>
           ${c.salary?`<dt>Expected salary</dt><dd>₱ ${esc(c.salary)}</dd>`:''}${c.avail?`<dt>Available</dt><dd>${fmtD(c.avail)}</dd>`:''}${resumeRow(c)}
           <dt>Owner</dt><dd>${c.owner?esc(c.owner):`<button class="btn sm" onclick="claim(${c.id})">Claim</button>`}</dd>
@@ -1667,7 +1667,7 @@ function openJob(id){curJob=id;jobTab='cands';go('s-job');}
 function moveTo(id,stage){const c=cand(id);if(!c||c.stage===stage)return;const from=stageName(c.stage);
   if(stage==='hired'&&!['hired','onboarding'].includes(c.stage)){const j=job(c.job);j.filled=(j.filled||0)+1;c.start=localISO(new Date(isoIn(7)));c.onb=ONB_ITEMS.map(()=>false);if(j.filled>=j.head&&j.rf!=='general'){j.status='filled';toast(`${j.id} is now fully staffed`);}}
   if(stage==='onboarding'&&!c.onb){c.onb=ONB_ITEMS.map(()=>false);c.start=isoAgo(0);}
-  c.stage=stage;c.since=isoAgo(0);log(`Moved ${c.n} from ${from} to ${stageName(stage)}`,c.job);
+  c.stage=stage;c.since=isoAgo(0);c.stageAt=new Date().toISOString();log(`Moved ${c.n} from ${from} to ${stageName(stage)}`,c.job);
   toast(`${c.nick||c.n} → ${stageName(stage)} · SLA clock reset`);render();}
 function ccard(c){const f=fitParts(c), role=(c.exp||'—').split(/[;(]/)[0].trim(), at=role.includes('–')?role.split('–'):[role,''];
   return `<div class="ccard ${c.late?'late':''}" draggable="true" ondragstart="dragId=${c.id};this.classList.add('drag')" ondragend="this.classList.remove('drag')" onclick="openCand(${c.id})">
@@ -1676,7 +1676,7 @@ function ccard(c){const f=fitParts(c), role=(c.exp||'—').split(/[;(]/)[0].trim
         <div class="cttl">${esc(at[0].trim())}${at[1]?`<br><span class="mut">@ ${esc(at[1].trim())}</span>`:''}</div></div>
       <div class="cico"><span data-tip="Expected salary within range">${ic('peso')}</span><span class="${c.docs?'has':''}" data-tip="${c.docs?'Documents submitted':'Resume on file'}">${ic('doc')}</span></div></div>
     <div class="cfoot"><span class="match" style="background:${fitCol(f.total)}" data-tip="<b>Fit score ${f.total}/100</b><br>Skills ${f.sk}/50 · Assessment ${f.as}/30 · Location ${f.lo}/20">${f.total}%</span>
-      <span data-tip="Days in this stage${c.late?' — over SLA':''}" ${c.late?'style="color:#B3352F;font-weight:600"':''}>${ic('clock')} ${c.days}d</span>
+      <span data-tip="Days in this stage${c.late?' — over SLA':''}" ${c.late?'style="color:#B3352F;font-weight:600"':''}>${ic('clock')} ${stageAge(c)}</span>
       <span data-tip="Source · received via ${esc(candOrigin(c).via)} ${fmtD(String(candOrigin(c).at||'').slice(0,10))}">${ic('bolt')} ${esc(c.src)}</span><span class="eye">${ic('eye')}</span></div></div>`;}
 function rJob(){
   const j=job(curJob), all=CANDS.filter(c=>c.job===curJob&&c.stage!=='draft');
@@ -1739,7 +1739,7 @@ function rPipe(){
   document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
     <h2>Candidates</h2><p class="sub">${list.length} of ${CANDS.length} candidates · click a column to sort</p>
     <div class="bar">
-      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="bulkResumes()">📄 Upload resumes (PDF)</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>`:''}<input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
+      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="bulkResumes()">📄 Upload resumes (PDF)</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>${REMOTE?`<button class="btn" id="jotNow" onclick="jotCheckNow()" title="Get new Jotform applications now">🔄 Check Jotform</button>`:''}`:''}<input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
       <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
       <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
@@ -1755,7 +1755,7 @@ function rPipe(){
       <td><div style="display:flex;gap:10px;align-items:center"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><div class="mut">${esc(c.mob)} · ${esc(c.city)}</div></span></div></td>
       <td>${esc(job(c.job).t)}<div class="mut">${c.job} · ${BU[job(c.job).bu]}</div></td>
       <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
-      <td>${c.late?`<span class="pill red">${c.days}d · over SLA</span>`:`<span class="pill mute">${c.days}d</span>`}</td>
+      <td>${c.late?`<span class="pill red">${stageAge(c)} · over SLA</span>`:`<span class="pill mute" data-tip="In this stage since ${esc(fmtWhen(stageStart(c)||c.since))}">${stageAge(c)}</span>`}</td>
       <td><span class="match" style="background:${fitCol(f.total)}">${f.total}%</span></td>
       <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
     </tbody></table></div></div>`);
@@ -1882,7 +1882,7 @@ function rInt(){
 }
 function schedInt(){const cid=+document.getElementById('iC').value,w=document.getElementById('iW').value;if(!cid||!w){toast('Pick a candidate and time');return;}
   const t=document.getElementById('iT').value;INTV.push({id:Math.max(0,...INTV.map(i=>i.id))+1,cid,type:t,when:new Date(w).toISOString(),interviewer:document.getElementById('iI').value,loc:document.getElementById('iL').value,status:'scheduled',score:null,result:null,remarks:''});
-  const c=cand(cid),k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);}
+  const c=cand(cid),k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);c.stageAt=new Date().toISOString();}
   MSGS.unshift({id:Date.now(),cand:c.n,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),body:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(new Date(w).toISOString())} (${document.getElementById('iL').value}) for ${job(c.job).t}. Please reply to confirm.`});
   intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);toast('Interview scheduled · invitation queued in Messages');render();}
 function markDone(id){INTV.find(i=>i.id===id).status='done';intTab='await';render();}
@@ -2054,7 +2054,7 @@ function rRepOverview(){
    ============================================================ */
 function openCand(id){curCand=id;profTab='app';RECENT=[id,...RECENT.filter(x=>x!==id)].slice(0,4);go('s-prof');}
 function claim(id){const c=cand(id);c.owner=ME();log(`${ME()} claimed ${c.n}`,c.job);toast(`${c.nick||c.n} assigned to you`);render();}
-function advance(id){const c=cand(id);if(c.stage==='draft'){c.stage='new';c.since=isoAgo(0);log(`${c.n} submitted application`,c.job);render();return;}
+function advance(id){const c=cand(id);if(c.stage==='draft'){c.stage='new';c.since=isoAgo(0);c.stageAt=new Date().toISOString();log(`${c.n} submitted application`,c.job);render();return;}
   const i=STAGES.findIndex(s=>s.k===c.stage);if(i<STAGES.length-1){moveTo(id,STAGES[i+1].k);}else{toast('Already in onboarding — complete it from the Onboarding page');}}
 function render(){
   if(!SESSION&&!PUBLIC_SCREENS.includes(cur)&&document.body.classList.contains('public')){document.body.classList.remove('public');cur='s-dash';history.replaceState(null,'',location.pathname);logout();}
@@ -2194,7 +2194,7 @@ async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.meth
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
 function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
-  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||null,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||new Date(a.created_at).toISOString(),review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
@@ -2470,7 +2470,7 @@ async function schedInt(){const cid=+document.getElementById('iC').value,w=docum
   if(!iv){toast('Enter the interviewer');return;}if(ive&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ive)){toast('Check the interviewer email');return;}
   intMinutes=+document.getElementById('iD').value||60;const notify=readNotify('i'),c=cand(cid),when=new Date(w).toISOString();
   const i={id:nextIntvId(),cid,bu:job(c.job).bu,type:t,when,minutes:intMinutes,interviewer:iv,ivEmail:ive,loc,status:'scheduled',score:null,result:null,remarks:''};INTV.push(i);
-  const k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);}
+  const k={"HR interview":"hr_int","Department interview":"dept_int","Final interview":"final"}[t];if(STAGES.findIndex(s=>s.k===c.stage)<STAGES.findIndex(s=>s.k===k)){c.stage=k;c.since=isoAgo(0);c.stageAt=new Date().toISOString();}
   const msgId=Date.now();MSGS.unshift({id:msgId,cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl:"Interview invitation",lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),
     body:c.lang==='tl'?`Hi ${c.nick}, naka-schedule po kayo para sa ${t.toLowerCase()} sa ${fmtDT(when)} (${loc}) para sa ${job(c.job).t}. Magdala po ng valid ID. Pakireply para kumpirmahin. - BRDC HR`:`Hi ${c.nick}, you are scheduled for a ${t.toLowerCase()} on ${fmtDT(when)} (${loc}) for ${job(c.job).t}. Please bring a valid ID and reply to confirm. - BRDC HR`});
   intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);
@@ -3331,12 +3331,29 @@ function candOrigin(c){const ns=c.notes||[],t=ns.map(n=>n.text||'').join('\n'),b
   else if(/^C-5\d{3,}$/.test(c.ref||''))via='Careers page';
   else via='Added by HR';
   via=via.trim().replace(/^ email$/,'Email');
-  if(!at)at=c.applied||c.since||null;
+  if(!at){const n0=(c.notes||[]).find(n=>n.at&&String(n.at).length>10);at=n0?n0.at:(c.applied||c.since||null);}
   if(c.jotDone&&via!=='Jotform')via+=' + Jotform form';
   return {via,at};}
-function originHtml(c,short){const o=candOrigin(c),d=o.at?fmtD(String(o.at).slice(0,10)):'';
+function fmtWhen(iso){if(!iso)return '';const s=String(iso);if(s.length<=10)return fmtD(s);const d=new Date(s);return d.toLocaleDateString('en-PH',{day:'numeric',month:'short',year:'numeric'})+', '+d.toLocaleTimeString('en-PH',{hour:'numeric',minute:'2-digit'});}
+function originHtml(c,short){const o=candOrigin(c),d=fmtWhen(o.at);
   const ic=/Jotform/.test(o.via)?'📝':/email/i.test(o.via)?'✉️':/Careers/.test(o.via)?'🌐':/PDF|File/.test(o.via)?'📄':'👤';
   return `${short?'':ic+' '}${short?'via ':''}<b>${esc(o.via)}</b>${d?` · ${d}`:''}${!short&&c.jotDone&&!/^Jotform$/.test(o.via)?` <span class="mut">(form received ${fmtD(String(c.jotDone).slice(0,10))})</span>`:''}`;}
+function stageStart(c){const ok=t=>t&&String(t).length>10&&!isNaN(Date.parse(t))&&(!c.since||localISO(new Date(t))>=c.since);if(ok(c.stageAt))return c.stageAt;if(c.stage==='new'){const o=candOrigin(c);if(ok(o.at))return o.at;}return null;}
+function stageAge(c){if(c.days>0)return c.days+'d';const t=stageStart(c);if(!t)return 'today';const m=Math.max(0,Math.round((Date.now()-Date.parse(t))/60000));
+  return m<1?'just now':m<60?m+'m':m<60*24?Math.floor(m/60)+'h'+(m%60&&m<600?' '+(m%60)+'m':''):c.days+'d';}
+/* ===== v18: Check Jotform now (Candidates screen) ===== */
+async function jotCheckNow(){const b=document.getElementById('jotNow');if(b){b.disabled=true;b.textContent='Checking Jotform…';}
+  const before=CANDS.length,formsBefore=CANDS.filter(c=>c.form).length;
+  try{const r=await api('jotform',{method:'POST',body:{}});
+    if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
+    if(r.error)throw new Error('Jotform: '+r.error);
+    await loadRemote(true);
+    const added=CANDS.length-before,forms=CANDS.filter(c=>c.form).length-formsBefore;
+    toast(r.throttled?'Jotform was checked less than 2 minutes ago — try again shortly':
+      (added||forms||r.imported||r.attached)?`Jotform: ${added?added+' new applicant'+(added>1?'s':''):''}${added&&forms?' · ':''}${forms?forms+' form'+(forms>1?'s':'')+' added to existing candidates':''}${!added&&!forms?'updated':''}`:'No new Jotform applications');
+    if((r.errors||[]).length)setTimeout(()=>toast(r.errors[0]),2500);}
+  catch(e){toast(e.message);}
+  render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
