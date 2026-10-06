@@ -1,4 +1,4 @@
-import { q, handle, body, send, mobileKey, sign, verify } from './_lib.js';
+import { q, handle, body, send, mobileKey, sign, verify, rateLimit } from './_lib.js';
 import { cleanForm, UP_KINDS } from './_form.js';
 import { providers, sendSms, sendEmail } from './_msg.js';
 const MAX_BYTES = 3 * 1024 * 1024;
@@ -16,8 +16,10 @@ export default handle(async (req, res) => {
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
   const b = body(req);
   if (b.action === 'status') {
+    await rateLimit(req, 'status', 60);
     const qv = str(b.q, 40), mk = mobileKey(qv);
-    const inCands = (s.CANDS || []).filter((c) => c.stage !== 'draft' && ((c.ref || '').toLowerCase() === qv.toLowerCase() || (mk.length >= 10 && mobileKey(c.mob) === mk)));
+    if (qv.length < 4) return send(res, 400, { error: 'Enter your reference number or mobile number.' });
+    const inCands = (s.CANDS || []).filter((c) => c.stage !== 'draft' && ((c.ref || 'C-' + (2000 + c.id)).toLowerCase() === qv.toLowerCase() || (mk.length >= 10 && mobileKey(c.mob) === mk)));
     const jt = (id) => ((s.JOBS || []).find((j) => j.id === id) || {}).t || 'Application';
     const out = inCands.map((c) => ({ ref: c.ref || 'C-' + (2000 + c.id), job: jt(c.job), status: STAGE_TXT[c.stage] || 'Under review', since: c.since }));
     const inbox = await q(`SELECT ref, job, created_at FROM applications WHERE lower(ref)=lower($1) OR ($2 <> '' AND mobile_key=$2)`, [qv, mk.length >= 10 ? mk : '']);
@@ -25,6 +27,7 @@ export default handle(async (req, res) => {
     return send(res, 200, { results: out });
   }
   if (b.action === 'apply') {
+    await rateLimit(req, 'apply', 60);
     const a = b.app || {}; const job = (s.JOBS || []).find((j) => j.id === a.job && j.status === 'open');
     if (!job) return send(res, 400, { error: 'This position is no longer open.' });
     if (!str(a.n) || !str(a.city) || !str(a.prov) || !str(a.src)) return send(res, 400, { error: 'Please fill in all required fields.' });
@@ -58,6 +61,7 @@ export default handle(async (req, res) => {
 
   // Application for Employment — files sent after the form (photo, ID, map, resume, signature)
   if (b.action === 'upload') {
+    await rateLimit(req, 'upload', 400);
     const t = verify(String(b.tok || '')); if (!t || t.kind !== 'form') return send(res, 401, { error: 'This upload link has expired. Please contact BRDC HR.' });
     const kind = UP_KINDS.includes(b.kind) ? b.kind : null; if (!kind) return send(res, 400, { error: 'Unknown document type' });
     const f = b.file || {}; const b64 = String(f.data || '').replace(/^data:[^,]*,/, '');
@@ -72,6 +76,7 @@ export default handle(async (req, res) => {
   }
   // Form link sent by HR to an existing candidate (walk-in, Jobstreet, imported …)
   if (b.action === 'formload' || b.action === 'formsubmit') {
+    await rateLimit(req, 'form', 100);
     const t = verify(String(b.tok || '')); if (!t || t.kind !== 'formlink') return send(res, 401, { error: 'This application form link has expired or is not valid. Please ask BRDC HR for a new link.' });
     const c = (s.CANDS || []).find((x) => (x.ref || 'C-' + (2000 + x.id)) === t.ref);
     let info = c ? { n: c.n, nick: c.nick, mob: c.mob, em: c.em, job: c.job } : null;

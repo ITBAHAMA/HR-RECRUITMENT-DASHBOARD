@@ -59,7 +59,7 @@ export async function checkMailbox({ days = 3, max = 25, manual = false } = {}) 
           attachments: (p.attachments || []).filter((a) => a.size <= 3 * 1024 * 1024).map((a) => ({ name: a.filename || 'file', type: a.contentType, data: a.content.toString('base64') })) };
         const r = await ingest(m, 'Zoho mailbox');
         res.checked++; if (r.added) { res.added += r.added; res.people.push(...r.people.filter((x) => x.ok).map((x) => x.name)); } else res.skipped++;
-        done.add(`${client.mailbox.uidValidity}:${uid}`);
+        if (!r.error) done.add(`${client.mailbox.uidValidity}:${uid}`);
       }
       await setKv('imap:done', [...done].slice(-3000));
     } finally { lock.release(); }
@@ -84,7 +84,7 @@ export async function checkMailbox({ days = 3, max = 25, manual = false } = {}) 
 export default handle(async (req, res) => {
   const auth = req.headers.authorization || '';
   const trustedCron = !!process.env.CRON_SECRET && auth === 'Bearer ' + process.env.CRON_SECRET;
-  const cron = trustedCron || (!process.env.CRON_SECRET && /vercel-cron/i.test(req.headers['user-agent'] || ''));
+  const cron = trustedCron;
   const tok = verify(auth.replace(/^Bearer\s+/i, ''));
   const admin = tok && tok.kind === 'session' && ((await q(`SELECT role FROM accounts WHERE u=$1 AND status='active'`, [tok.u]))[0] || {}).role === 'hr_admin';
   if (req.method === 'GET' && admin && new URL(req.url || '/', 'http://x').searchParams.get('status')) {

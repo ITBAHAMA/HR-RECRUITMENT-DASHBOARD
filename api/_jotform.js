@@ -105,6 +105,7 @@ export function mapSubmission(sub) {
     if (!m && /fileupload/.test(x.type || '')) { const k = f._files && f._files.includes('photo') ? 'other' : 'photo'; asList(raw).filter((u) => /^https?:\/\//.test(u)).forEach((u) => files.push({ kind: k, url: u })); f._files = [...new Set([...(f._files || []), k])]; continue; }
     if (!m) { other.push([x.text.replace(/<[^>]+>/g, '').trim(), asText(pretty || raw)]); continue; }
     const [, key, kind] = m;
+    if (kind === 'file' && !/fileupload|signature/.test(x.type || '')) { other.push([String(x.text || x.name).replace(/<[^>]+>/g, '').trim(), asText(pretty || raw)]); continue; }
     if (kind === 'file') { asList(raw).filter((u) => /^https?:\/\//.test(u)).forEach((u) => files.push({ kind: key, url: u })); f._files = [...new Set([...(f._files || []), key])]; continue; }
     if (kind === 'name') { const o = typeof raw === 'object' ? raw : {}; f.name = typeof raw === 'object' ? { first: asText(o.first), middle: asText(o.middle), last: asText(o.last) } : (() => { const p = asText(raw).split(/\s+/); return { first: p.slice(0, -1).join(' ') || p[0], middle: '', last: p.length > 1 ? p[p.length - 1] : '' }; })(); }
     else if (kind === 'date') f[key] = asDate(raw, pretty);
@@ -139,7 +140,11 @@ function matchJob(jobs, f) {
   return null;
 }
 async function fetchFile(url, key) {
-  const u = new URL(url); if (/jotform\.(com|eu)$/.test(u.hostname) && key) u.searchParams.set('apiKey', key);
+  const u = new URL(url);
+  const jf = /^(?:[a-z0-9-]+\.)*jotform\.(com|eu)$/i.test(u.hostname) || globalThis.__mockJotform;
+  if (u.protocol !== 'https:' && !globalThis.__mockJotform) throw new Error('not a Jotform file link');
+  if (!jf) throw new Error('not a Jotform file link');
+  if (key && !globalThis.__mockJotform) u.searchParams.set('apiKey', key);
   const r = await fetch(u, { redirect: 'follow' }); if (!r.ok) throw new Error('HTTP ' + r.status);
   const buf = Buffer.from(await r.arrayBuffer()); if (buf.length > MAX) throw new Error('larger than 3 MB');
   let type = (r.headers.get('content-type') || '').split(';')[0].trim();
@@ -161,30 +166,40 @@ async function api(cfg, path) {
 const refOfC = (c) => c.ref || 'C-' + (2000 + c.id);
 const nk = (x) => norm(x).replace(/\b(jr|sr|ii|iii)\b/g, '').replace(/\s+/g, ' ').trim();
 async function findExisting(s, form, sm, mk) {
-  const cands = (s.CANDS || []).filter((c) => c.stage !== 'draft');
+  const all = (s.CANDS || []).filter((c) => c.stage !== 'draft');
+  const open = all.filter((c) => !['hired', 'onboarding'].includes(c.stage)); // never touch hired staff records by loose matches
   const pick = (l) => l.sort((a, b) => String(b.jotSent || '').localeCompare(String(a.jotSent || '')) || String(b.applied || '').localeCompare(String(a.applied || '')))[0];
+  const nm = form.name || {}, full = nk(sm.n), fl = nk(`${nm.first || ''} ${nm.last || ''}`), fw = fl.split(' ');
+  const sameName = (x) => { const cn = nk(x.n); if (!cn) return false; const cw = cn.split(' '); return cn === full || cn === fl || (cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1]); };
+  const sameMob = (x) => mk.length >= 10 && mobileKey(x.mob) === mk, sameEm = (x) => !!sm.em && (x.em || '').toLowerCase() === sm.em.toLowerCase();
+  // the reference in the link is only trusted when the person also matches (mobile, email or name)
   const bref = String(form.brdcRef || '').trim().toUpperCase();
-  let c = bref && cands.find((x) => refOfC(x).toUpperCase() === bref);
-  if (!c && mk.length >= 10) c = pick(cands.filter((x) => mobileKey(x.mob) === mk));
-  if (!c && sm.em) c = pick(cands.filter((x) => (x.em || '').toLowerCase() === sm.em.toLowerCase()));
-  if (!c) { const nm = form.name || {}, full = nk(sm.n), fl = nk(`${nm.first || ''} ${nm.last || ''}`), fw = fl.split(' ');
-    c = pick(cands.filter((x) => { if (!x.jotSent) return false; const cn = nk(x.n); if (!cn) return false; const cw = cn.split(' ');
-      return cn === full || cn === fl || (cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1]); })); }
+  let c = bref && open.find((x) => refOfC(x).toUpperCase() === bref && (sameMob(x) || sameEm(x) || sameName(x)));
+  if (!c && mk.length >= 10) c = pick(open.filter(sameMob));
+  if (!c && sm.em) c = pick(open.filter(sameEm));
+  if (!c) c = pick(open.filter((x) => x.jotSent && sameName(x)));
   if (c) return { ref: refOfC(c) };
   if (mk.length >= 10) { const a = (await q(`SELECT ref FROM applications WHERE mobile_key=$1 AND ref <> 'pending' ORDER BY id DESC LIMIT 1`, [mk]))[0]; if (a) return { ref: a.ref }; }
   return null;
 }
-async function attach(ref, form, files, cfg, out) {
+async function attach(ref, form, files, cfg) {
+  form._attached = true;
+  let clean = cleanForm(form); // checks the size before anything is written
+  const prev = (await q(`SELECT data, updated_at FROM forms WHERE ref=$1`, [ref]))[0];
+  if (prev && !(prev.data && prev.data._jotform && prev.data._jotform.id === form._jotform.id)) {
+    // keep the earlier answers instead of overwriting them
+    await q(`INSERT INTO forms (ref, data, updated_at) VALUES ($1, $2::jsonb, $3) ON CONFLICT (ref) DO NOTHING`, [`${ref}~${new Date(prev.updated_at).getTime()}`, JSON.stringify(prev.data), prev.updated_at]);
+    form._updatedFrom = new Date(prev.updated_at).toISOString();
+  }
   const missing = [];
   for (const fl of files.slice(0, 8)) {
     try { const d = await fetchFile(fl.url, cfg.key);
-      if (fl.kind === 'photo' || fl.kind === 'signature') await q(`DELETE FROM files WHERE ref=$1 AND kind=$2 AND uploaded_by='Jotform'`, [ref, fl.kind]);
       await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,'Jotform')`, [ref, fl.kind, d.name, d.type, d.size, d.b64]); }
     catch (e) { missing.push({ kind: fl.kind, url: fl.url, why: String(e.message || e).slice(0, 80) }); }
   }
   if (missing.length) form._missing = missing;
-  form._attached = true;
-  await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [ref, JSON.stringify(cleanForm(form))]);
+  try { clean = cleanForm(form); } catch { /* keep the version without the missing-file list */ }
+  await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [ref, JSON.stringify(clean)]);
 }
 
 /* Import new submissions. all=true walks back through every past submission (in pages). */
@@ -205,11 +220,11 @@ export async function syncJotform({ all = false, max = 8, offset = 0 } = {}) {
       processed++;
       if (!seen.length) { out.skipped++; continue; }
       try {
-        const { form, files } = mapSubmission(sub); const sm = summary(form); const jm = matchJob(jobs, form); const job = jm || gen;
+        const { form, files } = mapSubmission(sub); cleanForm(form); const sm = summary(form); const jm = matchJob(jobs, form); const job = jm || gen;
         if (!job) { await q(`DELETE FROM reminders WHERE key=$1`, ['jot:' + sub.id]); out.errors.push(`#${sub.id}: no open job matches “${form.position || '?'}” and there is no general application job`); continue; }
         const mk = mobileKey(sm.mob); const dupKey = mk.length >= 10 ? mk : sm.em ? 'e:' + sm.em.toLowerCase() : 'j:' + sub.id;
         const hit = await findExisting(s, form, sm, mk);
-        if (hit) { await attach(hit.ref, form, files, cfg, out); out.attached = (out.attached || 0) + 1; continue; }
+        if (hit) { await attach(hit.ref, form, files, cfg); out.attached = (out.attached || 0) + 1; continue; }
         const dupState = (s.CANDS || []).some((c) => c.job === job.id && ((mk.length >= 10 && mobileKey(c.mob) === mk) || (sm.em && (c.em || '').toLowerCase() === sm.em.toLowerCase())));
         if (dupState) { out.skipped++; continue; }
         const data = { ...sm, n: sm.n || 'Jotform applicant', job: job.id, form: true, review: true, via: 'Jotform', viaAt: sub.created_at ? new Date(String(sub.created_at).replace(' ', 'T') + '+08:00').toISOString() : new Date().toISOString(), jobGuess: !!jm, resume: null,
@@ -226,7 +241,7 @@ export async function syncJotform({ all = false, max = 8, offset = 0 } = {}) {
         if (missing.length) form._missing = missing;
         await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [ref, JSON.stringify(cleanForm(form))]);
         out.imported++;
-      } catch (e) { await q(`DELETE FROM reminders WHERE key=$1`, ['jot:' + sub.id]); out.errors.push(`#${sub.id}: ${String(e.message || e).slice(0, 120)}`); }
+      } catch (e) { if (e.status !== 413) await q(`DELETE FROM reminders WHERE key=$1`, ['jot:' + sub.id]); out.errors.push(`#${sub.id}: ${String(e.message || e).slice(0, 120)}`); }
     }
     if (all) { out.offset = offset + (out.done ? subs.length : processed); out.done = out.done && subs.length < 50; }
     await setKv('jot:status', { ok: true, at: new Date().toISOString(), lastImported: out.imported ? new Date().toISOString() : st.lastImported || null, totalImported: (st.totalImported || 0) + out.imported, totalAttached: (st.totalAttached || 0) + (out.attached || 0), total: out.total, errors: out.errors.slice(0, 5), form: cfg.form });

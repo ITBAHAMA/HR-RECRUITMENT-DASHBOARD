@@ -84,3 +84,12 @@ export function send(res, status, data) { res.statusCode = status; res.setHeader
 export function handle(fn) { return async (req, res) => { try { await ensureSchema(); await fn(req, res); } catch (e) { send(res, e.status || 500, { error: e.status ? e.message : 'Server error: ' + e.message }); } }; }
 export const mobileKey = (m) => String(m || '').replace(/\D/g, '').slice(-10);
 export const publicAccount = (a) => ({ u: a.u, name: a.name, first: a.first, email: a.email || '', role: a.role, bu: a.bu || '—', status: a.status, mustChange: !!a.must_change, hasPassword: !!a.hash, last: a.last_login, created: a.created_at });
+
+// Simple per-IP rate limit for public endpoints (counts per hour, stored in kv).
+export async function rateLimit(req, bucket, perHour) {
+  const ip = String(req.headers['x-forwarded-for'] || req.headers['x-real-ip'] || req.socket?.remoteAddress || 'unknown').split(',')[0].trim().slice(0, 60);
+  const k = `rl:${bucket}:${ip}:${new Date().toISOString().slice(0, 13)}`;
+  const r = (await q(`INSERT INTO kv (k, v, updated_at) VALUES ($1, '1'::jsonb, now()) ON CONFLICT (k) DO UPDATE SET v = to_jsonb(((kv.v)::text)::int + 1), updated_at = now() RETURNING v`, [k]))[0];
+  if (Math.random() < 0.02) await q(`DELETE FROM kv WHERE k LIKE 'rl:%' AND updated_at < now() - interval '1 day'`);
+  if (Number(r.v) > perHour) throw Object.assign(new Error('Too many requests from this network. Please try again in an hour.'), { status: 429 });
+}
