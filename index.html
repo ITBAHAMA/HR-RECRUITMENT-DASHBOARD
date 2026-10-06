@@ -1280,7 +1280,8 @@ function initBranches(){
 initBranches();
 function branchesOf(k){return (BRANCHES[k]||[]);}
 function brId(k){const L=branchesOf(k);return k+'-'+(Math.max(0,...L.map(b=>+String(b.id).split('-').pop()||0))+1);}
-function branchOpts(k,sel){const L=branchesOf(k).filter(b=>b.active!==false);return `<option value="">— Select branch —</option>${L.map(b=>`<option ${b.n===sel?'selected':''}>${esc(b.n)}</option>`).join('')}<option value="__tbc" ${sel==='To be confirmed'?'selected':''}>To be confirmed</option>`;}
+function sortBr(L){return L.slice().sort((a,b)=>String(a.n).localeCompare(String(b.n),'en',{numeric:true,sensitivity:'base'}));}
+function branchOpts(k,sel){const L=sortBr(branchesOf(k).filter(b=>b.active!==false));return `<option value="">— Select branch —</option>${L.map(b=>`<option ${b.n===sel?'selected':''}>${esc(b.n)}</option>`).join('')}<option value="__tbc" ${sel==='To be confirmed'?'selected':''}>To be confirmed</option>`;}
 function parseBranchLines(text){
   return text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
     let p=l.includes('\t')?l.split('\t'):l.split(/\s*[,;|]\s*/);p=p.map(x=>x.replace(/^"|"$/g,'').trim());
@@ -1781,7 +1782,7 @@ function rJobs(){
     <h2>Jobs</h2><p class="sub">${JOBS.filter(jobOpen).length} open · ${JOBS.filter(j=>jobOpen(j)).reduce((s,j)=>s+vacancies(j),0)} vacancies · click a job to open its pipeline board</p>
     <div class="bar">
       <select class="inp" onchange="jfl.bu=this.value;jfl.br='';render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${jfl.bu===k?'selected':''}>${v}</option>`).join('')}</select>
-      ${jfl.bu?`<select class="inp" onchange="jfl.br=this.value;render()"><option value="">All ${branchesOf(jfl.bu).length} branches</option>${branchesOf(jfl.bu).map(b=>`<option ${jfl.br===b.n?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`:''}
+      ${jfl.bu?`<select class="inp" onchange="jfl.br=this.value;render()"><option value="">All ${branchesOf(jfl.bu).length} branches</option>${sortBr(branchesOf(jfl.bu)).map(b=>`<option ${jfl.br===b.n?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`:''}
       <select class="inp" onchange="jfl.status=this.value;render()"><option value="">All statuses</option>${['open','pending_approval','filled','on_hold','closed'].map(s=>`<option value="${s}" ${jfl.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}</select>
       <span style="flex:1"></span>
       <button class="btn" onclick="go('s-careers')">View public careers page</button><button class="btn" onclick="shareCareers('')">Careers QR code &amp; link</button>
