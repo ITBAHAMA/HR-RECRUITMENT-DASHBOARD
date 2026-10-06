@@ -13,7 +13,7 @@ export default handle(async (req, res) => {
     const host = req.headers['x-forwarded-host'] || req.headers.host || '';
     const inbound = me.role === 'hr_admin' ? `${/localhost|127\.0\.0\.1/.test(host) ? 'http' : 'https'}://${host}/api/inbound?key=${process.env.INBOUND_KEY || derivedKey('inbound')}` : null;
     const imported = (await q(`SELECT count(*)::int n, max(created_at) last FROM reminders WHERE key LIKE 'mail:%'`))[0];
-    return send(res, 200, { sms: p.sms, email: p.email, smsSender: p.smsSender, emailFrom: p.emailFrom, recent, inbound, mailSeen: imported.n, mailLast: imported.last });
+    return send(res, 200, { sms: p.sms, email: p.email, smsSender: p.smsSender, smsVia: p.smsVia, emailFrom: p.emailFrom, recent, inbound, mailSeen: imported.n, mailLast: imported.last });
   }
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
   if (me.role === 'viewer') return send(res, 403, { error: 'Viewers cannot send messages' });

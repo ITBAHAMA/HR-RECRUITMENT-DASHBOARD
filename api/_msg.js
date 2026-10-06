@@ -1,9 +1,13 @@
 // SMS (Semaphore, Philippines) and email (Resend) delivery. Keys live in Vercel environment variables.
 import { q } from './_lib.js';
 
+// SMS can go out through an Android phone running the free "SMS Gateway for Android" app (sms-gate.app):
+// SMSGATE_USER + SMSGATE_PASSWORD (shown in the app → Cloud server), optional SMSGATE_URL for a private/local server.
+const smsGate = () => (process.env.SMSGATE_USER && process.env.SMSGATE_PASSWORD) ? { user: process.env.SMSGATE_USER.trim(), pass: process.env.SMSGATE_PASSWORD.trim(), url: (process.env.SMSGATE_URL || 'https://api.sms-gate.app/3rdparty/v1').replace(/\/$/, '') } : null;
 export function providers() {
   return {
-    sms: !!process.env.SEMAPHORE_API_KEY,
+    sms: !!(smsGate() || process.env.SEMAPHORE_API_KEY),
+    smsVia: smsGate() ? 'phone' : process.env.SEMAPHORE_API_KEY ? 'semaphore' : '',
     email: !!process.env.RESEND_API_KEY,
     smsSender: process.env.SEMAPHORE_SENDER || '',
     emailFrom: process.env.EMAIL_FROM || '',
@@ -25,9 +29,26 @@ async function logOut(row) {
   } catch (e) { /* logging must never block sending */ }
 }
 
+async function sendViaPhone(g, num, text, meta) {
+  const e164 = '+63' + num.slice(1);
+  let r, j;
+  try { r = await fetch(`${g.url}/messages`, { method: 'POST', headers: { Authorization: 'Basic ' + Buffer.from(`${g.user}:${g.pass}`).toString('base64'), 'Content-Type': 'application/json' },
+      body: JSON.stringify({ textMessage: { text: String(text).slice(0, 900) }, phoneNumbers: [e164] }) }); j = await r.json().catch(() => ({})); }
+  catch (e) { await logOut({ channel: 'sms', to: num, body: text, status: 'failed', error: e.message, ...meta }); return { ok: false, error: 'Could not reach the SMS gateway phone service.' }; }
+  if (!r.ok || !j.id) {
+    const err = j.message || j.error || (r.status === 401 ? 'wrong SMS gateway username or password' : `SMS gateway error ${r.status}`);
+    await logOut({ channel: 'sms', to: num, body: text, status: 'failed', error: String(err), ...meta });
+    return { ok: false, error: 'SMS not sent: ' + String(err).slice(0, 200) };
+  }
+  await logOut({ channel: 'sms', to: num, body: text, status: 'sent', id: String(j.id), ...meta });
+  return { ok: true, id: j.id, via: 'phone' };
+}
+
 export async function sendSms(to, text, meta = {}) {
   const num = phMobile(to);
-  if (!process.env.SEMAPHORE_API_KEY) return { ok: false, error: 'SMS is not set up (SEMAPHORE_API_KEY missing).' };
+  const g = smsGate();
+  if (g) { if (!num) return { ok: false, error: `“${to}” is not a valid Philippine mobile number.` }; return sendViaPhone(g, num, text, meta); }
+  if (!process.env.SEMAPHORE_API_KEY) return { ok: false, error: 'SMS is not set up (add the SMS Gateway phone app or Semaphore in Vercel).' };
   if (!num) return { ok: false, error: `“${to}” is not a valid Philippine mobile number.` };
   const form = new URLSearchParams({ apikey: process.env.SEMAPHORE_API_KEY, number: num, message: String(text).slice(0, 900) });
   if (process.env.SEMAPHORE_SENDER) form.set('sendername', process.env.SEMAPHORE_SENDER);
