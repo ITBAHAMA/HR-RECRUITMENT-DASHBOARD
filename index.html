@@ -628,7 +628,7 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 .side a{transition:background-color .2s,color .2s,transform .1s,border-color .2s}
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
-</style>
+.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}</style>
 </head>
 <body class="locked">
 
@@ -1367,7 +1367,7 @@ function rProf(){
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${c.stage==='onboarding'?`<button class="btn pri" onclick="go('s-onb')">Open onboarding</button>`:`<button class="btn pri" onclick="advance(${c.id})">Move to ${c.stage==='draft'?'New':stageName((STAGES[STAGES.findIndex(s=>s.k===c.stage)+1]||{}).k)}</button>`}
-        <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}
+        <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}${isAdmin()?`<button class="btn del" onclick="deleteCand(${c.id})">Delete candidate</button>`:''}
         <button class="btn" onclick="sendTest(${c.id})">Send test</button>
         <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
       </div>
@@ -1750,14 +1750,14 @@ function rPipe(){
       ${pf.job?`<button class="btn pri" onclick="openJob('${pf.job}')">Open board view</button>`:''}
       <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
     </div>
-    <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th></tr></thead><tbody>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th>${isAdmin()?'<th></th>':''}</tr></thead><tbody>
     ${list.map(c=>{const f=fitParts(c);return `<tr class="clk" onclick="openCand(${c.id})">
       <td><div style="display:flex;gap:10px;align-items:center"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><div class="mut">${esc(c.mob)} · ${esc(c.city)}</div></span></div></td>
       <td>${esc(job(c.job).t)}<div class="mut">${c.job} · ${BU[job(c.job).bu]}</div></td>
       <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
       <td>${c.late?`<span class="pill red">${stageAge(c)} · over SLA</span>`:`<span class="pill mute" data-tip="In this stage since ${esc(fmtWhen(stageStart(c)||c.since))}">${stageAge(c)}</span>`}</td>
       <td><span class="match" style="background:${fitCol(f.total)}">${f.total}%</span></td>
-      <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
+      <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td>${isAdmin()?`<td onclick="event.stopPropagation()"><button class="btn sm del" onclick="deleteCand(${c.id})" title="Delete candidate (admin only)" aria-label="Delete ${esc(c.n)}">Delete</button></td>`:''}</tr>`;}).join('')||'<tr><td colspan="8"><div class="empty">No candidates match these filters.</div></td></tr>'}
     </tbody></table></div></div>`);
 }
 function exportCSV(ids){const rows=[["Name","Mobile","Email","City","Province","Job","Position","Business unit","Stage","Days in stage","Source","Fit","Owner","Applied"]];
@@ -1789,7 +1789,7 @@ function rJobs(){
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
         <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
-          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&canEdit()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
+          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&isAdmin()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
     </table></div></div>
     <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten. Delete removes a job entered by mistake (and its applicants); jobs with hired staff can only be closed.</div>`);
 }
@@ -2803,7 +2803,7 @@ async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').t
 /* ===== v9: delete a job ===== */
 function deleteJob(id){
   const j=job(id);if(!j||!j.id)return;
-  if(!canEdit()){toast('Viewers cannot delete jobs');return;}
+  if(!isAdmin()){toast('Only an administrator can delete jobs');return;}
   if(j.rf==='general'){toast('The general application job cannot be deleted');return;}
   const cs=CANDS.filter(c=>c.job===id),hired=cs.filter(c=>c.stage==='hired'||c.stage==='onboarding');
   if(hired.length){alert(`Cannot delete job ${id}:\n\n${hired.length} candidate(s) were already hired from it (${hired.map(c=>c.n).join(', ')}).\n\nKeep the job for their records — use Close instead.`);return;}
@@ -3354,6 +3354,16 @@ async function jotCheckNow(){const b=document.getElementById('jotNow');if(b){b.d
     if((r.errors||[]).length)setTimeout(()=>toast(r.errors[0]),2500);}
   catch(e){toast(e.message);}
   render();}
+/* ===== v19: delete candidate (administrators only) ===== */
+async function deleteCand(id){const c=cand(id);if(!c)return;if(!isAdmin()){toast('Only an administrator can delete candidates');return;}
+  const ref=candRef(c),hired=c.stage==='hired'||c.stage==='onboarding';
+  if(!confirm(`Delete candidate ${c.n} (${ref})?\n\nThis removes the candidate, their interviews, messages, application form and uploaded files (resume, ID, photo).${hired?'\n\n⚠ This person is already HIRED / ONBOARDING — their hiring record in reports stays, but the profile will be gone.':''}\n\nThis cannot be undone. To keep the record, use Reject instead.`))return;
+  if(REMOTE){try{await api('forms',{method:'DELETE',body:{ref}});}catch(e){toast('Could not delete the files: '+e.message);return;}}
+  CANDS=CANDS.filter(x=>x.id!==id);INTV=INTV.filter(i=>i.cid!==id);MSGS=MSGS.filter(m=>m.cid!=null?m.cid!==id:m.cand!==c.n);
+  if(Array.isArray(POOL))POOL=POOL.filter(p=>!(p.cid===id||p.ref===ref));
+  delete FILES[ref];delete FILECOUNT[ref];if(typeof AFC==='object')delete AFC[ref];
+  log(`Deleted candidate ${c.n} (${ref})`,c.job);saveData();toast(`${c.n} deleted`);
+  if(cur==='s-prof')go('s-pipe');else render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

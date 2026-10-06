@@ -18,5 +18,12 @@ export default handle(async (req, res) => {
     if (me.role === 'viewer') return send(res, 403, { error: 'Viewers cannot send forms' });
     return send(res, 200, { token: sign({ kind: 'formlink', ref }, 24 * 30) });
   }
+  if (req.method === 'DELETE') { // admin only: remove a deleted candidate's form (and older versions) and files
+    if (me.role !== 'hr_admin') return send(res, 403, { error: 'Only an administrator can delete candidates' });
+    const f = await q(`DELETE FROM forms WHERE ref=$1 OR ref LIKE $2 RETURNING ref`, [ref, ref + '~%']);
+    const d = await q(`DELETE FROM files WHERE ref=$1 RETURNING id`, [ref]);
+    await q(`DELETE FROM applications WHERE ref=$1`, [ref]);
+    return send(res, 200, { ok: true, forms: f.length, files: d.length });
+  }
   send(res, 405, { error: 'Method not allowed' });
 });
