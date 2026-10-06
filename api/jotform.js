@@ -7,6 +7,12 @@ const adminOf = async (req) => {
   const a = (await q(`SELECT u, role, status FROM accounts WHERE u=$1`, [p.u]))[0];
   return a && a.status === 'active' && a.role === 'hr_admin' ? a : null;
 };
+const staffOf = async (req) => {
+  const t = (req.headers.authorization || '').replace(/^Bearer\s+/i, ''); const p = verify(t);
+  if (!p || p.kind !== 'session') return null;
+  const a = (await q(`SELECT u, role, status FROM accounts WHERE u=$1`, [p.u]))[0];
+  return a && a.status === 'active' && a.role !== 'viewer' ? a : null;
+};
 export default handle(async (req, res) => {
   const url = new URL(req.url || '/', 'http://x');
   const admin = await adminOf(req);
@@ -18,7 +24,9 @@ export default handle(async (req, res) => {
     return send(res, 200, { configured: !!jotConfig().key, form: jotConfig().form, status: await jotStatus(),
       webhook: `${/localhost|127\.0\.0\.1/.test(host) ? 'http' : 'https'}://${host}/api/jotform?key=${process.env.INBOUND_KEY ? process.env.INBOUND_KEY + '-jf' : derivedKey('jotform')}` });
   }
-  if (admin && req.method === 'POST') { const b = body(req); return send(res, 200, await syncJotform({ all: !!b.all, offset: Math.max(0, +b.offset || 0), max: b.all ? 10 : 8 })); }
+  if (admin && req.method === 'POST') { const b = body(req); return send(res, 200, await syncJotform({ all: !!b.all, offset: Math.max(0, +b.offset || 0), max: b.all ? 10 : 8, rematch: !!b.rematch && !b.all })); }
+  const staff = !admin && await staffOf(req);
+  if (staff && req.method === 'POST') { const b = body(req); const r = await syncJotform({ rematch: !!b.rematch }); return send(res, 200, { imported: r.imported || 0, attached: r.attached || 0, merged: r.merged || [], configured: r.configured, error: r.error }); }
   if (!admin && !cronOk && !hookOk) {
     // anonymous calls (e.g. the cron without CRON_SECRET) may run at most every 2 minutes and get no details back
     const last = ((await q(`SELECT updated_at FROM kv WHERE k='jot:status'`))[0] || {}).updated_at;

@@ -202,13 +202,40 @@ async function attach(ref, form, files, cfg) {
   await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [ref, JSON.stringify(clean)]);
 }
 
+/* "Check Jotform" from HR: a candidate HR typed in by hand (walk-in, referral …) may already have filled up the Jotform before.
+   Attach that earlier submission to the hand-added candidate (same mobile, email, or same first + last name). */
+async function rematchManual(subs, s, cfg, started) {
+  const merged = [];
+  const withForm = new Set((await q(`SELECT ref FROM forms`)).map((r) => r.ref));
+  const manual = (s.CANDS || []).filter((c) => c.stage !== 'draft' && !['hired', 'onboarding'].includes(c.stage) && c.via !== 'Jotform' && !withForm.has(refOfC(c)));
+  if (!manual.length) return merged;
+  for (const sub of subs) {
+    if (Date.now() - started > 45000) break;
+    let mapped; try { mapped = mapSubmission(sub); cleanForm(mapped.form); } catch { continue; }
+    const { form, files } = mapped, sm = summary(form), mk = mobileKey(sm.mob), nm = form.name || {};
+    const fl = nk(`${nm.first || ''} ${nm.last || ''}`), fw = fl.split(' ');
+    const hit = manual.find((c) => (mk.length >= 10 && mobileKey(c.mob) === mk) || (sm.em && (c.em || '').toLowerCase() === sm.em.toLowerCase())
+      || (fw.length >= 2 && (() => { const cw = nk(c.n).split(' '); return cw.length >= 2 && cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1]; })()));
+    if (!hit) continue;
+    const ref = refOfC(hit);
+    const once = await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING RETURNING key`, [`jotm:${sub.id}:${ref}`]);
+    if (!once.length) continue;
+    // where the same submission was imported before as its own candidate
+    const dup = (await q(`SELECT ref FROM forms WHERE data->'_jotform'->>'id' = $1 AND ref NOT LIKE '%~%' AND ref <> $2`, [String(sub.id), ref])).map((r) => r.ref);
+    try { await attach(ref, form, files, cfg); merged.push({ into: ref, from: dup, name: hit.n, sub: sub.id }); withForm.add(ref); manual.splice(manual.indexOf(hit), 1); }
+    catch (e) { await q(`DELETE FROM reminders WHERE key=$1`, [`jotm:${sub.id}:${ref}`]); }
+    if (!manual.length) break;
+  }
+  return merged;
+}
+
 /* Import new submissions. all=true walks back through every past submission (in pages). */
-export async function syncJotform({ all = false, max = 8, offset = 0 } = {}) {
+export async function syncJotform({ all = false, max = 8, offset = 0, rematch = false } = {}) {
   const cfg = jotConfig(); if (!cfg.key) return { configured: false };
   const st = (await jotStatus()) || {}; const started = Date.now();
   const out = { configured: true, imported: 0, skipped: 0, errors: [], done: true, offset };
   try {
-    const page = await api(cfg, `/form/${cfg.form}/submissions?limit=${all ? 50 : 30}&offset=${all ? offset : 0}&orderby=created_at`);
+    const page = await api(cfg, `/form/${cfg.form}/submissions?limit=${all ? 50 : rematch ? 100 : 30}&offset=${all ? offset : 0}&orderby=created_at`);
     const subs = (page.content || []).filter((s) => s.status !== 'DELETED');
     out.total = page.resultSet ? page.resultSet.count : subs.length;
     const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {}; const jobs = s.JOBS || [];
@@ -243,6 +270,7 @@ export async function syncJotform({ all = false, max = 8, offset = 0 } = {}) {
         out.imported++;
       } catch (e) { if (e.status !== 413) await q(`DELETE FROM reminders WHERE key=$1`, ['jot:' + sub.id]); out.errors.push(`#${sub.id}: ${String(e.message || e).slice(0, 120)}`); }
     }
+    if (rematch) { out.merged = await rematchManual(subs, s, cfg, started); out.attached = (out.attached || 0) + out.merged.length; }
     if (all) { out.offset = offset + (out.done ? subs.length : processed); out.done = out.done && subs.length < 50; }
     await setKv('jot:status', { ok: true, at: new Date().toISOString(), lastImported: out.imported ? new Date().toISOString() : st.lastImported || null, totalImported: (st.totalImported || 0) + out.imported, totalAttached: (st.totalAttached || 0) + (out.attached || 0), total: out.total, errors: out.errors.slice(0, 5), form: cfg.form });
   } catch (e) {

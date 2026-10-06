@@ -3310,8 +3310,8 @@ async function jotEmail(id){const c=cand(id),j=job(c.job);try{const r=await api(
 
 /* answers that arrived for an existing candidate */
 function processForms(map){if(!map)return 0;let ch=0,n=0;
-  CANDS.forEach(c=>{const ref=candRef(c),t=map[ref];if(!t||c.formAt===t)return;c.formAt=t;c.form=true;ch++;
-    if(c.jotSent){c.jotDone=t;(c.notes=c.notes||[]).push({by:'Jotform',at:t,text:'Application for Employment received from the applicant'});log(`Application form received from ${c.n} (Jotform)`,c.job);n++;}
+  CANDS.forEach(c=>{const ref=candRef(c),t=map[ref];if(!t||c.formAt===t)return;const had=c.form;c.formAt=t;c.form=true;ch++;
+    if(c.jotSent||(!had&&c.via!=='Jotform'&&!/^C-5/.test(c.ref||''))){c.jotDone=t;(c.notes=c.notes||[]).push({by:'Jotform',at:t,text:'Application for Employment received from the applicant'});log(`Application form received from ${c.n} (Jotform)`,c.job);n++;}
     delete AFC[ref];delete FILES[ref];fillFromForm(c);});
   if(n)toast(`${n} application form${n>1?'s':''} received from Jotform`);return ch;}
 async function fillFromForm(c){try{const r=await api('forms?ref='+encodeURIComponent(candRef(c)));const f=r.form;if(!f||f._source!=='Jotform')return;let ch=0;
@@ -3348,13 +3348,18 @@ function stageAge(c){if(c.days>0)return c.days+'d';const t=stageStart(c);if(!t)r
 /* ===== v18: Check Jotform now (Candidates screen) ===== */
 async function jotCheckNow(){const b=document.getElementById('jotNow');if(b){b.disabled=true;b.textContent='Checking Jotform…';}
   const before=CANDS.length,formsBefore=CANDS.filter(c=>c.form).length;
-  try{const r=await api('jotform',{method:'POST',body:{}});
+  try{const r=await api('jotform',{method:'POST',body:{rematch:true}});
     if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
     if(r.error)throw new Error('Jotform: '+r.error);
     await loadRemote(true);
-    const added=CANDS.length-before,forms=CANDS.filter(c=>c.form).length-formsBefore;
+    let dropped=0;(r.merged||[]).forEach(m=>{const into=CANDS.find(c=>candRef(c)===m.into);(m.from||[]).forEach(fr=>{const d=CANDS.find(c=>candRef(c)===fr);if(!d||!into||d===into)return;
+      if(d.stage==='new'&&(d.via==='Jotform'||/Jotform/i.test((d.notes||[]).map(n=>n.text).join(' ')))&&!INTV.some(i=>i.cid===d.id)){CANDS=CANDS.filter(c=>c!==d);MSGS=MSGS.filter(x=>x.cid!==d.id);dropped++;
+        log(`Merged duplicate Jotform record ${fr} into ${into.n} (${m.into})`,into.job);}
+      else{(into.notes=into.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`The same Jotform application also exists as candidate ${fr} (${d.n}). Check and reject or delete the extra one.`});}});});
+    if(dropped||(r.merged||[]).length)saveData();
+    const added=r.imported||0,forms=(r.attached||0);
     toast(r.throttled?'Jotform was checked less than 2 minutes ago — try again shortly':
-      (added||forms||r.imported||r.attached)?`Jotform: ${added?added+' new applicant'+(added>1?'s':''):''}${added&&forms?' · ':''}${forms?forms+' form'+(forms>1?'s':'')+' added to existing candidates':''}${!added&&!forms?'updated':''}`:'No new Jotform applications');
+      (added||forms)?`Jotform: ${added?added+' new applicant'+(added>1?'s':''):''}${added&&forms?' · ':''}${forms?forms+' application form'+(forms>1?'s':'')+' added to existing candidates':''}${dropped?` · ${dropped} duplicate${dropped>1?'s':''} merged`:''}`:'No new Jotform applications');
     if((r.errors||[]).length)setTimeout(()=>toast(r.errors[0]),2500);}
   catch(e){toast(e.message);}
   render();}
