@@ -2198,7 +2198,8 @@ function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsume
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
   const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
-  if(!had||n)queueSave();return r;}
+  const fch=processForms(r.forms);
+  if(!had||n||fch)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
 async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.stringify(packData());if(s===lastSaved&&!pendingConsumed.length)return;
   if(SESSION.role==='viewer'){setSync('View only','');return;}
@@ -2210,7 +2211,7 @@ async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.str
   finally{saving=false;if(JSON.stringify(packData())!==lastSaved)queueSave();}}
 function renderSafe(){const a=document.activeElement;if(document.getElementById('modal')&&document.getElementById('modal').classList.contains('on'))return;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('.main'))return;render();}
 function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(async()=>{if(!REMOTE||!SESSION||saving||remoteBusy)return;if(JSON.stringify(packData())!==lastSaved)return;
-  try{remoteBusy=true;const r=await api('state');FILECOUNT=r.files||FILECOUNT;if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
+  try{remoteBusy=true;const r=await api('state');FILECOUNT=r.files||FILECOUNT;if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}if(processForms(r.forms)){queueSave();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
 async function refreshAccounts(){if(!REMOTE||!isAdmin())return;try{const r=await api('accounts');ACCOUNTS=r.accounts.map(a=>({...a,hash:a.hasPassword?'set':null,status:a.hasPassword?a.status:'pending'}));}catch(e){}}
 async function enterRemote(res){TOKEN=res.token;SESSION={user:res.user.u,name:res.user.name,first:res.user.first||res.user.name.split(' ')[0],role:res.user.role,at:new Date()};
   try{if(document.getElementById('lgRem').checked)localStorage.setItem('brdc-token',JSON.stringify({t:TOKEN,user:res.user}));else localStorage.removeItem('brdc-token');}catch(e){}
@@ -2778,6 +2779,7 @@ function addCandidate(jid){window._nSkills=null;const open=JOBS.filter(j=>jobOpe
     <label>Resume (optional — PDF fills the form)<input class="inp" id="nR" type="file" accept=".pdf,.doc,.docx,image/*" onchange="resumeAutofill(this)"></label>
     <div id="nRst" class="mut" style="grid-column:1/-1;margin-top:-4px">Tip: choose the PDF resume first — name, mobile, email, address and experience are filled in for you. <a href="#" onclick="event.preventDefault();bulkResumes(document.getElementById('nJ').value)">Have several resumes? Upload PDFs in bulk</a></div>
     <label style="grid-column:1/-1">Work experience / notes<textarea class="inp" id="nX" rows="3" style="width:100%"></textarea></label></div>
+    <label class="pconsent" style="margin-top:6px"><input type="checkbox" id="nJot" checked><span>After adding, send the <b>Jotform Application for Employment</b> link — their answers will come back to this candidate.</span></label>
     <div class="ferr" id="fErr" role="alert"></div>
     <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" id="nGo" onclick="saveNewCand()">Add candidate</button></div>`,'wide');}
 async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').trim(),b=document.getElementById('nGo');
@@ -3132,9 +3134,10 @@ function afSections(f,print){let h='';AF_STEPS.forEach(S=>{let rows='';
   return h;}
 function appFormCard(c){const ref=candRef(c),st=AFC[ref];if(!st)setTimeout(()=>loadAppForm(c),0);const f=st&&st.form;
   return `<div class="card" style="margin-bottom:12px"><div class="ch"><h3>Application for Employment</h3>${f?`<span class="pill green">filled ${st.at?fmtD(String(st.at).slice(0,10)):''}</span>`:''}</div>
-    ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">${f._source==='Jotform'?'Imported from Jotform':'Submitted by the applicant'}${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendLink(${c.id})">Send link to update</button>`:''}</div>`
-    :`<p class="sub">Not filled yet. Send the applicant a link to the full application form (personal information, family, education, employment history, references, signature).</p>${canEdit()?`<button class="btn pri" onclick="afSendLink(${c.id})">Send application form link</button>`:''}`}</div>`;}
+    ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">${f._source==='Jotform'?(f._attached?'Filled up by the applicant on Jotform':'Imported from Jotform'):'Submitted by the applicant'}${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendJot(${c.id})">Send Jotform link again</button>`:''}</div>`
+    :`<p class="sub">${c.jotSent?`<span class="pill amber">Jotform link sent ${fmtD(String(c.jotSent).slice(0,10))}</span> waiting for the applicant to submit.`:'Not filled yet. Send the applicant the Application for Employment — their answers come back to this candidate automatically.'}</p>
+      ${canEdit()?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afSendJot(${c.id})">${c.jotSent?'Send Jotform link again':'Send Jotform application link'}</button><button class="btn" onclick="afSendLink(${c.id})">Use BRDC Recruit form instead</button></div>`:''}`}</div>`;}
 function afView(id){const c=cand(id),f=(AFC[candRef(c)]||{}).form;if(!f)return;
   modal(`<h3>Application for Employment — ${esc(c.n)}</h3><div class="afview">${afSections(f)}</div><div class="mdl-f"><button class="btn" onclick="closeModal()">Close</button><button class="btn pri" onclick="afPrint(${id})">Print / save as PDF</button></div>`,'wide');}
 async function afImg(c,kind){if(!REMOTE)return '';const ref=candRef(c);if(!FILES[ref])await loadFiles(ref,true);const f=(FILES[ref]||[]).find(x=>x.kind===kind&&/^image\//.test(x.type||''));if(!f)return '';
@@ -3251,7 +3254,7 @@ function jotformCard(){if(!isAdmin())return '';if(!REMOTE)return `<div class="ca
   const st=JOT.status||{};
   return `<div class="card" style="margin-top:12px"><div class="ch"><h3>Jotform — Application for Employment</h3>${JOT.configured?(st.ok===false?'<span class="pill red">error</span>':'<span class="pill green">connected</span>'):'<span class="pill mute">not connected</span>'}</div>
     ${JOT.err?`<p class="mut">${esc(JOT.err)}</p>`:JOT.configured?`<p class="sub">Form ${esc(JOT.form)} · checked every 5 minutes and right after each submission. New submissions become candidates with the full application form and files.</p>
-      <p style="font-size:13px">${st.at?`Last check: <b>${fmtDT(st.at)}</b>`:'Not checked yet'}${st.totalImported?` · ${st.totalImported} imported so far`:''}${st.total!=null?` · ${st.total} submissions in Jotform`:''}</p>
+      <p style="font-size:13px">${st.at?`Last check: <b>${fmtDT(st.at)}</b>`:'Not checked yet'}${st.totalImported?` · ${st.totalImported} imported so far`:''}${st.totalAttached?` · ${st.totalAttached} added to existing candidates`:''}${st.total!=null?` · ${st.total} submissions in Jotform`:''}</p>
       ${st.ok===false?`<div class="ferr on" style="display:block">${esc(st.error||'')}${/401|key|unauthor/i.test(st.error||'')?' — check JOTFORM_API_KEY in Vercel.':''}</div>`:''}
       ${(st.errors||[]).length?`<div class="hint" style="margin:8px 0">${st.errors.map(esc).join('<br>')}</div>`:''}
       <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px"><button class="btn pri" id="jotSync" onclick="syncJot(false)">Check now</button><button class="btn" id="jotAll" onclick="syncJot(true)">Import all past submissions</button></div>
@@ -3273,6 +3276,48 @@ async function syncJot(all){const b=document.getElementById(all?'jotAll':'jotSyn
     if(tot){try{await loadRemote(true);}catch(e){}}}
   catch(e){toast(e.message);}
   JOT.loaded=false;JOT.loading=0;loadJot();if(errs.length)setTimeout(()=>toast(errs[0]),2500);render();}
+/* ===== v16: send the Jotform application link to a candidate; their answers come back to the same candidate ===== */
+const JOT_FORM_DEFAULT='260282284429460';
+function splitName(n){const p=String(n||'').trim().split(/\s+/).filter(Boolean);let li=p.length-1;while(li>1&&/^(de|dela|del|delos|san|sta\.?|santa|santo|la|los|y)$/i.test(p[li-1]))li--;
+  return {first:p.slice(0,Math.max(1,li)).join(' '),last:p.length>1?p.slice(Math.max(1,li)).join(' '):''};}
+function jotLink(c){const j=job(c.job)||{},nm=splitName(c.n),P=new URLSearchParams();
+  if(j.t&&j.t!=='—'&&j.rf!=='general')P.set('positionApplied',j.t);if(j.dept&&j.dept!=='—')P.set('department',j.dept);
+  P.set('fullName[first]',nm.first);if(nm.last)P.set('fullName[last]',nm.last);if(c.nick)P.set('preferredName',c.nick);if(c.mob)P.set('mobileNumber',c.mob);if(c.em)P.set('positionApplied333',c.em);
+  P.set('brdcRef',candRef(c));return `https://form.jotform.com/${(JOT&&JOT.form)||JOT_FORM_DEFAULT}?${P.toString()}`;}
+function afSendJot(id){const c=cand(id);if(!c)return;const url=jotLink(c),first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
+  const sms=`Hi ${first}, please fill up the BRDC Application for Employment${j.t&&j.rf!=='general'?' for '+j.t:''}: ${url} - BRDC HR`;
+  const canSms=REMOTE&&c.mob,canEm=REMOTE&&c.em&&MSGCFG&&MSGCFG.email;
+  modal(`<h3>Send Jotform application — ${esc(c.n)}</h3>
+    <p class="sub">The applicant opens the link, fills up the Application for Employment on Jotform and submits. Their answers, photo, ID, resume and signature are added to <b>this candidate</b> automatically (matched by reference, mobile number, email or name).</p>
+    <p class="mut" style="font-size:12.5px;margin:-4px 0 8px">Name${c.mob?', mobile':''}${c.em?', email':''} and position are already filled in on the form.</p>
+    <input class="inp" style="width:100%" readonly value="${esc(url)}" onclick="this.select()">
+    <div class="mdl-f" style="flex-wrap:wrap"><button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn" onclick="copyText(${esc(JSON.stringify(url))},'Link copied — send it by Messenger, Viber or text');jotMarkSent(${id},'link copied')">Copy link</button>
+      <button class="btn" onclick="window.open(${esc(JSON.stringify(url))},'_blank')">Open form</button>
+      ${canEm?`<button class="btn" onclick="jotEmail(${id})">Email it</button>`:''}
+      ${canSms?`<button class="btn pri" onclick="jotSms(${id},${esc(JSON.stringify(sms))})">Text it to ${esc(c.mob)}</button>`:''}</div>`);}
+function jotMarkSent(id,how){const c=cand(id);if(!c)return;c.jotSent=new Date().toISOString();log(`Sent Jotform application link to ${c.n} (${how})`,c.job);saveData();}
+async function jotSms(id,text){const c=cand(id);try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:text,ref:candRef(c)}});if(!r.ok)throw new Error(r.error||'SMS not sent');jotMarkSent(id,'SMS');toast('Link sent by SMS');closeModal();render();}
+  catch(e){toast(e.message+' — copy the link and send it instead');}}
+async function jotEmail(id){const c=cand(id),j=job(c.job);try{const r=await api('send',{method:'POST',body:{channel:'email',to:c.em,subject:'BRDC Application for Employment',ref:candRef(c),
+    body:`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for your interest in ${j.t&&j.rf!=='general'?j.t+' at ':''}${BU[j.bu]||'BRDC'}. Please fill up our Application for Employment here:\n\n${jotLink(c)}\n\nPlease prepare a 2x2 photo, a valid ID and your resume.\n\n— BRDC HR`}});
+  if(!r.ok)throw new Error(r.error||'Email not sent');jotMarkSent(id,'email');toast('Link sent by email');closeModal();render();}catch(e){toast(e.message);}}
+
+/* answers that arrived for an existing candidate */
+function processForms(map){if(!map)return 0;let ch=0,n=0;
+  CANDS.forEach(c=>{const ref=candRef(c),t=map[ref];if(!t||c.formAt===t)return;c.formAt=t;c.form=true;ch++;
+    if(c.jotSent){c.jotDone=t;(c.notes=c.notes||[]).push({by:'Jotform',at:t,text:'Application for Employment received from the applicant'});log(`Application form received from ${c.n} (Jotform)`,c.job);n++;}
+    delete AFC[ref];delete FILES[ref];fillFromForm(c);});
+  if(n)toast(`${n} application form${n>1?'s':''} received from Jotform`);return ch;}
+async function fillFromForm(c){try{const r=await api('forms?ref='+encodeURIComponent(candRef(c)));const f=r.form;if(!f||f._source!=='Jotform')return;let ch=0;
+    const blank=v=>!v||v==='—';const set=(k,v)=>{if(v&&blank(c[k])){c[k]=v;ch++;}};
+    set('em',String(f.email||'').trim());set('mob',String(f.mobile||'').trim());set('city',f.city);set('prov',f.prov);set('salary',String(f.salary||''));set('avail',f.start);set('nick',String(f.nick||'').trim());
+    const exp=(f.employment||[]).filter(x=>x&&String(x[0]||'').trim()).map(x=>`${x[2]||'—'} – ${x[0]}${x[1]?` (${x[1]})`:''}`).join('\n');set('exp',exp);
+    const sk=[...new Set([...(f.hard||[]),...(f.soft||[])].filter(x=>x&&x!=='Other'))];if(sk.length&&!(c.skills||[]).length){c.skills=sk;ch++;}
+    if(ch){if(JSON.stringify(packData())!==lastSaved)queueSave();renderSafe();}}catch(e){}}
+const _saveNewCand0=saveNewCand;
+saveNewCand=async function(){const send=document.getElementById('nJot')&&document.getElementById('nJot').checked,before=CANDS.length;await _saveNewCand0();
+  if(send&&CANDS.length>before)setTimeout(()=>afSendJot(CANDS[CANDS.length-1].id),350);};
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

@@ -10,7 +10,9 @@ export default handle(async (req, res) => {
     let inbox = await q(`SELECT id, ref, job, data, created_at FROM applications ORDER BY id`);
     if (S) inbox = inbox.filter((a) => S.has(jobBuOf(s.data, a.job)));
     const files = await q(`SELECT ref, count(*)::int AS n FROM files GROUP BY ref`);
-    return send(res, 200, { data: viewFor(s.data, S), version: s.version, updatedAt: s.updated_at, updatedBy: s.updated_by, inbox,
+    const view = viewFor(s.data, S); const refs = new Set((view.CANDS || []).map((c) => c.ref || 'C-' + (2000 + c.id)));
+    const forms = Object.fromEntries((await q(`SELECT ref, updated_at FROM forms`)).filter((f) => refs.has(f.ref)).map((f) => [f.ref, new Date(f.updated_at).toISOString()]));
+    return send(res, 200, { data: view, forms, version: s.version, updatedAt: s.updated_at, updatedBy: s.updated_by, inbox,
       scope: S ? [...S] : null, maxIds: maxIds(s.data), files: Object.fromEntries(files.map((f) => [f.ref, f.n])) });
   }
   if (req.method === 'PUT') {
