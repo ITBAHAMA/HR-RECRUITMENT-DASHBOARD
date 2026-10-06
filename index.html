@@ -1360,7 +1360,7 @@ function rProf(){
           <dt>Email</dt><dd>${c.em?esc(c.em):'<span class="pill mute">none provided</span>'}</dd>
           <dt>Location</dt><dd>${esc([c.city,c.prov].filter(x=>x&&x!=='—').join(', ')||'—')}</dd>
           <dt>Applied for</dt><dd>${esc(j.t)} · ${BU[j.bu]||''} · ${c.job} ${c.late?'<span class="pill red">over SLA</span>':''} <span class="pill"><span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)} · ${c.days}d</span></dd>
-          <dt>Source</dt><dd>${esc(c.src)}</dd>
+          <dt>Source</dt><dd>${esc(c.src)}</dd><dt>Received via</dt><dd>${originHtml(c)}</dd>
           ${c.salary?`<dt>Expected salary</dt><dd>₱ ${esc(c.salary)}</dd>`:''}${c.avail?`<dt>Available</dt><dd>${fmtD(c.avail)}</dd>`:''}${resumeRow(c)}
           <dt>Owner</dt><dd>${c.owner?esc(c.owner):`<button class="btn sm" onclick="claim(${c.id})">Claim</button>`}</dd>
         </dl>
@@ -1385,7 +1385,7 @@ function rProf(){
       <div class="card"><h3>Timeline</h3><div class="tl">
         ${acts.map(a=>`<div class="ev"><b>${esc(a.text)}</b><div class="t">${fmtDT(a.at)} · ${esc(a.by)}</div></div>`).join('')}
         ${ivs.map(i=>`<div class="ev"><b>${i.type}${i.result?' — '+i.result+(i.score?' ('+i.score+'/5)':''):' — '+i.status}</b><div class="t">${fmtDT(i.when)} · ${esc(i.interviewer)}</div></div>`).join('')}
-        <div class="ev"><b>Application submitted</b> via ${esc(c.src)}<div class="t">${fmtD(c.applied||c.since)}</div></div>
+        <div class="ev"><b>Application submitted</b> via ${esc(candOrigin(c).via)} · source: ${esc(c.src)}<div class="t">${fmtD(c.applied||c.since)}</div></div>
       </div></div>
       <div class="card" style="margin-top:12px"><h3>Notes</h3>
         ${(c.notes||[]).map(n=>`<div class="doc" style="display:block"><div>${esc(n.text)}</div><div class="mut">${esc(n.by)} · ${fmtDT(n.at)}</div></div>`).join('')||'<p class="mut">No notes yet.</p>'}
@@ -1677,7 +1677,7 @@ function ccard(c){const f=fitParts(c), role=(c.exp||'—').split(/[;(]/)[0].trim
       <div class="cico"><span data-tip="Expected salary within range">${ic('peso')}</span><span class="${c.docs?'has':''}" data-tip="${c.docs?'Documents submitted':'Resume on file'}">${ic('doc')}</span></div></div>
     <div class="cfoot"><span class="match" style="background:${fitCol(f.total)}" data-tip="<b>Fit score ${f.total}/100</b><br>Skills ${f.sk}/50 · Assessment ${f.as}/30 · Location ${f.lo}/20">${f.total}%</span>
       <span data-tip="Days in this stage${c.late?' — over SLA':''}" ${c.late?'style="color:#B3352F;font-weight:600"':''}>${ic('clock')} ${c.days}d</span>
-      <span data-tip="Source">${ic('bolt')} ${esc(c.src)}</span><span class="eye">${ic('eye')}</span></div></div>`;}
+      <span data-tip="Source · received via ${esc(candOrigin(c).via)} ${fmtD(String(candOrigin(c).at||'').slice(0,10))}">${ic('bolt')} ${esc(c.src)}</span><span class="eye">${ic('eye')}</span></div></div>`;}
 function rJob(){
   const j=job(curJob), all=CANDS.filter(c=>c.job===curJob&&c.stage!=='draft');
   let cs=all.filter(c=>(!jf.src||c.src===jf.src)&&(!jf.late||c.late)&&(!jf.q||(c.n+' '+c.skills.join(' ')+' '+c.city).toLowerCase().includes(jf.q.toLowerCase())));
@@ -1732,7 +1732,7 @@ function rJob(){
    ============================================================ */
 let pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};
 function rPipe(){
-  let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
+  let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.via||candOrigin(c).via.split(' + ')[0]===pf.via)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,candOrigin(c).via,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
   const key={name:c=>c.n,job:c=>job(c.job).t,stage:c=>STAGES.findIndex(s=>s.k===c.stage),days:c=>c.days,fit:c=>fitParts(c).total,src:c=>c.src};
   list.sort((a,b)=>{const x=key[pf.sort](a),y=key[pf.sort](b);return (x>y?1:x<y?-1:0)*pf.dir;});
   const th=(k,n)=>`<th class="srt" onclick="pf.dir=pf.sort==='${k}'?-pf.dir:-1;pf.sort='${k}';render()">${n}${pf.sort===k?(pf.dir<0?' ▾':' ▴'):''}</th>`;
@@ -1743,8 +1743,9 @@ function rPipe(){
       <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
       <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
+      <select class="inp" onchange="pf.via=this.value;render()" aria-label="Received via"><option value="">Received via — all</option>${[...new Set(CANDS.map(c=>candOrigin(c).via.split(' + ')[0]))].sort().map(v=>`<option ${pf.via===v?'selected':''}>${esc(v)}</option>`).join('')}</select>
       <label class="tgl"><input type="checkbox" ${pf.late?'checked':''} onchange="pf.late=this.checked;render()"> Overdue only</label>
-      ${pf.job||pf.bu||pf.stage||pf.q||pf.late?`<button class="btn sm" onclick="pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};render()">Clear filters</button>`:''}
+      ${pf.job||pf.bu||pf.stage||pf.q||pf.late||pf.via?`<button class="btn sm" onclick="pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};render()">Clear filters</button>`:''}
       <span style="flex:1"></span>
       ${pf.job?`<button class="btn pri" onclick="openJob('${pf.job}')">Open board view</button>`:''}
       <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
@@ -1756,7 +1757,7 @@ function rPipe(){
       <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
       <td>${c.late?`<span class="pill red">${c.days}d · over SLA</span>`:`<span class="pill mute">${c.days}d</span>`}</td>
       <td><span class="match" style="background:${fitCol(f.total)}">${f.total}%</span></td>
-      <td>${esc(c.src)}</td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
+      <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
     </tbody></table></div></div>`);
 }
 function exportCSV(ids){const rows=[["Name","Mobile","Email","City","Province","Job","Position","Business unit","Stage","Days in stage","Source","Fit","Owner","Applied"]];
@@ -2193,7 +2194,7 @@ async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.meth
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
 function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
-  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||null,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
@@ -3318,6 +3319,24 @@ async function fillFromForm(c){try{const r=await api('forms?ref='+encodeURICompo
 const _saveNewCand0=saveNewCand;
 saveNewCand=async function(){const send=document.getElementById('nJot')&&document.getElementById('nJot').checked,before=CANDS.length;await _saveNewCand0();
   if(send&&CANDS.length>before)setTimeout(()=>afSendJot(CANDS[CANDS.length-1].id),350);};
+/* ===== v17: where each candidate came from + date ===== */
+function candOrigin(c){const ns=c.notes||[],t=ns.map(n=>n.text||'').join('\n'),by=ns.map(n=>n.by||'').join('\n');let via,at=c.viaAt||null;
+  if(c.via)via=c.via;
+  else if(c.jotDone){via='Jotform';at=c.jotDone;}
+  else if(/Imported from Jotform/i.test(t))via='Jotform';
+  else if(/ email/i.test(by)||/Imported from .* email/i.test(t))via=((by.match(/(\w+) email/)||[])[1]||'')+' email';
+  else if(/from PDF resume/i.test(t))via='PDF resume upload';
+  else if(/Imported from .* file/i.test(t))via='File import (Excel/CSV)';
+  else if(/^Added by /m.test(t))via='Added by HR';
+  else if(/^C-5\d{3,}$/.test(c.ref||''))via='Careers page';
+  else via='Added by HR';
+  via=via.trim().replace(/^ email$/,'Email');
+  if(!at)at=c.applied||c.since||null;
+  if(c.jotDone&&via!=='Jotform')via+=' + Jotform form';
+  return {via,at};}
+function originHtml(c,short){const o=candOrigin(c),d=o.at?fmtD(String(o.at).slice(0,10)):'';
+  const ic=/Jotform/.test(o.via)?'📝':/email/i.test(o.via)?'✉️':/Careers/.test(o.via)?'🌐':/PDF|File/.test(o.via)?'📄':'👤';
+  return `${short?'':ic+' '}${short?'via ':''}<b>${esc(o.via)}</b>${d?` · ${d}`:''}${!short&&c.jotDone&&!/^Jotform$/.test(o.via)?` <span class="mut">(form received ${fmtD(String(c.jotDone).slice(0,10))})</span>`:''}`;}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

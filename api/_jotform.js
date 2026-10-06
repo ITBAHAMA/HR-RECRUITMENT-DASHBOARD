@@ -212,7 +212,7 @@ export async function syncJotform({ all = false, max = 8, offset = 0 } = {}) {
         if (hit) { await attach(hit.ref, form, files, cfg, out); out.attached = (out.attached || 0) + 1; continue; }
         const dupState = (s.CANDS || []).some((c) => c.job === job.id && ((mk.length >= 10 && mobileKey(c.mob) === mk) || (sm.em && (c.em || '').toLowerCase() === sm.em.toLowerCase())));
         if (dupState) { out.skipped++; continue; }
-        const data = { ...sm, n: sm.n || 'Jotform applicant', job: job.id, form: true, review: true, jobGuess: !!jm, resume: null,
+        const data = { ...sm, n: sm.n || 'Jotform applicant', job: job.id, form: true, review: true, via: 'Jotform', viaAt: sub.created_at ? new Date(String(sub.created_at).replace(' ', 'T') + '+08:00').toISOString() : new Date().toISOString(), jobGuess: !!jm, resume: null,
           inNote: `Imported from Jotform (submission ${sub.id}, ${sub.created_at || ''})${jm ? '' : ` — position “${form.position || '?'}” not matched, placed in ${job.t}`}.` };
         const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending',$1,$2,$3::jsonb) ON CONFLICT DO NOTHING RETURNING id`, [job.id, dupKey, JSON.stringify(data)]))[0];
         if (!row) { out.skipped++; continue; }
