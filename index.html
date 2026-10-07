@@ -1702,7 +1702,7 @@ function rJob(){
       <div class="card"><div class="ch"><h3>Funnel for this job</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:all.filter(c=>STAGES.findIndex(x=>x.k===c.stage)>=STAGES.findIndex(x=>x.k===s.k)).length,tip:`Reached ${s.n}`})))}</div>
       <div class="card"><div class="ch"><h3>Key facts</h3></div><dl class="kv">
         <dt>Opened</dt><dd>${fmtD(j.open)} · ${daysSince(j.open)} days ago</dd><dt>Headcount</dt><dd>${j.filled||0} of ${j.head} filled</dd>
-        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
+        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Application form</dt><dd>${canEdit()?`<select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobForm('${j.id}',this.value)"><option value="auto" ${j.basicForm==null?'selected':''}>Automatic — ${FCS_RE.test(j.t||'')?'Basic (FCS)':'Standard'}</option><option value="basic" ${j.basicForm===true?'selected':''}>Basic (FCS)</option><option value="standard" ${j.basicForm===false?'selected':''}>Standard</option></select>`:(isBasicJob(j)?'Basic (FCS)':'Standard')}</dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
         <dt>Required skills</dt><dd>${(j.skills||[]).map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join('')||'—'}</dd>
         <dt>Sources</dt><dd>${[...new Set(all.map(c=>c.src))].map(s=>`${esc(s)} (${all.filter(c=>c.src===s).length})`).join(' · ')||'—'}</dd></dl></div></div></div>`;
   const team=`<div class="pad"><div class="card" style="max-width:640px"><div class="ch"><h3>Hiring team</h3></div>
@@ -2991,13 +2991,50 @@ const AF_STEPS=[
   {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
   {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
 ];
+const AF_BASIC_STEPS=[
+ {t:'Position',items:[
+  {k:'position',l:'Position applied for',req:1},{k:'pref_branch',l:'Preferred station / branch',ph:'e.g. SF Tanza'},
+  {k:'app_date',l:'Date of application',type:'date',req:1,ro:1},{k:'salary',l:'Expected salary',ph:'₱ 15,000',im:'numeric'},
+  {k:'source',l:'How did you learn about this job?',type:'checks',opts:AF_SRC,req:1,full:1},
+  {k:'photo',l:'Photo (optional)',type:'file',accept:'image/*',hint:'A clear photo of your face',full:1}]},
+ {t:'Personal information',sec:'I',items:[
+  {k:'name',l:'Full name',type:'name3',req:1,full:1},{k:'nick',l:'Nickname'},
+  {k:'dob',l:'Date of birth',type:'date',req:1},{k:'sex',l:'Sex',type:'radio',opts:['Male','Female'],req:1},
+  {k:'civil',l:'Civil status',type:'radio',opts:['Single','Married','Widowed','Separated (legally)','Common Law Relationship'],req:1,full:1},
+  {k:'mobile',l:'Mobile number',type:'tel',req:1,ph:'0917 123 4567'},{k:'email',l:'Email address (optional)',type:'email'},
+  {k:'addr',l:'Home address (house no., street, barangay)',req:1,full:1},{k:'city',l:'City / municipality',req:1},{k:'prov',l:'Province',req:1,list:'provs3'},
+  {k:'valid_id',l:'Valid ID (optional)',type:'file',accept:'image/*,.pdf',hint:'Any government ID — you can also bring it on your interview',full:1}]},
+ {t:'Education & work',items:[
+  {k:'edu_level',l:'Highest education attained',type:'radio',opts:['Elementary graduate','High school graduate','Senior high school graduate','Vocational / TESDA','College level','College graduate'],req:1,full:1},
+  {k:'school',l:'Name of school',full:1},
+  {k:'employment',l:'Work experience',type:'table',cols:['Name / address of company','Inclusive period (mm/yy–mm/yy)','Position held','Gross pay','Reason for leaving'],n:3,hint:'Most recent first. Leave blank if this is your first job.'},
+  {k:'resume',l:'Resume (optional)',type:'file',accept:'.pdf,.doc,.docx,image/*',full:1}]},
+ {t:'Availability',items:[
+  {k:'start',l:'Date available to start',type:'date',req:1},
+  {k:'fit',l:'Physically fit for standing work and outdoor station work?',type:'radio',opts:YN,req:1,full:1},
+  {k:'night',l:'Willing to work on a shifting schedule, including night shift?',type:'radio',opts:YN,req:1,full:1},
+  {k:'transfer',l:'Willing to be assigned to any station / branch?',type:'radio',opts:YN,req:1,full:1},
+  {k:'fcs_exp',l:'Do you have experience as a fuel attendant / station crew?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'fcs_exp_x',l:'Where and for how long?'}},
+  {k:'relatives',l:'Do you have relatives or close friends working in this company?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'relatives_x',l:'If yes, indicate their name and relationship'}}]},
+ {t:'Emergency contact & consent',items:[
+  {k:'_h2',type:'head',sec:'II',l:'Emergency contact — person to notify in case of emergency'},
+  {k:'em_name',l:'Name',req:1},{k:'em_rel',l:'Relationship',req:1},{k:'em_mob',l:'Contact number',type:'tel',req:1},{k:'em_addr',l:'Address',full:1},
+  {k:'_c1',type:'para',sec:'III',l:'Authorization for background verification',x:'I hereby authorize the Company to verify the information I have provided in this application form, including my educational background, employment history, and character references, for the purpose of evaluating my application for employment. I understand that the verification process will be conducted with confidentiality and only by authorized personnel.'},
+  {k:'_c2',type:'para',sec:'IV',l:'Data privacy consent',x:'I understand that the personal information provided in this form will be collected, processed, and stored for recruitment and employment evaluation purposes. I hereby give my consent for the Company to process my personal information in accordance with the Data Privacy Act of 2012.'},
+  {k:'_c3',type:'para',sec:'V',l:'Applicant certification',x:'I certify that the information provided in this form is true, complete, and accurate to the best of my knowledge. I understand that any false statement, misrepresentation, or omission of information may result in the rejection of my application or termination of employment should I be hired. I also acknowledge that completing this form does not constitute an employment contract nor guarantee employment with the Company.'},
+  {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
+  {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
+];
+const FCS_RE=/\b(fcs|forecourt|station crew|station attendant|gas(oline)? (boy|attendant)|pump attendant|fuel attendant|cashier[- ]attendant)\b/i;
+function isBasicJob(j){j=j||{};if(j.basicForm===true)return true;if(j.basicForm===false)return false;return FCS_RE.test(j.t||'');}
+function afSteps(){return AF&&AF.basic?AF_BASIC_STEPS:AF_STEPS;}
 const AF_FILES=['photo','valid_id','location_map','resume'];
 let AF=null; /* {mode:'apply'|'link', step, d:{}, files:{}, sig:dataURL, job, ref, tok, info, done} */
 const afKey=()=>'brdc-af-'+(AF.mode==='link'?AF.ref:AF.job);
 function afSave(){if(!AF)return;clearTimeout(AF._t);AF._t=setTimeout(()=>{try{localStorage.setItem(afKey(),JSON.stringify({d:AF.d,step:AF.step,sig:AF.sig||null,at:Date.now()}));}catch(e){}},400);}
-function afLoadDraft(){try{const x=JSON.parse(localStorage.getItem(afKey())||'null');if(x&&Date.now()-x.at<14*864e5){AF.d={...AF.d,...x.d};AF.step=Math.min(x.step||0,AF_STEPS.length-1);AF.sig=x.sig||null;AF.restored=true;}}catch(e){}}
+function afLoadDraft(){try{const x=JSON.parse(localStorage.getItem(afKey())||'null');if(x&&Date.now()-x.at<14*864e5){AF.d={...AF.d,...x.d};AF.step=Math.min(x.step||0,afSteps().length-1);AF.sig=x.sig||null;AF.restored=true;}}catch(e){}}
 function afSrcDefault(){const m={'Facebook':'Facebook','Indeed':'Indeed','Jobstreet':'Jobstreet','Referral':'Referral','Job fair':'Job Fair','Walk-in (QR)':'Company website/walkin','Career page':'Company website/walkin'};return APPLY_SRC&&m[APPLY_SRC]?[m[APPLY_SRC]]:[];}
-function afStart(mode,o){AF={mode,step:0,d:{},files:{},sig:null,...o};
+function afStart(mode,o){AF={mode,step:0,d:{},files:{},sig:null,...o};AF.basic=isBasicJob(o.info&&o.info.job?o.info.job:job(o.job));
   const j=job(AF.job)||{},gen=j.rf==='general';
   AF.d={position:gen?'':(j.t&&j.t!=='—'?j.t:''),department:j.dept||'',app_date:todayKey,source:afSrcDefault(),nationality:'Filipino'};
   if(o.info){const p=String(o.info.n||'').trim().split(/\s+/);let li=p.length-1;while(li>1&&/^(de|dela|del|delos|de los|san|sta\.?|santa|santo|la|los|y)$/i.test(p[li-1]))li--;AF.d.name={first:p.slice(0,Math.max(1,li)).join(' '),middle:'',last:p.length>1?p.slice(Math.max(1,li)).join(' '):''};AF.d.nick=o.info.nick||'';AF.d.mobile=o.info.mob||'';AF.d.email=o.info.em||'';if(o.info.job){AF.d.position=o.info.job.t||AF.d.position;AF.d.department=o.info.job.dept||AF.d.department;}}
@@ -3035,10 +3072,10 @@ function afIn(it){const v=afVal(it.k),id='af_'+it.k,t=it.type||'text';
   const inp=it.area?`<textarea class="pin" id="${id}" rows="2" oninput="AF.d['${it.k}']=this.value;afSave()">${esc(v)}</textarea>`
     :`<input class="pin" id="${id}" type="${t==='tel'?'tel':t==='email'?'email':t==='date'?'date':'text'}" ${it.im?`inputmode="${it.im}"`:t==='tel'?'inputmode="tel"':''} ${it.list?`list="${it.list}"`:''} ${it.ro?'readonly':''} placeholder="${esc(it.ph||'')}" value="${esc(v||it.def||'')}" oninput="AF.d['${it.k}']=this.value;afSave()">`;
   return `<label class="${cls}">${lab}${inp}${it.hint&&t!=='file'?`<small>${esc(it.hint)}</small>`:''}</label>`;}
-function drawAF(el){el=el||document.getElementById('s-apply');const S=AF_STEPS[AF.step],n=AF_STEPS.length,j=job(AF.job)||{},gen=j.rf==='general';
+function drawAF(el){el=el||document.getElementById('s-apply');const S=afSteps()[AF.step],n=afSteps().length,j=job(AF.job)||{},gen=j.rf==='general';
   const pos=AF.mode==='link'?(AF.info.job.t||'your application'):gen?'General application':j.t;
   el.innerHTML=`${pubHero(3)}<main class="pmain afm">
-    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application for Employment</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
+    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application for Employment${AF.basic?' <span class="pill green" style="font-size:11px;vertical-align:3px">Basic form</span>':''}</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
     <div class="afprog" aria-label="Step ${AF.step+1} of ${n}"><div><i style="width:${(AF.step+1)/n*100}%"></i></div><span>Step ${AF.step+1} of ${n} · <b>${esc(S.t)}</b></span></div>
     ${AF.restored&&AF.step===0?`<div class="afnote">We restored the answers you started earlier on this device.</div>`:''}
     <form class="psec" onsubmit="event.preventDefault();afNext()" novalidate>
@@ -3053,7 +3090,7 @@ function drawAF(el){el=el||document.getElementById('s-apply');const S=AF_STEPS[A
     </form></main>`;
   if(S.items.some(i=>i.type==='sign'))afSigInit();}
 function afSetSub(k,s,v){AF.d[k]={...(AF.d[k]||{}),[s]:v};afSave();}
-function afPick(k,el,multi){if(multi){const a=new Set(Array.isArray(AF.d[k])?AF.d[k]:[]);el.checked?a.add(el.value):a.delete(el.value);AF.d[k]=[...a];}else{AF.d[k]=el.value;const it=AF_STEPS[AF.step].items.find(i=>i.k===k);if(it&&it.then){afSave();const y=scrollY;drawAF();scrollTo(0,y);return;}}afSave();}
+function afPick(k,el,multi){if(multi){const a=new Set(Array.isArray(AF.d[k])?AF.d[k]:[]);el.checked?a.add(el.value):a.delete(el.value);AF.d[k]=[...a];}else{AF.d[k]=el.value;const it=afSteps()[AF.step].items.find(i=>i.k===k);if(it&&it.then){afSave();const y=scrollY;drawAF();scrollTo(0,y);return;}}afSave();}
 function afCell(k,r,c,v){const t=Array.isArray(AF.d[k])?AF.d[k]:[];while(t.length<=r)t.push([]);t[r]=t[r]||[];t[r][c]=v;AF.d[k]=t;afSave();}
 async function afFile(k,inp){const f=inp.files[0];if(!f)return;const er=document.getElementById('aErr');
   try{const p=await prepFile(f);AF.files[k]={name:f.name,type:p.type,data:p.data};er.textContent='';}catch(e){er.textContent=e.message;return;}const y=scrollY;drawAF();scrollTo(0,y);}
@@ -3064,7 +3101,7 @@ function afSigInit(){const c=document.getElementById('afCanvas');if(!c)return;co
   c.onpointermove=e=>{if(!down)return;const p=pt(e);x.beginPath();x.moveTo(...last);x.lineTo(...p);x.stroke();last=p;AF.sigDirty=true;};
   c.onpointerup=c.onpointercancel=()=>{if(down&&AF.sigDirty){AF.sig=c.toDataURL('image/png');afSave();}down=false;};}
 function afSigClear(){const c=document.getElementById('afCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);AF.sig=null;AF.sigDirty=false;afSave();}
-function afMissing(step){const miss=[];AF_STEPS[step].items.forEach(it=>{if(!it.req)return;const v=AF.d[it.k];let ok=true;
+function afMissing(step){const miss=[];afSteps()[step].items.forEach(it=>{if(!it.req)return;const v=AF.d[it.k];let ok=true;
     if(it.type==='name3')ok=!!(v&&String(v.first||'').trim()&&String(v.last||'').trim());
     else if(it.type==='checks')ok=Array.isArray(v)&&v.length>0;
     else if(it.type==='table')ok=Array.isArray(v)&&v.some(r=>r&&String(r[0]||'').trim());
@@ -3077,13 +3114,14 @@ function afMissing(step){const miss=[];AF_STEPS[step].items.forEach(it=>{if(!it.
 function afCheck(){const er=document.getElementById('aErr');document.querySelectorAll('.afbad').forEach(x=>x.classList.remove('afbad'));
   const miss=afMissing(AF.step);if(miss.length){er.textContent='Please complete: '+miss.map(m=>m.l.replace(/\s*\(.*\)$/,'')).join(' · ');
     miss.forEach(m=>{const e=document.getElementById('af_'+m.k);if(e)e.classList.add('afbad');});const f=document.getElementById('af_'+miss[0].k);(f||er).scrollIntoView({behavior:'smooth',block:'center'});return false;}
-  const d=AF.d;if(AF.step===1){if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(String(d.mobile||'').trim())){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return false;}
-    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(d.email||'').trim())){er.textContent='Check your email address.';return false;}
-    if(d.dob&&(Date.now()-Date.parse(d.dob))/3.156e10<15){er.textContent='Check your date of birth.';return false;}}
-  if(AF.step===7){const r=(d.refs||[])[0]||[];if(!String(r[3]||'').trim()){er.textContent='Please give the contact number of your first character reference.';return false;}}
+  const d=AF.d,keys=afSteps()[AF.step].items.map(i=>i.k);
+  if(keys.includes('mobile')&&!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(String(d.mobile||'').trim())){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return false;}
+  if(keys.includes('email')&&String(d.email||'').trim()&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(d.email||'').trim())){er.textContent='Check your email address.';return false;}
+  if(keys.includes('dob')&&d.dob&&(Date.now()-Date.parse(d.dob))/3.156e10<15){er.textContent='Check your date of birth.';return false;}
+  if(keys.includes('refs')){const r=(d.refs||[])[0]||[];if(!String(r[3]||'').trim()){er.textContent='Please give the contact number of your first character reference.';return false;}}
   er.textContent='';return true;}
 function afBack(){AF.step=Math.max(0,AF.step-1);AF.restored=false;afSave();drawAF();scrollTo(0,0);}
-function afNext(){if(!afCheck())return;if(AF.step<AF_STEPS.length-1){AF.step++;AF.restored=false;afSave();drawAF();scrollTo(0,0);return;}afSubmit();}
+function afNext(){if(!afCheck())return;if(AF.step<afSteps().length-1){AF.step++;AF.restored=false;afSave();drawAF();scrollTo(0,0);return;}afSubmit();}
 function afSummary(){const d=AF.d,nm=d.name||{},n=[nm.first,nm.middle,nm.last].map(x=>String(x||'').trim()).filter(Boolean).join(' ');
   const srcMap={'Company website/walkin':'Career page','Job Fair':'Job fair'},src=(d.source||[])[0];
   const exp=(d.employment||[]).filter(r=>r&&String(r[0]||'').trim()).map(r=>`${r[2]||'—'} – ${r[0]}${r[1]?` (${r[1]})`:''}`).join('\n');
@@ -3094,9 +3132,9 @@ async function afUploads(tok,btn){const list=AF_FILES.filter(k=>AF.files[k]).map
   let fail=[];for(let i=0;i<list.length;i++){const [k,f]=list[i];btn.textContent=`Uploading files… ${i+1}/${list.length}`;
     try{await api('public',{method:'POST',body:{action:'upload',tok,kind:k,file:f}});}catch(e){fail.push(k.replace('_',' '));}}
   return fail;}
-async function afSubmit(){const btn=document.getElementById('afGo'),er=document.getElementById('aErr');const all=AF_STEPS.map((_,i)=>afMissing(i).length?i:-1).filter(i=>i>=0);
+async function afSubmit(){const btn=document.getElementById('afGo'),er=document.getElementById('aErr');const all=afSteps().map((_,i)=>afMissing(i).length?i:-1).filter(i=>i>=0);
   if(all.length){AF.step=all[0];drawAF();afCheck();return;}
-  const s=afSummary(),form={...AF.d,_v:1,_files:AF_FILES.filter(k=>AF.files[k]).concat(AF.sig?['signature']:[])};
+  const s=afSummary(),form={...AF.d,_v:1,_basic:!!AF.basic,_files:AF_FILES.filter(k=>AF.files[k]).concat(AF.sig?['signature']:[])};
   btn.disabled=true;btn.textContent='Submitting…';
   if(REMOTE){try{let r;
       if(AF.mode==='link')r=await api('public',{method:'POST',body:{action:'formsubmit',tok:AF.tok,form}});
@@ -3127,7 +3165,7 @@ let AFC={};
 async function loadAppForm(c,force){const ref=candRef(c);if(c.formData){AFC[ref]={form:c.formData};return;}if(!REMOTE||!SESSION||(AFC[ref]&&!force)||AFC[ref+'_l'])return;AFC[ref+'_l']=1;
   try{const r=await api('forms?ref='+encodeURIComponent(ref));AFC[ref]={form:r.form,at:r.updatedAt};}catch(e){AFC[ref]={err:e.message};}delete AFC[ref+'_l'];if(cur==='s-prof')renderSafe();}
 function afText(v){if(v==null||v==='')return '—';if(Array.isArray(v))return v.length?v.join(', '):'—';if(typeof v==='object')return [v.first,v.middle,v.last].filter(Boolean).join(' ')||'—';return String(v);}
-function afSections(f,print){let h='';AF_STEPS.forEach(S=>{let rows='';
+function afSections(f,print){let h='';(f&&f._basic?AF_BASIC_STEPS:AF_STEPS).forEach(S=>{let rows='';
     S.items.forEach(it=>{const t=it.type||'text';if(['head','notice','para','file','sign'].includes(t)){if(t==='head')rows+=`<tr><th colspan="2" class="afsub">${esc(it.l)}</th></tr>`;return;}
       if(t==='table'){const rl=it.rows||Array.from({length:it.n},(_,i)=>String(i+1)),v=(f[it.k]||[]);const used=rl.map((r,i)=>[r,v[i]||[]]).filter(([,x])=>x.some(y=>String(y||'').trim()));
         rows+=`<tr><td colspan="2"><b>${esc(it.l)}</b>${used.length?`<table class="aft"><thead><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${used.map(([r,x])=>`<tr><td>${esc(r)}</td>${it.cols.map((_,ci)=>`<td>${esc(x[ci]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`:' <span class="mut">— none</span>'}</td></tr>`;return;}
@@ -3374,6 +3412,8 @@ async function deleteCand(id){const c=cand(id);if(!c)return;if(!isAdmin()){toast
   delete FILES[ref];delete FILECOUNT[ref];if(typeof AFC==='object')delete AFC[ref];
   log(`Deleted candidate ${c.n} (${ref})`,c.job);saveData();toast(`${c.n} deleted`);
   if(cur==='s-prof')go('s-pipe');else render();}
+/* ===== v20: basic application form for FCS jobs ===== */
+function setJobForm(id,v){const j=job(id);if(v==='auto')delete j.basicForm;else j.basicForm=(v==='basic');log(`Set application form of ${id} to ${v==='auto'?'automatic':v}`,id);saveData();toast(`Applicants for ${j.t} will get the ${isBasicJob(j)?'basic (FCS)':'standard'} form`);render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

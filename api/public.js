@@ -10,7 +10,7 @@ const str = (v, n = 200) => String(v ?? '').trim().slice(0, n);
 export default handle(async (req, res) => {
   const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
   if (req.method === 'GET') {
-    const jobs = (s.JOBS || []).filter((j) => j.status === 'open').map((j) => ({ id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br, prov: j.prov, rf: j.rf, head: j.head, filled: j.filled || 0, open: j.open, status: j.status, sal: j.sal, vac: j.vac, skills: j.skills || [] }));
+    const jobs = (s.JOBS || []).filter((j) => j.status === 'open').map((j) => ({ id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br, prov: j.prov, rf: j.rf, head: j.head, filled: j.filled || 0, open: j.open, status: j.status, sal: j.sal, vac: j.vac, skills: j.skills || [], basicForm: j.basicForm }));
     return send(res, 200, { ready: true, configured: !!(s.JOBS && s.JOBS.length), jobs });
   }
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });
@@ -85,7 +85,7 @@ export default handle(async (req, res) => {
     const j = (s.JOBS || []).find((x) => x.id === info.job) || {};
     if (b.action === 'formload') {
       const done = (await q(`SELECT updated_at FROM forms WHERE ref=$1`, [t.ref]))[0];
-      return send(res, 200, { ref: t.ref, n: info.n, nick: info.nick, mob: info.mob, em: info.em, job: { id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br }, submittedAt: done ? done.updated_at : null });
+      return send(res, 200, { ref: t.ref, n: info.n, nick: info.nick, mob: info.mob, em: info.em, job: { id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br, basicForm: j.basicForm }, submittedAt: done ? done.updated_at : null });
     }
     const form = cleanForm(b.form); if (!form) return send(res, 400, { error: 'The form is empty.' });
     await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [t.ref, JSON.stringify(form)]);
