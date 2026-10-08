@@ -632,7 +632,7 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 .side a{transition:background-color .2s,color .2s,transform .1s,border-color .2s}
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
-.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar{display:flex;gap:10px;align-items:center}.sbar .pbtn{margin:0!important;transform:none}.sbar .pbtn{font-size:16px;padding:14px 18px}.sbar #sGo{flex:1}.sbar .pbtn{white-space:nowrap;height:54px;padding-top:0!important;padding-bottom:0!important;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}.sbar #sBack{flex:none;min-width:0;padding:14px 18px}@media (max-width:420px){.sbar .pbtn{font-size:15px;padding:13px 14px}}</style>
+.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar{display:flex;gap:10px;align-items:center}.sbar .pbtn{margin:0!important;transform:none}.sbar .pbtn{font-size:16px;padding:14px 18px}.sbar #sGo{flex:1}.sbar .pbtn{white-space:nowrap;height:54px;padding-top:0!important;padding-bottom:0!important;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}.sbar #sBack{flex:none;min-width:0;padding:14px 18px}@media (max-width:420px){.sbar .pbtn{font-size:15px;padding:13px 14px}}.aflogo-w{flex:none;width:118px;height:64px;border-radius:12px;border:1px solid #E3E9DE;background:#fff;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;overflow:hidden}.aflogo-w.dark{background:#0E1A10;border-color:#0E1A10}.aflogo-w img{max-width:100%;max-height:100%;object-fit:contain;display:block}@media (max-width:520px){.aflogo-w{width:84px;height:50px}}html[data-theme="dark"] .aflogo-w:not(.dark){background:#fff!important}</style>
 </head>
 <body class="locked">
 
@@ -3075,7 +3075,7 @@ function afIn(it){const v=afVal(it.k),id='af_'+it.k,t=it.type||'text';
 function drawAF(el){el=el||document.getElementById('s-apply');const S=afSteps()[AF.step],n=afSteps().length,j=job(AF.job)||{},gen=j.rf==='general';
   const pos=AF.mode==='link'?(AF.info.job.t||'your application'):gen?'General application':j.t;
   el.innerHTML=`${pubHero(3)}<main class="pmain afm">
-    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application for Employment${AF.basic?' <span class="pill green" style="font-size:11px;vertical-align:3px">Basic form</span>':''}</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
+    <div class="afhead">${afLogo(AF.mode==='link'&&AF.info&&AF.info.job?AF.info.job.bu:j.bu,AF.mode!=='link'&&gen)}<div><h2>Application for Employment${AF.basic?' <span class="pill green" style="font-size:11px;vertical-align:3px">Basic form</span>':''}</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
     <div class="afprog" aria-label="Step ${AF.step+1} of ${n}"><div><i style="width:${(AF.step+1)/n*100}%"></i></div><span>Step ${AF.step+1} of ${n} · <b>${esc(S.t)}</b></span></div>
     ${AF.restored&&AF.step===0?`<div class="afnote">We restored the answers you started earlier on this device.</div>`:''}
     <form class="psec" onsubmit="event.preventDefault();afNext()" novalidate>
@@ -3422,7 +3422,7 @@ function rApply(){const el=document.getElementById('s-apply');
   if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
   const j=job(applyJob),gen=j.rf==='general',pos=gen?'Any available position (general application)':`${j.t} — ${BU[j.bu]||''}${j.br&&j.br!=='—'&&j.br!=='To be confirmed'?' · '+j.br:''}`;
   el.innerHTML=`${pubHero(3)}<main class="pmain afm">
-    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application Form</h2><p>Fill in your details and attach your resume. HR will contact you.</p></div></div>
+    <div class="afhead">${afLogo(j.bu,gen)}<div><h2>Application Form</h2><p>Fill in your details and attach your resume. HR will contact you.</p></div></div>
     <form class="psec" id="sApp" onsubmit="submitSimple(event)" novalidate>
       <div class="pg2">
         <label class="pf full">Position applied for<div class="pin posbox">${esc(pos)}</div><small>${gen?'':'Selected from the job you chose · '}<a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a></small></label>
@@ -3458,6 +3458,8 @@ async function submitSimple(e){if(e)e.preventDefault();const g=id=>(document.get
   const id=nextCandId();CANDS.push({id,n,names,nick:names.first.split(' ')[0],mob:g('sMob'),em:g('sEmail'),city:'—',prov:'',job:applyJob,stage:'new',since:isoAgo(0),stageAt:new Date().toISOString(),applied:isoAgo(0),src:APPLY_SRC||'Career page',owner:j.owner,lang:'tl',quad:null,docs:false,exp:'—',skills:[],resume:f0.name});
   const ref='C-'+String(2000+id);ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${n} for ${j.t} (${ref})`,job:applyJob});
   saveData();applyDone={ref,nick:names.first.split(' ')[0],job:j.t};render();scrollTo(0,0);}
+/* ===== v22: company logo on the application form ===== */
+function afLogo(bu,gen){const src=!gen&&BU_LOGO[bu];return src?`<span class="aflogo-w ${bu==='br'||bu==='uh'?'dark':''}"><img src="${src}" alt="${esc(BU[bu]||'')}"></span>`:'<img src="assets/brdc-logo.png" alt="BRDC" class="aflogo">';}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
