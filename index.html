@@ -4,10 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>BRDC Recruit — Sign in</title>
-<link rel="icon" type="image/png" sizes="32x32" href="assets/favicon-32.png">
-<link rel="icon" href="favicon.ico" sizes="any">
-<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
-<meta name="theme-color" content="#0D2406">
 <script>try{if(localStorage.getItem('brdc-theme')==='dark'){document.documentElement.dataset.theme='dark';document.documentElement.style.background='#111512';}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -632,7 +628,7 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 .side a{transition:background-color .2s,color .2s,transform .1s,border-color .2s}
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
-.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar{display:flex;gap:10px;align-items:center}.sbar .pbtn{margin:0!important;transform:none}.sbar .pbtn{font-size:16px;padding:14px 18px}.sbar #sGo{flex:1}.sbar .pbtn{white-space:nowrap;height:54px;padding-top:0!important;padding-bottom:0!important;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}.sbar #sBack{flex:none;min-width:0;padding:14px 18px}@media (max-width:420px){.sbar .pbtn{font-size:15px;padding:13px 14px}}.aflogo-w{flex:none;width:118px;height:64px;border-radius:12px;border:1px solid #E3E9DE;background:#fff;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;overflow:hidden}.aflogo-w.dark{background:#0E1A10;border-color:#0E1A10}.aflogo-w img{max-width:100%;max-height:100%;object-fit:contain;display:block}@media (max-width:520px){.aflogo-w{width:84px;height:50px}}html[data-theme="dark"] .aflogo-w:not(.dark){background:#fff!important}.bri.clk{cursor:pointer;border-radius:10px;transition:background-color .15s}.bri.clk:hover{background:#F2F6EF}.bri.clk:hover .brn b{color:#1C5A12;text-decoration:underline}</style>
+</style>
 </head>
 <body class="locked">
 
@@ -748,6 +744,7 @@ const BU = {br:"BRDC", sf:"Smartfuels", nb:"Neo Bros Ventures", uh:"U Hotels", t
 const STAGES = [
   {k:"new",        n:"New",                  sla:2,  c:"#2F9E44"},
   {k:"screening",  n:"Initial screening",    sla:3,  c:"#2466C9"},
+  {k:"hr_int",     n:"HR interview",         sla:3,  c:"#1F7A8C"},
   {k:"dept_int",   n:"Department interview", sla:4,  c:"#0E6E6E"},
   {k:"exam",       n:"Assessment",           sla:3,  c:"#7B4FB0"},
   {k:"final",      n:"Final interview",      sla:3,  c:"#B4620E"},
@@ -758,8 +755,8 @@ const STAGES = [
 ];
 const BU_LOGO = {br:"assets/bu/br.png", sf:"assets/bu/sf.png", nb:"assets/bu/nb.png", uh:"assets/bu/uh.png", th:"assets/bu/th.png", ex:"assets/bu/ex.png", pp:"assets/bu/pp.png", lf:"assets/bu/lf.png"};
 function buLogo(k,cls){const v=BU[k]||k;return BU_LOGO[k]?`<span class="bulogo ${cls||''} ${k==='br'||k==='uh'?'dark':''}"><img src="${BU_LOGO[k]}" alt="${v} logo" loading="lazy"></span>`:`<span class="bulogo ${cls||''} ini">${(v.split(' ').map(w=>w[0]).join('')).slice(0,2).toUpperCase()}</span>`;}
-const ACTIVE = ["new","screening","dept_int","exam","final","offer","reqs"];
-const INTERVIEW_STAGES = ["dept_int","final"];
+const ACTIVE = ["new","screening","hr_int","dept_int","exam","final","offer","reqs"];
+const INTERVIEW_STAGES = ["hr_int","dept_int","final"];
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 function localISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 const todayKey=localISO(TODAY);
@@ -806,7 +803,7 @@ let CANDS = [
    quad:null, docs:false, exp:"Gasoline attendant – Petron Calamba (2023–2025)", skills:["Fuel dispensing","Basic math"]},
   {id:3, n:"Rowena Bautista", nick:"Weng", mob:"0906 771 2280", em:"rowena.b@email.com", city:"Biñan", prov:"Laguna", job:"SF-114", stage:"screening", since:isoAgo(2), applied:isoAgo(6), src:"Jobstreet", owner:"R. Cruz", lang:"en",
    quad:{A:31,B:24,C:20,D:17}, docs:false, exp:"Sales associate – SM Biñan (2021–2025)", skills:["POS","Inventory","Customer service"]},
-  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"dept_int", since:isoAgo(1), applied:isoAgo(9), src:"Referral", owner:"R. Cruz", lang:"tl",
+  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"hr_int", since:isoAgo(1), applied:isoAgo(9), src:"Referral", owner:"R. Cruz", lang:"tl",
    quad:{A:19,B:33,C:26,D:14}, docs:false, exp:"Warehouse staff – Puregold (2022–2026)", skills:["Inventory","Forklift","Teamwork","Cash handling"]},
   {id:5, n:"Kristine Villanueva", nick:"Tin", mob:"0917 884 2201", em:"kristine.v@email.com", city:"Manila", prov:"NCR", job:"UH-021", stage:"screening", since:isoAgo(5), applied:isoAgo(8), src:"Indeed", owner:"J. Tan", lang:"en",
    quad:{A:26,B:21,C:32,D:25}, docs:false, exp:"Front desk – Red Planet Manila (2023–2026)", skills:["Front office","English","Booking systems"]},
@@ -827,7 +824,7 @@ let CANDS = [
   const SRC=["Facebook","Facebook","Facebook","Walk-in (QR)","Walk-in (QR)","Jobstreet","Jobstreet","Referral","Indeed","Career page"];
   const EXTRA=["Customer service","Teamwork","Communication","Basic Excel","Driving","Leadership","Data entry","Inventory"];
   const PREV=["Service crew – Jollibee","Cashier – Puregold","Sales clerk – SM","Warehouse helper – LBC","Utility – Robinsons","Rider – Lalamove","Staff – Mercury Drug","Crew – McDonald's","Helper – construction","Clerk – LGU office"];
-  const W={new:6,screening:5,dept_int:3,exam:3,final:2,offer:2,reqs:2,hired:1,onboarding:2};
+  const W={new:6,screening:5,hr_int:4,dept_int:3,exam:3,final:2,offer:2,reqs:2,hired:1,onboarding:2};
   const bag=[];Object.entries(W).forEach(([k,n])=>{for(let i=0;i<n;i++)bag.push(k)});
   const jobsOpen=JOBS.filter(j=>j.status==='open'&&j.rf!=='general');
   for(let i=0;i<46;i++){
@@ -870,7 +867,7 @@ let MPR=[
 /* interviews */
 let INTV=[];
 (function(){
-  const who={dept_int:["R. Cruz","J. Tan","M. Lim"],final:["BU General Manager"]};
+  const who={hr_int:["R. Cruz","J. Tan","M. Lim"],dept_int:null,final:["BU General Manager"]};
   let n=1;
   CANDS.filter(c=>INTERVIEW_STAGES.includes(c.stage)).forEach((c,i)=>{
     const j=JOBS.find(x=>x.id===c.job), type=c.stage==='hr_int'?'HR interview':c.stage==='dept_int'?'Department interview':'Final interview';
@@ -1162,7 +1159,7 @@ const STORE='brdc-recruit-v3'; /* v3 = starts empty for test runs */
 let BRANCHES=null;
 function saveData(){if(REMOTE){if(SESSION)queueSave();return;}try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
 function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');if(!d||d.v!==2)return;
-  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;fixSla(d.SLA).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
+  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
 function resetData(){if(REMOTE){if(!confirm('Clear ALL recruitment data in the shared database?\n\nApplicants, interviews, requests, messages and history will be deleted for EVERYONE. Jobs, branches and accounts are kept.'))return;CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];log('Cleared all recruitment data');saveData();render();toast('Data cleared');return;}if(!confirm('Clear ALL recruitment data and start from zero?\n\nApplicants, interviews, requests, messages and history will be deleted. Jobs and branches are kept. Accounts are not affected.'))return;try{localStorage.removeItem(STORE);localStorage.removeItem('brdc-sample');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function loadSample(){if(!confirm('Replace current data with sample data for a demo?\n\nAnything you entered will be lost.'))return;try{localStorage.removeItem(STORE);localStorage.setItem('brdc-sample','1');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function wipeJobs(){if(!confirm('Delete ALL jobs and branches too?\n\nYou will create jobs again through Manpower requests.'))return;JOBS=JOBS.filter(j=>j.rf==='general');Object.keys(BRANCHES||{}).forEach(k=>BRANCHES[k]=[]);CANDS=[];try{localStorage.setItem('brdc-nojobs','1');}catch(e){}saveData();toast('All jobs and branches removed');render();}
@@ -1264,8 +1261,8 @@ function toggleNotif(ev){ev.stopPropagation();const p=document.querySelector('.s
   if(opening){markSeen();document.querySelectorAll('.bell').forEach(b=>{b.classList.remove('ring');const s=b.querySelector('span');if(s)s.remove();b.setAttribute('data-tip','Notifications');});}}
 function showOverdue(){const L=CANDS.filter(c=>c.late&&ACTIVE.includes(c.stage)).sort((a,b)=>(b.days-stg(b.stage).sla)-(a.days-stg(a.stage).sla));
   modal(`<div class="brh"><div><h3 style="margin:0">Overdue candidates</h3><div class="mut">${L.length} candidate${L.length===1?'':'s'} past the allowed days for their stage · most overdue first</div></div><button class="btn sm" style="margin-left:auto" onclick="closeModal()">Close</button></div>
-    <div class="brlist">${L.map(c=>{const j=job(c.job),over=c.days-stg(c.stage).sla;return `<div class="bri clk" onclick="closeModal();openCand(${c.id})" title="Open profile" role="button" tabindex="0"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span class="brn"><b>${esc(c.n)}</b><small>${esc(j.t)} · ${BU[j.bu]} · ${stageName(c.stage)} for ${c.days} days (limit ${stg(c.stage).sla})</small></span>
-      <span class="pill red">${over}d over</span><button class="btn sm pri" onclick="event.stopPropagation();closeModal();openCand(${c.id})">Open</button></div>`;}).join('')||'<div class="empty">Nothing overdue. Every candidate is within the allowed days.</div>'}</div>
+    <div class="brlist">${L.map(c=>{const j=job(c.job),over=c.days-stg(c.stage).sla;return `<div class="bri"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span class="brn"><b>${esc(c.n)}</b><small>${esc(j.t)} · ${BU[j.bu]} · ${stageName(c.stage)} for ${c.days} days (limit ${stg(c.stage).sla})</small></span>
+      <span class="pill red">${over}d over</span><button class="btn sm pri" onclick="closeModal();openCand(${c.id})">Open</button></div>`;}).join('')||'<div class="empty">Nothing overdue. Every candidate is within the allowed days.</div>'}</div>
     <div class="mdl-f"><button class="btn" onclick="closeModal();pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:true};go('s-pipe')">View in Candidates list</button></div>`,'wide');}
 
 /* ============================================================
@@ -1279,8 +1276,7 @@ function initBranches(){
 initBranches();
 function branchesOf(k){return (BRANCHES[k]||[]);}
 function brId(k){const L=branchesOf(k);return k+'-'+(Math.max(0,...L.map(b=>+String(b.id).split('-').pop()||0))+1);}
-function sortBr(L){return L.slice().sort((a,b)=>String(a.n).localeCompare(String(b.n),'en',{numeric:true,sensitivity:'base'}));}
-function branchOpts(k,sel){const L=sortBr(branchesOf(k).filter(b=>b.active!==false));return `<option value="">— Select branch —</option>${L.map(b=>`<option ${b.n===sel?'selected':''}>${esc(b.n)}</option>`).join('')}<option value="__tbc" ${sel==='To be confirmed'?'selected':''}>To be confirmed</option>`;}
+function branchOpts(k,sel){const L=branchesOf(k).filter(b=>b.active!==false);return `<option value="">— Select branch —</option>${L.map(b=>`<option ${b.n===sel?'selected':''}>${esc(b.n)}</option>`).join('')}<option value="__tbc" ${sel==='To be confirmed'?'selected':''}>To be confirmed</option>`;}
 function parseBranchLines(text){
   return text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
     let p=l.includes('\t')?l.split('\t'):l.split(/\s*[,;|]\s*/);p=p.map(x=>x.replace(/^"|"$/g,'').trim());
@@ -1371,7 +1367,7 @@ function rProf(){
       </div>
       <div style="display:flex;flex-direction:column;gap:6px">
         ${c.stage==='onboarding'?`<button class="btn pri" onclick="go('s-onb')">Open onboarding</button>`:`<button class="btn pri" onclick="advance(${c.id})">Move to ${c.stage==='draft'?'New':stageName((STAGES[STAGES.findIndex(s=>s.k===c.stage)+1]||{}).k)}</button>`}
-        <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}${isAdmin()?`<button class="btn del" onclick="deleteCand(${c.id})">Delete candidate</button>`:''}
+        <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}
         <button class="btn" onclick="sendTest(${c.id})">Send test</button>
         <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
       </div>
@@ -1550,15 +1546,15 @@ function shell(active, body, extra){
    ============================================================ */
 function showHired(){
   const mk=todayKey.slice(0,7), cur=scopedCands().filter(c=>['hired','onboarding'].includes(c.stage)), done=scopedHist().filter(h=>h.out==='hired'&&h.month===mk);
-  const row=(nm,sub,pill,act,cid)=>`<div class="bri${cid!=null?' clk':''}" ${cid!=null?`onclick="closeModal();openCand(${cid})" title="Open profile" role="button" tabindex="0" onkeydown="if(event.key==='Enter')this.click()"`:''}><span class="brn"><b>${nm}</b><small>${sub}</small></span>${pill}${act||''}</div>`;
+  const row=(nm,sub,pill,act)=>`<div class="bri"><span class="brn"><b>${nm}</b><small>${sub}</small></span>${pill}${act||''}</div>`;
   modal(`<div class="brh"><div><h3 style="margin:0">Hired this month</h3><div class="mut">${cur.length+done.length} total${buF?' · '+BU[buF]:''} · ${TODAY.toLocaleDateString('en-PH',{month:'long',year:'numeric'})}</div></div><button class="btn sm" style="margin-left:auto" onclick="closeModal()">Close</button></div>
     <h3 style="font-size:13px;margin:6px 0 4px">In onboarding (${cur.length})</h3>
-    ${cur.map(c=>{const j=job(c.job);return row(esc(c.n),`${esc(j.t)} · ${BU[j.bu]} · start ${c.start?fmtD(c.start):'TBC'} · ${(c.onb||[]).filter(Boolean).length}/${ONB_ITEMS.length} requirements`,`<span class="pill ${c.stage==='hired'?'amber':'green'}">${stageName(c.stage)}</span>`,`<button class="btn sm" onclick="event.stopPropagation();closeModal();openCand(${c.id})">Open</button>`,c.id);}).join('')||'<div class="mut" style="padding:6px 0">None</div>'}
+    ${cur.map(c=>{const j=job(c.job);return row(esc(c.n),`${esc(j.t)} · ${BU[j.bu]} · start ${c.start?fmtD(c.start):'TBC'} · ${(c.onb||[]).filter(Boolean).length}/${ONB_ITEMS.length} requirements`,`<span class="pill ${c.stage==='hired'?'amber':'green'}">${stageName(c.stage)}</span>`,`<button class="btn sm" onclick="closeModal();openCand(${c.id})">Open</button>`);}).join('')||'<div class="mut" style="padding:6px 0">None</div>'}
     <h3 style="font-size:13px;margin:14px 0 4px">Completed onboarding (${done.length})</h3>
-    ${done.map(h=>{const j=h.job?job(h.job):null,hc=(h.cid!=null&&cand(h.cid))||CANDS.find(c=>c.n===h.n&&(!h.job||c.job===h.job));return row(esc(h.n||'Hire record'),`${j&&j.t!=='—'?esc(j.t)+' · ':''}${BU[h.bu]||''} · via ${esc(h.src)}${h.day?' · '+fmtD(mk+'-'+String(h.day).padStart(2,'0')):''} · ${h.tth} days to hire`,'<span class="pill green">Employee</span>',hc?`<button class="btn sm" onclick="event.stopPropagation();closeModal();openCand(${hc.id})">Open</button>`:'',hc?hc.id:null);}).join('')||'<div class="mut" style="padding:6px 0">None yet this month</div>'}
+    ${done.map(h=>{const j=h.job?job(h.job):null;return row(esc(h.n||'Hire record'),`${j&&j.t!=='—'?esc(j.t)+' · ':''}${BU[h.bu]||''} · via ${esc(h.src)}${h.day?' · '+fmtD(mk+'-'+String(h.day).padStart(2,'0')):''} · ${h.tth} days to hire`,'<span class="pill green">Employee</span>');}).join('')||'<div class="mut" style="padding:6px 0">None yet this month</div>'}
     <div class="mdl-f"><button class="btn" onclick="closeModal();go('s-onb')">Go to Onboarding</button></div>`,'wide');}
 let paAll=false;
-const BU_GROUPS=[['Screening',['new','screening'],'#CFE8C4'],['Interviews',['dept_int','final'],'#8FC77A'],['Assessment',['exam'],'#4E9E38'],['Offer & requirements',['offer','reqs'],'#2A6E1C'],['Onboarding',['hired','onboarding'],'#133F0C']];
+const BU_GROUPS=[['Screening',['new','screening'],'#CFE8C4'],['Interviews',['hr_int','dept_int','final'],'#8FC77A'],['Assessment',['exam'],'#4E9E38'],['Offer & requirements',['offer','reqs'],'#2A6E1C'],['Onboarding',['hired','onboarding'],'#133F0C']];
 function buBoxes(){const mk=todayKey.slice(0,7);
   return `<div class="bulgd">${BU_GROUPS.map(([n,,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')}</div><div class="bubox-grid">${Object.keys(BU).map(k=>{
     const bj=JOBS.filter(j=>j.bu===k&&jobOpen(j)), bc=CANDS.filter(c=>c.stage!=='draft'&&job(c.job).bu===k);
@@ -1701,7 +1697,7 @@ function rJob(){
       <div class="card"><div class="ch"><h3>Funnel for this job</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:all.filter(c=>STAGES.findIndex(x=>x.k===c.stage)>=STAGES.findIndex(x=>x.k===s.k)).length,tip:`Reached ${s.n}`})))}</div>
       <div class="card"><div class="ch"><h3>Key facts</h3></div><dl class="kv">
         <dt>Opened</dt><dd>${fmtD(j.open)} · ${daysSince(j.open)} days ago</dd><dt>Headcount</dt><dd>${j.filled||0} of ${j.head} filled</dd>
-        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Application form</dt><dd>${canEdit()?`<select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobForm('${j.id}',this.value)"><option value="auto" ${j.basicForm==null?'selected':''}>Automatic — ${FCS_RE.test(j.t||'')?'Basic (FSC)':'Standard'}</option><option value="basic" ${j.basicForm===true?'selected':''}>Basic (FSC)</option><option value="standard" ${j.basicForm===false?'selected':''}>Standard</option></select>`:(isBasicJob(j)?'Basic (FSC)':'Standard')}</dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
+        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
         <dt>Required skills</dt><dd>${(j.skills||[]).map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join('')||'—'}</dd>
         <dt>Sources</dt><dd>${[...new Set(all.map(c=>c.src))].map(s=>`${esc(s)} (${all.filter(c=>c.src===s).length})`).join(' · ')||'—'}</dd></dl></div></div></div>`;
   const team=`<div class="pad"><div class="card" style="max-width:640px"><div class="ch"><h3>Hiring team</h3></div>
@@ -1754,14 +1750,14 @@ function rPipe(){
       ${pf.job?`<button class="btn pri" onclick="openJob('${pf.job}')">Open board view</button>`:''}
       <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
     </div>
-    <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th>${isAdmin()?'<th></th>':''}</tr></thead><tbody>
+    <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th></tr></thead><tbody>
     ${list.map(c=>{const f=fitParts(c);return `<tr class="clk" onclick="openCand(${c.id})">
       <td><div style="display:flex;gap:10px;align-items:center"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><div class="mut">${esc(c.mob)} · ${esc(c.city)}</div></span></div></td>
       <td>${esc(job(c.job).t)}<div class="mut">${c.job} · ${BU[job(c.job).bu]}</div></td>
       <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
       <td>${c.late?`<span class="pill red">${stageAge(c)} · over SLA</span>`:`<span class="pill mute" data-tip="In this stage since ${esc(fmtWhen(stageStart(c)||c.since))}">${stageAge(c)}</span>`}</td>
       <td><span class="match" style="background:${fitCol(f.total)}">${f.total}%</span></td>
-      <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td>${isAdmin()?`<td onclick="event.stopPropagation()"><button class="btn sm del" onclick="deleteCand(${c.id})" title="Delete candidate (admin only)" aria-label="Delete ${esc(c.n)}">Delete</button></td>`:''}</tr>`;}).join('')||'<tr><td colspan="8"><div class="empty">No candidates match these filters.</div></td></tr>'}
+      <td>${esc(c.src)}<div class="mut" style="font-size:11.5px;white-space:nowrap">${originHtml(c,1)}</div></td><td>${c.owner||`<button class="btn sm" onclick="event.stopPropagation();claim(${c.id})">Claim</button>`}</td></tr>`;}).join('')||'<tr><td colspan="7"><div class="empty">No candidates match these filters.</div></td></tr>'}
     </tbody></table></div></div>`);
 }
 function exportCSV(ids){const rows=[["Name","Mobile","Email","City","Province","Job","Position","Business unit","Stage","Days in stage","Source","Fit","Owner","Applied"]];
@@ -1781,7 +1777,7 @@ function rJobs(){
     <h2>Jobs</h2><p class="sub">${JOBS.filter(jobOpen).length} open · ${JOBS.filter(j=>jobOpen(j)).reduce((s,j)=>s+vacancies(j),0)} vacancies · click a job to open its pipeline board</p>
     <div class="bar">
       <select class="inp" onchange="jfl.bu=this.value;jfl.br='';render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${jfl.bu===k?'selected':''}>${v}</option>`).join('')}</select>
-      ${jfl.bu?`<select class="inp" onchange="jfl.br=this.value;render()"><option value="">All ${branchesOf(jfl.bu).length} branches</option>${sortBr(branchesOf(jfl.bu)).map(b=>`<option ${jfl.br===b.n?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`:''}
+      ${jfl.bu?`<select class="inp" onchange="jfl.br=this.value;render()"><option value="">All ${branchesOf(jfl.bu).length} branches</option>${branchesOf(jfl.bu).map(b=>`<option ${jfl.br===b.n?'selected':''}>${esc(b.n)}</option>`).join('')}</select>`:''}
       <select class="inp" onchange="jfl.status=this.value;render()"><option value="">All statuses</option>${['open','pending_approval','filled','on_hold','closed'].map(s=>`<option value="${s}" ${jfl.status===s?'selected':''}>${s.replace('_',' ')}</option>`).join('')}</select>
       <span style="flex:1"></span>
       <button class="btn" onclick="go('s-careers')">View public careers page</button><button class="btn" onclick="shareCareers('')">Careers QR code &amp; link</button>
@@ -1792,8 +1788,8 @@ function rJobs(){
         <td><b>${j.id}</b></td><td>${esc(j.t)}<div class="mut">${esc(j.dept)} · ${esc(j.br)}</div></td>
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
-        <td onclick="event.stopPropagation()" style="white-space:nowrap"><button class="btn sm pri" onclick="openJob('${j.id}')" title="Open the candidate board for this job">Board</button> ${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
-          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&isAdmin()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
+        <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
+          :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&canEdit()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
     </table></div></div>
     <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten. Delete removes a job entered by mistake (and its applicants); jobs with hired staff can only be closed.</div>`);
 }
@@ -1870,7 +1866,7 @@ function rInt(){
     <div class="bar"><button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button></div>
     ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3><div class="fg">
       <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
-      <label>Type<select class="inp" id="iT"><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
       <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
       <label>Interviewer<select class="inp" id="iI">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</select></label>
       <label>Location<input class="inp" id="iL" value="Video call"></label></div>
@@ -2190,7 +2186,7 @@ let VERSION=0, lastSaved='', pendingConsumed=[], saveTimer=null, saving=false, p
 function packData(){return {v:2,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)};}
 function unpackData(d){if(!d||!Array.isArray(d.JOBS))return false;
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST}=d);CANDS=CANDS||[];MSGS=MSGS||[];POOL=POOL||[];MPR=MPR||[];INTV=INTV||[];NOTES=NOTES||{};ACT=ACT||[];HIST=HIST||[];
-  if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();fixSla(d.SLA).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
+  if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
 async function probeApi(){if(!/^https?:/.test(location.protocol))return null;
   for(let i=0;i<3;i++){try{const r=await fetch('api/public',{cache:'no-store'});if(r.ok){const j=await r.json();return j&&j.ready?j:null;}if(r.status===404)return null;}catch(e){}
     await new Promise(z=>setTimeout(z,1200*(i+1)));}return null;}
@@ -2198,11 +2194,11 @@ async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.meth
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
 function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
-  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||new Date(a.created_at).toISOString(),names:d.names||undefined,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||new Date(a.created_at).toISOString(),review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
-  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof migrateHrInt==='function'&&canEdit()&&migrateHrInt())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
   const fch=processForms(r.forms);
   if(!had||n||fch)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
@@ -2404,7 +2400,7 @@ function msgSetupCard(){if(!REMOTE)return `<div class="card" style="margin-top:1
   if(!MSGCFG.loaded){setTimeout(loadMsgCfg,0);return `<div class="card" style="margin-top:14px"><h3>Messaging (SMS & email)</h3><p class="mut">Checking…</p></div>`;}
   const rec=(MSGCFG.recent||[]).slice(0,8);
   return `<div class="card" style="margin-top:14px"><div class="ch"><h3>Messaging (SMS & email)</h3><span>${chanPills()}</span></div>
-    <div class="doc"><span><b>SMS — ${MSGCFG.smsVia==='phone'?'Android phone (SMS Gateway app)':MSGCFG.smsVia==='semaphore'?'Semaphore':'not set up'}</b><br><small class="mut">${MSGCFG.smsVia==='phone'?'Connected · texts are sent from the BRDC phone and its SIM load / unli-text promo':MSGCFG.sms?`Connected${MSGCFG.smsSender?' · sender name '+esc(MSGCFG.smsSender):' · default sender name'}`:`<b>Option A — use a company Android phone (free app):</b> install <b>SMS Gateway for Android</b> (sms-gate.app) from the Play Store, turn on <b>Cloud server</b>, tap Offline → Online, then copy the username and password it shows into Vercel as <code>SMSGATE_USER</code> and <code>SMSGATE_PASSWORD</code> and redeploy. Texts go out from that phone's SIM.<br><b>Option B — Semaphore</b> (paid, sender name "BRDC"): add <code>SEMAPHORE_API_KEY</code> (and optionally <code>SEMAPHORE_SENDER</code>).`}</small></span></div>
+    <div class="doc"><span><b>SMS — Semaphore</b><br><small class="mut">${MSGCFG.sms?`Connected${MSGCFG.smsSender?' · sender name '+esc(MSGCFG.smsSender):' · default sender name'}`:'Create an account at semaphore.co, buy credits, then add <code>SEMAPHORE_API_KEY</code> (and optionally <code>SEMAPHORE_SENDER</code>) in Vercel → Settings → Environment Variables, then redeploy.'}</small></span></div>
     <div class="doc"><span><b>Email — Resend</b><br><small class="mut">${MSGCFG.email?`Connected · from ${esc(MSGCFG.emailFrom||'onboarding@resend.dev (test mode)')}`:'Create an account at resend.com, verify the brdc.ph domain, then add <code>RESEND_API_KEY</code> and <code>EMAIL_FROM</code> (e.g. BRDC Careers &lt;careers@brdc.ph&gt;) in Vercel, then redeploy.'}</small></span></div>
     ${MSGCFG.sms||MSGCFG.email?`<div class="upl" style="margin-top:8px"><input class="inp" id="tTo" placeholder="${MSGCFG.sms?'0917 123 4567':'name@brdc.ph'}${MSGCFG.sms&&MSGCFG.email?' or name@brdc.ph':''}" style="flex:1;min-width:180px"><button class="btn" onclick="testSend()">Send test message</button></div>`:''}
     ${rec.length?`<h4 style="margin:14px 0 6px">Recent deliveries</h4>${rec.map(r=>`<div class="doc"><span>${r.channel==='sms'?'💬':'✉️'} ${esc(r.recipient||'')}<br><small class="mut">${fmtDT(r.created_at)} · ${esc(r.sent_by||'')}${r.error?' · '+esc(r.error):''}</small></span><span class="pill ${r.status==='sent'?'green':'red'}">${r.status}</span></div>`).join('')}`:''}</div>`;}
@@ -2451,7 +2447,7 @@ function rInt(){
     <div class="bar">${canEdit()?`<button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button>`:''}</div>
     ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3>${elig.length?`<div class="fg">
       <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
-      <label>Type<select class="inp" id="iT"><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
       <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
       <label>Length<select class="inp" id="iD">${[30,45,60,90,120].map(m=>`<option value="${m}" ${m===intMinutes?'selected':''}>${m<60?m+' minutes':m/60+' hour'+(m>60?'s':'')}</option>`).join('')}</select></label>
       <label>Interviewer<input class="inp" id="iI" list="ivList" value="${esc(p0)}" onchange="const e=acctEmail(this.value);if(e)document.getElementById('iIE').value=e"><datalist id="ivList">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</datalist></label>
@@ -2807,7 +2803,7 @@ async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').t
 /* ===== v9: delete a job ===== */
 function deleteJob(id){
   const j=job(id);if(!j||!j.id)return;
-  if(!isAdmin()){toast('Only an administrator can delete jobs');return;}
+  if(!canEdit()){toast('Viewers cannot delete jobs');return;}
   if(j.rf==='general'){toast('The general application job cannot be deleted');return;}
   const cs=CANDS.filter(c=>c.job===id),hired=cs.filter(c=>c.stage==='hired'||c.stage==='onboarding');
   if(hired.length){alert(`Cannot delete job ${id}:\n\n${hired.length} candidate(s) were already hired from it (${hired.map(c=>c.n).join(', ')}).\n\nKeep the job for their records — use Close instead.`);return;}
@@ -2990,50 +2986,13 @@ const AF_STEPS=[
   {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
   {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
 ];
-const AF_BASIC_STEPS=[
- {t:'Position',items:[
-  {k:'position',l:'Position applied for',req:1},{k:'pref_branch',l:'Preferred station / branch',ph:'e.g. SF Tanza'},
-  {k:'app_date',l:'Date of application',type:'date',req:1,ro:1},{k:'salary',l:'Expected salary',ph:'₱ 15,000',im:'numeric'},
-  {k:'source',l:'How did you learn about this job?',type:'checks',opts:AF_SRC,req:1,full:1},
-  {k:'photo',l:'Photo (optional)',type:'file',accept:'image/*',hint:'A clear photo of your face',full:1}]},
- {t:'Personal information',sec:'I',items:[
-  {k:'name',l:'Full name',type:'name3',req:1,full:1},{k:'nick',l:'Nickname'},
-  {k:'dob',l:'Date of birth',type:'date',req:1},{k:'sex',l:'Sex',type:'radio',opts:['Male','Female'],req:1},
-  {k:'civil',l:'Civil status',type:'radio',opts:['Single','Married','Widowed','Separated (legally)','Common Law Relationship'],req:1,full:1},
-  {k:'mobile',l:'Mobile number',type:'tel',req:1,ph:'0917 123 4567'},{k:'email',l:'Email address (optional)',type:'email'},
-  {k:'addr',l:'Home address (house no., street, barangay)',req:1,full:1},{k:'city',l:'City / municipality',req:1},{k:'prov',l:'Province',req:1,list:'provs3'},
-  {k:'valid_id',l:'Valid ID (optional)',type:'file',accept:'image/*,.pdf',hint:'Any government ID — you can also bring it on your interview',full:1}]},
- {t:'Education & work',items:[
-  {k:'edu_level',l:'Highest education attained',type:'radio',opts:['Elementary graduate','High school graduate','Senior high school graduate','Vocational / TESDA','College level','College graduate'],req:1,full:1},
-  {k:'school',l:'Name of school',full:1},
-  {k:'employment',l:'Work experience',type:'table',cols:['Name / address of company','Inclusive period (mm/yy–mm/yy)','Position held','Gross pay','Reason for leaving'],n:3,hint:'Most recent first. Leave blank if this is your first job.'},
-  {k:'resume',l:'Resume (optional)',type:'file',accept:'.pdf,.doc,.docx,image/*',full:1}]},
- {t:'Availability',items:[
-  {k:'start',l:'Date available to start',type:'date',req:1},
-  {k:'fit',l:'Physically fit for standing work and outdoor station work?',type:'radio',opts:YN,req:1,full:1},
-  {k:'night',l:'Willing to work on a shifting schedule, including night shift?',type:'radio',opts:YN,req:1,full:1},
-  {k:'transfer',l:'Willing to be assigned to any station / branch?',type:'radio',opts:YN,req:1,full:1},
-  {k:'fcs_exp',l:'Do you have experience as a fuel attendant / station crew?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'fcs_exp_x',l:'Where and for how long?'}},
-  {k:'relatives',l:'Do you have relatives or close friends working in this company?',type:'radio',opts:YN,req:1,full:1,then:{v:'Yes',k:'relatives_x',l:'If yes, indicate their name and relationship'}}]},
- {t:'Emergency contact & consent',items:[
-  {k:'_h2',type:'head',sec:'II',l:'Emergency contact — person to notify in case of emergency'},
-  {k:'em_name',l:'Name',req:1},{k:'em_rel',l:'Relationship',req:1},{k:'em_mob',l:'Contact number',type:'tel',req:1},{k:'em_addr',l:'Address',full:1},
-  {k:'_c1',type:'para',sec:'III',l:'Authorization for background verification',x:'I hereby authorize the Company to verify the information I have provided in this application form, including my educational background, employment history, and character references, for the purpose of evaluating my application for employment. I understand that the verification process will be conducted with confidentiality and only by authorized personnel.'},
-  {k:'_c2',type:'para',sec:'IV',l:'Data privacy consent',x:'I understand that the personal information provided in this form will be collected, processed, and stored for recruitment and employment evaluation purposes. I hereby give my consent for the Company to process my personal information in accordance with the Data Privacy Act of 2012.'},
-  {k:'_c3',type:'para',sec:'V',l:'Applicant certification',x:'I certify that the information provided in this form is true, complete, and accurate to the best of my knowledge. I understand that any false statement, misrepresentation, or omission of information may result in the rejection of my application or termination of employment should I be hired. I also acknowledge that completing this form does not constitute an employment contract nor guarantee employment with the Company.'},
-  {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
-  {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
-];
-const FCS_RE=/\b(fcs|fsc|forecourt|station crew|station attendant|gas(oline)? (boy|attendant)|pump attendant|fuel attendant|cashier[- ]attendant)\b/i;
-function isBasicJob(j){j=j||{};if(j.basicForm===true)return true;if(j.basicForm===false)return false;return FCS_RE.test(j.t||'');}
-function afSteps(){return AF&&AF.basic?AF_BASIC_STEPS:AF_STEPS;}
 const AF_FILES=['photo','valid_id','location_map','resume'];
 let AF=null; /* {mode:'apply'|'link', step, d:{}, files:{}, sig:dataURL, job, ref, tok, info, done} */
 const afKey=()=>'brdc-af-'+(AF.mode==='link'?AF.ref:AF.job);
 function afSave(){if(!AF)return;clearTimeout(AF._t);AF._t=setTimeout(()=>{try{localStorage.setItem(afKey(),JSON.stringify({d:AF.d,step:AF.step,sig:AF.sig||null,at:Date.now()}));}catch(e){}},400);}
-function afLoadDraft(){try{const x=JSON.parse(localStorage.getItem(afKey())||'null');if(x&&Date.now()-x.at<14*864e5){AF.d={...AF.d,...x.d};AF.step=Math.min(x.step||0,afSteps().length-1);AF.sig=x.sig||null;AF.restored=true;}}catch(e){}}
+function afLoadDraft(){try{const x=JSON.parse(localStorage.getItem(afKey())||'null');if(x&&Date.now()-x.at<14*864e5){AF.d={...AF.d,...x.d};AF.step=Math.min(x.step||0,AF_STEPS.length-1);AF.sig=x.sig||null;AF.restored=true;}}catch(e){}}
 function afSrcDefault(){const m={'Facebook':'Facebook','Indeed':'Indeed','Jobstreet':'Jobstreet','Referral':'Referral','Job fair':'Job Fair','Walk-in (QR)':'Company website/walkin','Career page':'Company website/walkin'};return APPLY_SRC&&m[APPLY_SRC]?[m[APPLY_SRC]]:[];}
-function afStart(mode,o){AF={mode,step:0,d:{},files:{},sig:null,...o};AF.basic=isBasicJob(o.info&&o.info.job?o.info.job:job(o.job));
+function afStart(mode,o){AF={mode,step:0,d:{},files:{},sig:null,...o};
   const j=job(AF.job)||{},gen=j.rf==='general';
   AF.d={position:gen?'':(j.t&&j.t!=='—'?j.t:''),department:j.dept||'',app_date:todayKey,source:afSrcDefault(),nationality:'Filipino'};
   if(o.info){const p=String(o.info.n||'').trim().split(/\s+/);let li=p.length-1;while(li>1&&/^(de|dela|del|delos|de los|san|sta\.?|santa|santo|la|los|y)$/i.test(p[li-1]))li--;AF.d.name={first:p.slice(0,Math.max(1,li)).join(' '),middle:'',last:p.length>1?p.slice(Math.max(1,li)).join(' '):''};AF.d.nick=o.info.nick||'';AF.d.mobile=o.info.mob||'';AF.d.email=o.info.em||'';if(o.info.job){AF.d.position=o.info.job.t||AF.d.position;AF.d.department=o.info.job.dept||AF.d.department;}}
@@ -3071,10 +3030,10 @@ function afIn(it){const v=afVal(it.k),id='af_'+it.k,t=it.type||'text';
   const inp=it.area?`<textarea class="pin" id="${id}" rows="2" oninput="AF.d['${it.k}']=this.value;afSave()">${esc(v)}</textarea>`
     :`<input class="pin" id="${id}" type="${t==='tel'?'tel':t==='email'?'email':t==='date'?'date':'text'}" ${it.im?`inputmode="${it.im}"`:t==='tel'?'inputmode="tel"':''} ${it.list?`list="${it.list}"`:''} ${it.ro?'readonly':''} placeholder="${esc(it.ph||'')}" value="${esc(v||it.def||'')}" oninput="AF.d['${it.k}']=this.value;afSave()">`;
   return `<label class="${cls}">${lab}${inp}${it.hint&&t!=='file'?`<small>${esc(it.hint)}</small>`:''}</label>`;}
-function drawAF(el){el=el||document.getElementById('s-apply');const S=afSteps()[AF.step],n=afSteps().length,j=job(AF.job)||{},gen=j.rf==='general';
+function drawAF(el){el=el||document.getElementById('s-apply');const S=AF_STEPS[AF.step],n=AF_STEPS.length,j=job(AF.job)||{},gen=j.rf==='general';
   const pos=AF.mode==='link'?(AF.info.job.t||'your application'):gen?'General application':j.t;
   el.innerHTML=`${pubHero(3)}<main class="pmain afm">
-    <div class="afhead">${afLogo(AF.mode==='link'&&AF.info&&AF.info.job?AF.info.job.bu:j.bu,AF.mode!=='link'&&gen)}<div><h2>Application for Employment${AF.basic?' <span class="pill green" style="font-size:11px;vertical-align:3px">Basic form</span>':''}</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
+    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application for Employment</h2><p>${esc(pos)}${AF.mode==='apply'&&!gen?` · ${esc(BU[j.bu]||'')}`:''}${AF.mode==='apply'?` · <a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a>`:''}</p></div></div>
     <div class="afprog" aria-label="Step ${AF.step+1} of ${n}"><div><i style="width:${(AF.step+1)/n*100}%"></i></div><span>Step ${AF.step+1} of ${n} · <b>${esc(S.t)}</b></span></div>
     ${AF.restored&&AF.step===0?`<div class="afnote">We restored the answers you started earlier on this device.</div>`:''}
     <form class="psec" onsubmit="event.preventDefault();afNext()" novalidate>
@@ -3089,7 +3048,7 @@ function drawAF(el){el=el||document.getElementById('s-apply');const S=afSteps()[
     </form></main>`;
   if(S.items.some(i=>i.type==='sign'))afSigInit();}
 function afSetSub(k,s,v){AF.d[k]={...(AF.d[k]||{}),[s]:v};afSave();}
-function afPick(k,el,multi){if(multi){const a=new Set(Array.isArray(AF.d[k])?AF.d[k]:[]);el.checked?a.add(el.value):a.delete(el.value);AF.d[k]=[...a];}else{AF.d[k]=el.value;const it=afSteps()[AF.step].items.find(i=>i.k===k);if(it&&it.then){afSave();const y=scrollY;drawAF();scrollTo(0,y);return;}}afSave();}
+function afPick(k,el,multi){if(multi){const a=new Set(Array.isArray(AF.d[k])?AF.d[k]:[]);el.checked?a.add(el.value):a.delete(el.value);AF.d[k]=[...a];}else{AF.d[k]=el.value;const it=AF_STEPS[AF.step].items.find(i=>i.k===k);if(it&&it.then){afSave();const y=scrollY;drawAF();scrollTo(0,y);return;}}afSave();}
 function afCell(k,r,c,v){const t=Array.isArray(AF.d[k])?AF.d[k]:[];while(t.length<=r)t.push([]);t[r]=t[r]||[];t[r][c]=v;AF.d[k]=t;afSave();}
 async function afFile(k,inp){const f=inp.files[0];if(!f)return;const er=document.getElementById('aErr');
   try{const p=await prepFile(f);AF.files[k]={name:f.name,type:p.type,data:p.data};er.textContent='';}catch(e){er.textContent=e.message;return;}const y=scrollY;drawAF();scrollTo(0,y);}
@@ -3100,7 +3059,7 @@ function afSigInit(){const c=document.getElementById('afCanvas');if(!c)return;co
   c.onpointermove=e=>{if(!down)return;const p=pt(e);x.beginPath();x.moveTo(...last);x.lineTo(...p);x.stroke();last=p;AF.sigDirty=true;};
   c.onpointerup=c.onpointercancel=()=>{if(down&&AF.sigDirty){AF.sig=c.toDataURL('image/png');afSave();}down=false;};}
 function afSigClear(){const c=document.getElementById('afCanvas');c.getContext('2d').clearRect(0,0,c.width,c.height);AF.sig=null;AF.sigDirty=false;afSave();}
-function afMissing(step){const miss=[];afSteps()[step].items.forEach(it=>{if(!it.req)return;const v=AF.d[it.k];let ok=true;
+function afMissing(step){const miss=[];AF_STEPS[step].items.forEach(it=>{if(!it.req)return;const v=AF.d[it.k];let ok=true;
     if(it.type==='name3')ok=!!(v&&String(v.first||'').trim()&&String(v.last||'').trim());
     else if(it.type==='checks')ok=Array.isArray(v)&&v.length>0;
     else if(it.type==='table')ok=Array.isArray(v)&&v.some(r=>r&&String(r[0]||'').trim());
@@ -3113,14 +3072,13 @@ function afMissing(step){const miss=[];afSteps()[step].items.forEach(it=>{if(!it
 function afCheck(){const er=document.getElementById('aErr');document.querySelectorAll('.afbad').forEach(x=>x.classList.remove('afbad'));
   const miss=afMissing(AF.step);if(miss.length){er.textContent='Please complete: '+miss.map(m=>m.l.replace(/\s*\(.*\)$/,'')).join(' · ');
     miss.forEach(m=>{const e=document.getElementById('af_'+m.k);if(e)e.classList.add('afbad');});const f=document.getElementById('af_'+miss[0].k);(f||er).scrollIntoView({behavior:'smooth',block:'center'});return false;}
-  const d=AF.d,keys=afSteps()[AF.step].items.map(i=>i.k);
-  if(keys.includes('mobile')&&!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(String(d.mobile||'').trim())){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return false;}
-  if(keys.includes('email')&&String(d.email||'').trim()&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(d.email||'').trim())){er.textContent='Check your email address.';return false;}
-  if(keys.includes('dob')&&d.dob&&(Date.now()-Date.parse(d.dob))/3.156e10<15){er.textContent='Check your date of birth.';return false;}
-  if(keys.includes('refs')){const r=(d.refs||[])[0]||[];if(!String(r[3]||'').trim()){er.textContent='Please give the contact number of your first character reference.';return false;}}
+  const d=AF.d;if(AF.step===1){if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(String(d.mobile||'').trim())){er.textContent='Enter a valid mobile number, e.g. 0917 123 4567.';return false;}
+    if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(String(d.email||'').trim())){er.textContent='Check your email address.';return false;}
+    if(d.dob&&(Date.now()-Date.parse(d.dob))/3.156e10<15){er.textContent='Check your date of birth.';return false;}}
+  if(AF.step===7){const r=(d.refs||[])[0]||[];if(!String(r[3]||'').trim()){er.textContent='Please give the contact number of your first character reference.';return false;}}
   er.textContent='';return true;}
 function afBack(){AF.step=Math.max(0,AF.step-1);AF.restored=false;afSave();drawAF();scrollTo(0,0);}
-function afNext(){if(!afCheck())return;if(AF.step<afSteps().length-1){AF.step++;AF.restored=false;afSave();drawAF();scrollTo(0,0);return;}afSubmit();}
+function afNext(){if(!afCheck())return;if(AF.step<AF_STEPS.length-1){AF.step++;AF.restored=false;afSave();drawAF();scrollTo(0,0);return;}afSubmit();}
 function afSummary(){const d=AF.d,nm=d.name||{},n=[nm.first,nm.middle,nm.last].map(x=>String(x||'').trim()).filter(Boolean).join(' ');
   const srcMap={'Company website/walkin':'Career page','Job Fair':'Job fair'},src=(d.source||[])[0];
   const exp=(d.employment||[]).filter(r=>r&&String(r[0]||'').trim()).map(r=>`${r[2]||'—'} – ${r[0]}${r[1]?` (${r[1]})`:''}`).join('\n');
@@ -3131,9 +3089,9 @@ async function afUploads(tok,btn){const list=AF_FILES.filter(k=>AF.files[k]).map
   let fail=[];for(let i=0;i<list.length;i++){const [k,f]=list[i];btn.textContent=`Uploading files… ${i+1}/${list.length}`;
     try{await api('public',{method:'POST',body:{action:'upload',tok,kind:k,file:f}});}catch(e){fail.push(k.replace('_',' '));}}
   return fail;}
-async function afSubmit(){const btn=document.getElementById('afGo'),er=document.getElementById('aErr');const all=afSteps().map((_,i)=>afMissing(i).length?i:-1).filter(i=>i>=0);
+async function afSubmit(){const btn=document.getElementById('afGo'),er=document.getElementById('aErr');const all=AF_STEPS.map((_,i)=>afMissing(i).length?i:-1).filter(i=>i>=0);
   if(all.length){AF.step=all[0];drawAF();afCheck();return;}
-  const s=afSummary(),form={...AF.d,_v:1,_basic:!!AF.basic,_files:AF_FILES.filter(k=>AF.files[k]).concat(AF.sig?['signature']:[])};
+  const s=afSummary(),form={...AF.d,_v:1,_files:AF_FILES.filter(k=>AF.files[k]).concat(AF.sig?['signature']:[])};
   btn.disabled=true;btn.textContent='Submitting…';
   if(REMOTE){try{let r;
       if(AF.mode==='link')r=await api('public',{method:'POST',body:{action:'formsubmit',tok:AF.tok,form}});
@@ -3164,7 +3122,7 @@ let AFC={};
 async function loadAppForm(c,force){const ref=candRef(c);if(c.formData){AFC[ref]={form:c.formData};return;}if(!REMOTE||!SESSION||(AFC[ref]&&!force)||AFC[ref+'_l'])return;AFC[ref+'_l']=1;
   try{const r=await api('forms?ref='+encodeURIComponent(ref));AFC[ref]={form:r.form,at:r.updatedAt};}catch(e){AFC[ref]={err:e.message};}delete AFC[ref+'_l'];if(cur==='s-prof')renderSafe();}
 function afText(v){if(v==null||v==='')return '—';if(Array.isArray(v))return v.length?v.join(', '):'—';if(typeof v==='object')return [v.first,v.middle,v.last].filter(Boolean).join(' ')||'—';return String(v);}
-function afSections(f,print){let h='';(f&&f._basic?AF_BASIC_STEPS:AF_STEPS).forEach(S=>{let rows='';
+function afSections(f,print){let h='';AF_STEPS.forEach(S=>{let rows='';
     S.items.forEach(it=>{const t=it.type||'text';if(['head','notice','para','file','sign'].includes(t)){if(t==='head')rows+=`<tr><th colspan="2" class="afsub">${esc(it.l)}</th></tr>`;return;}
       if(t==='table'){const rl=it.rows||Array.from({length:it.n},(_,i)=>String(i+1)),v=(f[it.k]||[]);const used=rl.map((r,i)=>[r,v[i]||[]]).filter(([,x])=>x.some(y=>String(y||'').trim()));
         rows+=`<tr><td colspan="2"><b>${esc(it.l)}</b>${used.length?`<table class="aft"><thead><tr><th></th>${it.cols.map(c=>`<th>${esc(c)}</th>`).join('')}</tr></thead><tbody>${used.map(([r,x])=>`<tr><td>${esc(r)}</td>${it.cols.map((_,ci)=>`<td>${esc(x[ci]||'')}</td>`).join('')}</tr>`).join('')}</tbody></table>`:' <span class="mut">— none</span>'}</td></tr>`;return;}
@@ -3348,8 +3306,8 @@ async function jotEmail(id){const c=cand(id),j=job(c.job);try{const r=await api(
 
 /* answers that arrived for an existing candidate */
 function processForms(map){if(!map)return 0;let ch=0,n=0;
-  CANDS.forEach(c=>{const ref=candRef(c),t=map[ref];if(!t||c.formAt===t)return;const had=c.form;c.formAt=t;c.form=true;ch++;
-    if(c.jotSent||(!had&&c.via!=='Jotform'&&!/^C-5/.test(c.ref||''))){c.jotDone=t;(c.notes=c.notes||[]).push({by:'Jotform',at:t,text:'Application for Employment received from the applicant'});log(`Application form received from ${c.n} (Jotform)`,c.job);n++;}
+  CANDS.forEach(c=>{const ref=candRef(c),t=map[ref];if(!t||c.formAt===t)return;c.formAt=t;c.form=true;ch++;
+    if(c.jotSent){c.jotDone=t;(c.notes=c.notes||[]).push({by:'Jotform',at:t,text:'Application for Employment received from the applicant'});log(`Application form received from ${c.n} (Jotform)`,c.job);n++;}
     delete AFC[ref];delete FILES[ref];fillFromForm(c);});
   if(n)toast(`${n} application form${n>1?'s':''} received from Jotform`);return ch;}
 async function fillFromForm(c){try{const r=await api('forms?ref='+encodeURIComponent(candRef(c)));const f=r.form;if(!f||f._source!=='Jotform')return;let ch=0;
@@ -3386,90 +3344,17 @@ function stageAge(c){if(c.days>0)return c.days+'d';const t=stageStart(c);if(!t)r
 /* ===== v18: Check Jotform now (Candidates screen) ===== */
 async function jotCheckNow(){const b=document.getElementById('jotNow');if(b){b.disabled=true;b.textContent='Checking Jotform…';}
   const before=CANDS.length,formsBefore=CANDS.filter(c=>c.form).length;
-  try{const r=await api('jotform',{method:'POST',body:{rematch:true}});
+  try{const r=await api('jotform',{method:'POST',body:{}});
     if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
     if(r.error)throw new Error('Jotform: '+r.error);
     await loadRemote(true);
-    let dropped=0;(r.merged||[]).forEach(m=>{const into=CANDS.find(c=>candRef(c)===m.into);(m.from||[]).forEach(fr=>{const d=CANDS.find(c=>candRef(c)===fr);if(!d||!into||d===into)return;
-      if(d.stage==='new'&&(d.via==='Jotform'||/Jotform/i.test((d.notes||[]).map(n=>n.text).join(' ')))&&!INTV.some(i=>i.cid===d.id)){CANDS=CANDS.filter(c=>c!==d);MSGS=MSGS.filter(x=>x.cid!==d.id);dropped++;
-        log(`Merged duplicate Jotform record ${fr} into ${into.n} (${m.into})`,into.job);}
-      else{(into.notes=into.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`The same Jotform application also exists as candidate ${fr} (${d.n}). Check and reject or delete the extra one.`});}});});
-    if(dropped||(r.merged||[]).length)saveData();
-    const added=r.imported||0,forms=(r.attached||0);
+    const added=CANDS.length-before,forms=CANDS.filter(c=>c.form).length-formsBefore;
     toast(r.throttled?'Jotform was checked less than 2 minutes ago — try again shortly':
-      (added||forms)?`Jotform: ${added?added+' new applicant'+(added>1?'s':''):''}${added&&forms?' · ':''}${forms?forms+' application form'+(forms>1?'s':'')+' added to existing candidates':''}${dropped?` · ${dropped} duplicate${dropped>1?'s':''} merged`:''}`:'No new Jotform applications');
+      (added||forms||r.imported||r.attached)?`Jotform: ${added?added+' new applicant'+(added>1?'s':''):''}${added&&forms?' · ':''}${forms?forms+' form'+(forms>1?'s':'')+' added to existing candidates':''}${!added&&!forms?'updated':''}`:'No new Jotform applications');
     if((r.errors||[]).length)setTimeout(()=>toast(r.errors[0]),2500);}
   catch(e){toast(e.message);}
   render();}
-/* ===== v19: delete candidate (administrators only) ===== */
-async function deleteCand(id){const c=cand(id);if(!c)return;if(!isAdmin()){toast('Only an administrator can delete candidates');return;}
-  const ref=candRef(c),hired=c.stage==='hired'||c.stage==='onboarding';
-  if(!confirm(`Delete candidate ${c.n} (${ref})?\n\nThis removes the candidate, their interviews, messages, application form and uploaded files (resume, ID, photo).${hired?'\n\n⚠ This person is already HIRED / ONBOARDING — their hiring record in reports stays, but the profile will be gone.':''}\n\nThis cannot be undone. To keep the record, use Reject instead.`))return;
-  if(REMOTE){try{await api('forms',{method:'DELETE',body:{ref}});}catch(e){toast('Could not delete the files: '+e.message);return;}}
-  CANDS=CANDS.filter(x=>x.id!==id);INTV=INTV.filter(i=>i.cid!==id);MSGS=MSGS.filter(m=>m.cid!=null?m.cid!==id:m.cand!==c.n);
-  if(Array.isArray(POOL))POOL=POOL.filter(p=>!(p.cid===id||p.ref===ref));
-  delete FILES[ref];delete FILECOUNT[ref];if(typeof AFC==='object')delete AFC[ref];
-  log(`Deleted candidate ${c.n} (${ref})`,c.job);saveData();toast(`${c.n} deleted`);
-  if(cur==='s-prof')go('s-pipe');else render();}
-/* ===== v20: basic application form for FCS jobs ===== */
-function setJobForm(id,v){const j=job(id);if(v==='auto')delete j.basicForm;else j.basicForm=(v==='basic');log(`Set application form of ${id} to ${v==='auto'?'automatic':v}`,id);saveData();toast(`Applicants for ${j.t} will get the ${isBasicJob(j)?'basic (FSC)':'standard'} form`);render();}
-/* ===== v21: simple careers application — name, email, contact number, resume; position from the chosen job ===== */
-function rApply(){const el=document.getElementById('s-apply');
-  if(applyDone)return rApplyDone(el);
-  if(AF_LINK){if(!AF||AF.mode!=='link'||AF.ref!==AF_LINK.ref){el.innerHTML=`${pubHero(3)}<main class="pmain"><div class="psec"><p><span class="spin"></span> Opening your application form…</p></div></main>`;afOpenLink();return;}return drawAF(el);}
-  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
-  if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
-  const j=job(applyJob),gen=j.rf==='general',pos=gen?'Any available position (general application)':`${j.t} — ${BU[j.bu]||''}${j.br&&j.br!=='—'&&j.br!=='To be confirmed'?' · '+j.br:''}`;
-  el.innerHTML=`${pubHero(3)}<main class="pmain afm">
-    <div class="afhead">${afLogo(j.bu,gen)}<div><h2>Application Form</h2><p>Fill in your details and attach your resume. HR will contact you.</p></div></div>
-    <form class="psec" id="sApp" onsubmit="submitSimple(event)" novalidate>
-      <div class="pg2">
-        <label class="pf full">Position applied for<div class="pin posbox">${esc(pos)}</div><small>${gen?'':'Selected from the job you chose · '}<a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a></small></label>
-        <label class="pf">Last name <em>*</em><input class="pin" id="sLast" autocomplete="family-name" placeholder="Dela Cruz"></label>
-        <label class="pf">First name <em>*</em><input class="pin" id="sFirst" autocomplete="given-name" placeholder="Juan"></label>
-        <label class="pf">Middle name<input class="pin" id="sMid" autocomplete="additional-name" placeholder="Santos"></label>
-        <label class="pf">Contact number <em>*</em><input class="pin" id="sMob" type="tel" inputmode="tel" autocomplete="tel" placeholder="0917 123 4567"></label>
-        <label class="pf full">Email address <em>*</em><input class="pin" id="sEmail" type="email" autocomplete="email" placeholder="juan@email.com"></label>
-        <div class="pf full">Attach resume <em>*</em><label class="pdrop afdrop"><input type="file" id="sRes" accept=".pdf,.doc,.docx,image/*" onchange="document.getElementById('sResN').textContent=this.files[0]?'📎 '+this.files[0].name:'PDF, Word or a photo of your resume · up to 3 MB'"><b>Choose file</b><span id="sResN">PDF, Word or a photo of your resume · up to 3 MB</span></label></div>
-      </div>
-      <label class="pconsent" style="margin-top:12px"><input type="checkbox" id="sOk"><span>I agree that BRDC may collect and process my personal information for recruitment, under the Data Privacy Act of 2012.</span></label>
-      <div class="err" id="aErr" role="alert"></div>
-      <div class="sbar"><button class="pbtn ghost" type="button" id="sBack" onclick="apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers'${gen?'':`+'='+'${j.bu}'`});go('s-careers');scrollTo(0,0)">← Back</button><button class="pbtn big" type="submit" id="sGo">Submit application</button></div>
-    </form></main>`;}
-async function submitSimple(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr'),btn=document.getElementById('sGo');
-  document.querySelectorAll('#sApp .afbad').forEach(x=>x.classList.remove('afbad'));
-  const bad=(id,msg)=>{er.textContent=msg;const f=document.getElementById(id);if(f){f.classList.add('afbad');f.focus();}return;};
-  if(!g('sLast'))return bad('sLast','Please enter your last name.');
-  if(!g('sFirst'))return bad('sFirst','Please enter your first name.');
-  if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('sMob')))return bad('sMob','Enter a valid contact number, e.g. 0917 123 4567.');
-  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('sEmail')))return bad('sEmail','Enter a valid email address.');
-  const f0=document.getElementById('sRes').files[0];if(!f0){er.textContent='Please attach your resume.';document.querySelector('#sApp .pdrop').classList.add('afbad');return;}
-  if(!document.getElementById('sOk').checked){er.textContent='Please tick the consent box to continue.';return;}
-  const names={last:g('sLast'),first:g('sFirst'),middle:g('sMid')},n=[names.first,names.middle,names.last].filter(Boolean).join(' '),j=job(applyJob);
-  er.textContent='';btn.disabled=true;btn.textContent='Uploading resume…';
-  let file=null;try{file=await prepFile(f0);}catch(x){er.textContent=x.message;btn.disabled=false;btn.textContent='Submit application';return;}
-  if(REMOTE){btn.textContent='Submitting…';
-    try{const r=await api('public',{method:'POST',body:{action:'apply',app:{job:applyJob,n,names,nick:names.first.split(' ')[0],mob:g('sMob'),em:g('sEmail'),src:APPLY_SRC||'Career page',resume:f0.name,file,consent:true}}});
-      applyDone={ref:r.ref,nick:names.first.split(' ')[0],job:r.job,ack:r.ack};render();scrollTo(0,0);}
-    catch(e2){er.textContent=e2.message;btn.disabled=false;btn.textContent='Submit application';}return;}
-  const mk=g('sMob').replace(/\D/g,'').slice(-10);
-  if(CANDS.some(c=>c.job===applyJob&&String(c.mob||'').replace(/\D/g,'').slice(-10)===mk)){er.textContent='You have already applied for this job. HR will contact you soon.';btn.disabled=false;btn.textContent='Submit application';return;}
-  const id=nextCandId();CANDS.push({id,n,names,nick:names.first.split(' ')[0],mob:g('sMob'),em:g('sEmail'),city:'—',prov:'',job:applyJob,stage:'new',since:isoAgo(0),stageAt:new Date().toISOString(),applied:isoAgo(0),src:APPLY_SRC||'Career page',owner:j.owner,lang:'tl',quad:null,docs:false,exp:'—',skills:[],resume:f0.name});
-  const ref='C-'+String(2000+id);ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${n} for ${j.t} (${ref})`,job:applyJob});
-  saveData();applyDone={ref,nick:names.first.split(' ')[0],job:j.t};render();scrollTo(0,0);}
-/* ===== v22: company logo on the application form ===== */
-function afLogo(bu,gen){const src=!gen&&BU_LOGO[bu];return src?`<span class="aflogo-w ${bu==='br'||bu==='uh'?'dark':''}"><img src="${src}" alt="${esc(BU[bu]||'')}"></span>`:'<img src="assets/brdc-logo.png" alt="BRDC" class="aflogo">';}
-/* ===== v23: rename "FCS" jobs to "Forecourt Service Crew (FSC)" ===== */
-const FSC_TITLE='Forecourt Service Crew (FSC)';
-function renameFSC(){let n=0;const re=/^\s*(fcs|fsc)\s*$/i;
-  (JOBS||[]).forEach(j=>{if(re.test(j.t||'')){j.t=FSC_TITLE;j.rf='forecourt_service_crew';n++;}});
-  (MPR||[]).forEach(m=>{if(re.test(m.pos||'')){m.pos=FSC_TITLE;n++;}});
-  if(n)log(`Renamed ${n} "FCS" job${n>1?'s':''} / request${n>1?'s':''} to ${FSC_TITLE}`);return n;}
-/* ===== v24: HR interview stage removed — move anyone still in it to Department interview ===== */
-function fixSla(a){return Array.isArray(a)&&a.length===10?a.filter((_,i)=>i!==2):(Array.isArray(a)?a:[]);}
-function migrateHrInt(){let n=0;(CANDS||[]).forEach(c=>{if(c.stage==='hr_int'){c.stage='dept_int';c.stageAt=new Date().toISOString();(c.notes=c.notes||[]).push({by:'BRDC Recruit',at:new Date().toISOString(),text:'Moved from HR interview to Department interview (HR interview stage removed)'});n++;}});
-  if(n)log(`Moved ${n} candidate${n>1?'s':''} from HR interview to Department interview (stage removed)`);return n;}
-(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
 </body>
