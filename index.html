@@ -1793,7 +1793,7 @@ function rJobs(){
         <td><b>${j.id}</b></td><td>${esc(j.t)}<div class="mut">${esc(j.dept)} · ${esc(j.br)}</div></td>
         <td>${BU[j.bu]}</td><td>${j.rf==='general'?'—':`${vacancies(j)} / ${j.head}`}</td><td>${ap}</td>
         <td>${j.rf==='general'?'—':d>45?`<span class="pill red">${d}</span>`:d}</td><td>${j.owner||'<span class="pill mute">shared queue</span>'}</td><td>${stp(j)}</td>
-        <td onclick="event.stopPropagation()">${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
+        <td onclick="event.stopPropagation()" style="white-space:nowrap"><button class="btn sm pri" onclick="openJob('${j.id}')" title="Open the candidate board for this job">Board</button> ${j.rf==='general'?'<span class="pill mute">cannot be closed</span>'
           :j.status==='closed'?`<button class="btn sm" onclick="job('${j.id}').status='open';job('${j.id}').open=isoAgo(0);render()">Reopen</button>`:`<button class="btn sm" onclick="tryClose('${j.id}')">Close</button> <button class="btn sm" onclick="shareJob('${j.id}')">Apply link</button>`}${j.rf!=='general'&&isAdmin()?` <button class="btn sm del" onclick="deleteJob('${j.id}')" title="Delete this job">Delete</button>`:''}</td></tr>`}).join('')}</tbody>
     </table></div></div>
     <div class="hint" style="margin-top:14px">Closing a job is blocked while candidates still lack a final status — that stops applicants being forgotten. Delete removes a job entered by mistake (and its applicants); jobs with hired staff can only be closed.</div>`);
