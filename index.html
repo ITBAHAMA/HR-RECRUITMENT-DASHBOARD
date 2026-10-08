@@ -1702,7 +1702,7 @@ function rJob(){
       <div class="card"><div class="ch"><h3>Funnel for this job</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:all.filter(c=>STAGES.findIndex(x=>x.k===c.stage)>=STAGES.findIndex(x=>x.k===s.k)).length,tip:`Reached ${s.n}`})))}</div>
       <div class="card"><div class="ch"><h3>Key facts</h3></div><dl class="kv">
         <dt>Opened</dt><dd>${fmtD(j.open)} · ${daysSince(j.open)} days ago</dd><dt>Headcount</dt><dd>${j.filled||0} of ${j.head} filled</dd>
-        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Application form</dt><dd>${canEdit()?`<select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobForm('${j.id}',this.value)"><option value="auto" ${j.basicForm==null?'selected':''}>Automatic — ${FCS_RE.test(j.t||'')?'Basic (FCS)':'Standard'}</option><option value="basic" ${j.basicForm===true?'selected':''}>Basic (FCS)</option><option value="standard" ${j.basicForm===false?'selected':''}>Standard</option></select>`:(isBasicJob(j)?'Basic (FCS)':'Standard')}</dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
+        <dt>Branch</dt><dd><select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobBranch('${j.id}',this.value)">${branchOpts(j.bu,j.br)}</select> <a class="lnk" style="font-size:12px" onclick="manageBranches('${j.bu}')">manage</a></dd><dt>Application form</dt><dd>${canEdit()?`<select class="inp" style="padding:3px 6px;font-size:12.5px" onchange="setJobForm('${j.id}',this.value)"><option value="auto" ${j.basicForm==null?'selected':''}>Automatic — ${FCS_RE.test(j.t||'')?'Basic (FSC)':'Standard'}</option><option value="basic" ${j.basicForm===true?'selected':''}>Basic (FSC)</option><option value="standard" ${j.basicForm===false?'selected':''}>Standard</option></select>`:(isBasicJob(j)?'Basic (FSC)':'Standard')}</dd><dt>Type</dt><dd>${j.vac?'Replacement':'New position'}</dd><dt>Department</dt><dd>${esc(j.dept)}</dd><dt>Salary</dt><dd>${esc(j.sal||'—')}</dd>
         <dt>Required skills</dt><dd>${(j.skills||[]).map(s=>`<span class="pill" style="margin:0 4px 4px 0">${esc(s)}</span>`).join('')||'—'}</dd>
         <dt>Sources</dt><dd>${[...new Set(all.map(c=>c.src))].map(s=>`${esc(s)} (${all.filter(c=>c.src===s).length})`).join(' · ')||'—'}</dd></dl></div></div></div>`;
   const team=`<div class="pad"><div class="card" style="max-width:640px"><div class="ch"><h3>Hiring team</h3></div>
@@ -2203,7 +2203,7 @@ function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsume
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
-  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
   const fch=processForms(r.forms);
   if(!had||n||fch)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
@@ -3025,7 +3025,7 @@ const AF_BASIC_STEPS=[
   {k:'ack',l:'Acknowledged',type:'ack',req:1,full:1},
   {k:'signature',l:'Applicant signature',type:'sign',req:1,full:1}]}
 ];
-const FCS_RE=/\b(fcs|forecourt|station crew|station attendant|gas(oline)? (boy|attendant)|pump attendant|fuel attendant|cashier[- ]attendant)\b/i;
+const FCS_RE=/\b(fcs|fsc|forecourt|station crew|station attendant|gas(oline)? (boy|attendant)|pump attendant|fuel attendant|cashier[- ]attendant)\b/i;
 function isBasicJob(j){j=j||{};if(j.basicForm===true)return true;if(j.basicForm===false)return false;return FCS_RE.test(j.t||'');}
 function afSteps(){return AF&&AF.basic?AF_BASIC_STEPS:AF_STEPS;}
 const AF_FILES=['photo','valid_id','location_map','resume'];
@@ -3413,7 +3413,7 @@ async function deleteCand(id){const c=cand(id);if(!c)return;if(!isAdmin()){toast
   log(`Deleted candidate ${c.n} (${ref})`,c.job);saveData();toast(`${c.n} deleted`);
   if(cur==='s-prof')go('s-pipe');else render();}
 /* ===== v20: basic application form for FCS jobs ===== */
-function setJobForm(id,v){const j=job(id);if(v==='auto')delete j.basicForm;else j.basicForm=(v==='basic');log(`Set application form of ${id} to ${v==='auto'?'automatic':v}`,id);saveData();toast(`Applicants for ${j.t} will get the ${isBasicJob(j)?'basic (FCS)':'standard'} form`);render();}
+function setJobForm(id,v){const j=job(id);if(v==='auto')delete j.basicForm;else j.basicForm=(v==='basic');log(`Set application form of ${id} to ${v==='auto'?'automatic':v}`,id);saveData();toast(`Applicants for ${j.t} will get the ${isBasicJob(j)?'basic (FSC)':'standard'} form`);render();}
 /* ===== v21: simple careers application — name, email, contact number, resume; position from the chosen job ===== */
 function rApply(){const el=document.getElementById('s-apply');
   if(applyDone)return rApplyDone(el);
@@ -3460,7 +3460,13 @@ async function submitSimple(e){if(e)e.preventDefault();const g=id=>(document.get
   saveData();applyDone={ref,nick:names.first.split(' ')[0],job:j.t};render();scrollTo(0,0);}
 /* ===== v22: company logo on the application form ===== */
 function afLogo(bu,gen){const src=!gen&&BU_LOGO[bu];return src?`<span class="aflogo-w ${bu==='br'||bu==='uh'?'dark':''}"><img src="${src}" alt="${esc(BU[bu]||'')}"></span>`:'<img src="assets/brdc-logo.png" alt="BRDC" class="aflogo">';}
-(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+/* ===== v23: rename "FCS" jobs to "Forecourt Service Crew (FSC)" ===== */
+const FSC_TITLE='Forecourt Service Crew (FSC)';
+function renameFSC(){let n=0;const re=/^\s*(fcs|fsc)\s*$/i;
+  (JOBS||[]).forEach(j=>{if(re.test(j.t||'')){j.t=FSC_TITLE;j.rf='forecourt_service_crew';n++;}});
+  (MPR||[]).forEach(m=>{if(re.test(m.pos||'')){m.pos=FSC_TITLE;n++;}});
+  if(n)log(`Renamed ${n} "FCS" job${n>1?'s':''} / request${n>1?'s':''} to ${FSC_TITLE}`);return n;}
+(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
 </body>

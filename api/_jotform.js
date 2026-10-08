@@ -130,7 +130,8 @@ function summary(f) {
   return { n, nick: String(f.nick || '').trim() || String(nm.first || '').split(' ')[0], mob: String(f.mobile || '').trim(), em: String(f.email || '').trim(), city: f.city || '—', prov: f.prov || '', src, exp: exp || '—', skills, salary: String(f.salary || ''), avail: f.start || '' };
 }
 function matchJob(jobs, f) {
-  const open = jobs.filter((j) => j.status === 'open'), p = norm(f.position), d = norm(f.department);
+  const open = jobs.filter((j) => j.status === 'open'), d = norm(f.department);
+  let p = norm(f.position); if (/^(fcs|fsc)$|forecourt/.test(p)) p = 'forecourt service crew fsc';
   if (p) {
     const exact = open.filter((j) => norm(j.t) === p && j.rf !== 'general');
     if (exact.length) return exact.find((j) => d && norm(j.dept) === d) || exact[0];
