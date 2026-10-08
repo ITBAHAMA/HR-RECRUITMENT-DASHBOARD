@@ -30,7 +30,7 @@ export default handle(async (req, res) => {
     await rateLimit(req, 'apply', 60);
     const a = b.app || {}; const job = (s.JOBS || []).find((j) => j.id === a.job && j.status === 'open');
     if (!job) return send(res, 400, { error: 'This position is no longer open.' });
-    if (!str(a.n) || !str(a.city) || !str(a.prov) || !str(a.src)) return send(res, 400, { error: 'Please fill in all required fields.' });
+    if (!str(a.n)) return send(res, 400, { error: 'Please enter your name.' });
     const mk = mobileKey(a.mob); if (mk.length < 10) return send(res, 400, { error: 'Enter a valid mobile number.' });
     if (!a.consent) return send(res, 400, { error: 'Consent is required.' });
     const dupState = (s.CANDS || []).some((c) => c.job === job.id && mobileKey(c.mob) === mk);
@@ -42,7 +42,7 @@ export default handle(async (req, res) => {
       if (fb64.length * 3 / 4 > MAX_BYTES) return send(res, 413, { error: 'Your resume file is larger than 3 MB. Please upload a smaller file or a photo of it.' });
       if (!OK_TYPES.test(String(file.type || ''))) return send(res, 400, { error: 'Resume must be a PDF, Word document or photo.' });
     }
-    const clean = { n: str(a.n, 80), nick: str(a.nick, 40), mob: str(a.mob, 20), em: str(a.em, 120), city: str(a.city, 60), prov: str(a.prov, 60), job: job.id, src: str(a.src, 40), exp: str(a.exp, 2000), skills: (Array.isArray(a.skills) ? a.skills : []).slice(0, 30).map((x) => str(x, 60)), salary: str(a.salary, 20), avail: str(a.avail, 10), resume: a.file && a.file.name ? str(a.file.name, 120) : a.resume ? str(a.resume, 120) : null };
+    const clean = { n: str(a.n, 80), nick: str(a.nick, 40), mob: str(a.mob, 20), em: str(a.em, 120), city: str(a.city, 60) || '—', prov: str(a.prov, 60), job: job.id, src: str(a.src, 40) || 'Career page', names: a.names && typeof a.names === 'object' ? { last: str(a.names.last, 40), first: str(a.names.first, 40), middle: str(a.names.middle, 40) } : undefined, exp: str(a.exp, 2000), skills: (Array.isArray(a.skills) ? a.skills : []).slice(0, 30).map((x) => str(x, 60)), salary: str(a.salary, 20), avail: str(a.avail, 10), resume: a.file && a.file.name ? str(a.file.name, 120) : a.resume ? str(a.resume, 120) : null };
     const form = cleanForm(a.form); if (form) clean.form = true;
     const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending', $1, $2, $3::jsonb) ON CONFLICT DO NOTHING RETURNING id`, [job.id, mk, JSON.stringify(clean)]))[0];
     if (!row) return send(res, 409, { error: 'You have already applied for this job. HR will contact you soon.' });

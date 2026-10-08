@@ -2199,7 +2199,7 @@ async function api(path,opt={}){const r=await fetch('api/'+path,{method:opt.meth
   let j={};try{j=await r.json();}catch(e){}if(!r.ok){const e=new Error(j.error||('Error '+r.status));e.status=r.status;e.data=j;throw e;}return j;}
 function setSync(t,cls){const el=document.getElementById('syncState');if(el){el.textContent=t;el.className='sync '+(cls||'');}}
 function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsumed.includes(a.id)||CANDS.some(c=>c.ref===a.ref))return;const d=a.data||{},j=job(d.job||a.job),id=nextCandId(),day=new Date(a.created_at).toISOString().slice(0,10);
-  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||new Date(a.created_at).toISOString(),review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
+  CANDS.push({id,ref:a.ref,n:d.n,nick:d.nick||String(d.n||'').split(' ')[0],mob:d.mob||'',em:d.em||'',city:d.city,prov:d.prov,job:d.job||a.job,stage:'new',since:day,applied:day,src:d.src||'Career page',owner:j.owner||null,lang:'tl',quad:null,docs:false,exp:d.exp||'—',skills:d.skills||[],salary:d.salary,avail:d.avail,resume:d.resume,form:!!d.form,via:d.via||null,viaAt:d.viaAt||new Date(a.created_at).toISOString(),names:d.names||undefined,review:!!d.review,jobGuess:d.jobGuess!==false,notes:d.inNote?[{by:(d.src||'Email')+' email',at:new Date(a.created_at).toISOString(),text:d.inNote}]:[]});
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
@@ -3414,6 +3414,50 @@ async function deleteCand(id){const c=cand(id);if(!c)return;if(!isAdmin()){toast
   if(cur==='s-prof')go('s-pipe');else render();}
 /* ===== v20: basic application form for FCS jobs ===== */
 function setJobForm(id,v){const j=job(id);if(v==='auto')delete j.basicForm;else j.basicForm=(v==='basic');log(`Set application form of ${id} to ${v==='auto'?'automatic':v}`,id);saveData();toast(`Applicants for ${j.t} will get the ${isBasicJob(j)?'basic (FCS)':'standard'} form`);render();}
+/* ===== v21: simple careers application — name, email, contact number, resume; position from the chosen job ===== */
+function rApply(){const el=document.getElementById('s-apply');
+  if(applyDone)return rApplyDone(el);
+  if(AF_LINK){if(!AF||AF.mode!=='link'||AF.ref!==AF_LINK.ref){el.innerHTML=`${pubHero(3)}<main class="pmain"><div class="psec"><p><span class="spin"></span> Opening your application form…</p></div></main>`;afOpenLink();return;}return drawAF(el);}
+  const open=JOBS.filter(j=>jobOpen(j)&&vacancies(j)>0);
+  if(!applyJob||!job(applyJob)||job(applyJob).t==='—')applyJob=open[0]?open[0].id:'GEN-SF';
+  const j=job(applyJob),gen=j.rf==='general',pos=gen?'Any available position (general application)':`${j.t} — ${BU[j.bu]||''}${j.br&&j.br!=='—'&&j.br!=='To be confirmed'?' · '+j.br:''}`;
+  el.innerHTML=`${pubHero(3)}<main class="pmain afm">
+    <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application Form</h2><p>Fill in your details and attach your resume. HR will contact you.</p></div></div>
+    <form class="psec" id="sApp" onsubmit="submitSimple(event)" novalidate>
+      <div class="pg2">
+        <label class="pf full">Position applied for<div class="pin" style="height:auto;min-height:46px;padding:11px 14px;background:#F1F5EE;font-weight:600;line-height:1.35;margin-top:6px">${esc(pos)}</div><small>${gen?'':'Selected from the job you chose · '}<a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a></small></label>
+        <label class="pf">Last name <em>*</em><input class="pin" id="sLast" autocomplete="family-name" placeholder="Dela Cruz"></label>
+        <label class="pf">First name <em>*</em><input class="pin" id="sFirst" autocomplete="given-name" placeholder="Juan"></label>
+        <label class="pf">Middle name<input class="pin" id="sMid" autocomplete="additional-name" placeholder="Santos"></label>
+        <label class="pf">Contact number <em>*</em><input class="pin" id="sMob" type="tel" inputmode="tel" autocomplete="tel" placeholder="0917 123 4567"></label>
+        <label class="pf full">Email address <em>*</em><input class="pin" id="sEmail" type="email" autocomplete="email" placeholder="juan@email.com"></label>
+        <div class="pf full">Attach resume <em>*</em><label class="pdrop afdrop"><input type="file" id="sRes" accept=".pdf,.doc,.docx,image/*" onchange="document.getElementById('sResN').textContent=this.files[0]?'📎 '+this.files[0].name:'PDF, Word or a photo of your resume · up to 3 MB'"><b>Choose file</b><span id="sResN">PDF, Word or a photo of your resume · up to 3 MB</span></label></div>
+      </div>
+      <label class="pconsent" style="margin-top:12px"><input type="checkbox" id="sOk"><span>I agree that BRDC may collect and process my personal information for recruitment, under the Data Privacy Act of 2012.</span></label>
+      <div class="err" id="aErr" role="alert"></div>
+      <button class="pbtn big" type="submit" id="sGo" style="width:100%;margin-top:6px">Submit application</button>
+    </form></main>`;}
+async function submitSimple(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr'),btn=document.getElementById('sGo');
+  document.querySelectorAll('#sApp .afbad').forEach(x=>x.classList.remove('afbad'));
+  const bad=(id,msg)=>{er.textContent=msg;const f=document.getElementById(id);if(f){f.classList.add('afbad');f.focus();}return;};
+  if(!g('sLast'))return bad('sLast','Please enter your last name.');
+  if(!g('sFirst'))return bad('sFirst','Please enter your first name.');
+  if(!/^(\+?63|0)9\d{2}[\s-]?\d{3}[\s-]?\d{4}$/.test(g('sMob')))return bad('sMob','Enter a valid contact number, e.g. 0917 123 4567.');
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(g('sEmail')))return bad('sEmail','Enter a valid email address.');
+  const f0=document.getElementById('sRes').files[0];if(!f0){er.textContent='Please attach your resume.';document.querySelector('#sApp .pdrop').classList.add('afbad');return;}
+  if(!document.getElementById('sOk').checked){er.textContent='Please tick the consent box to continue.';return;}
+  const names={last:g('sLast'),first:g('sFirst'),middle:g('sMid')},n=[names.first,names.middle,names.last].filter(Boolean).join(' '),j=job(applyJob);
+  er.textContent='';btn.disabled=true;btn.textContent='Uploading resume…';
+  let file=null;try{file=await prepFile(f0);}catch(x){er.textContent=x.message;btn.disabled=false;btn.textContent='Submit application';return;}
+  if(REMOTE){btn.textContent='Submitting…';
+    try{const r=await api('public',{method:'POST',body:{action:'apply',app:{job:applyJob,n,names,nick:names.first.split(' ')[0],mob:g('sMob'),em:g('sEmail'),src:APPLY_SRC||'Career page',resume:f0.name,file,consent:true}}});
+      applyDone={ref:r.ref,nick:names.first.split(' ')[0],job:r.job,ack:r.ack};render();scrollTo(0,0);}
+    catch(e2){er.textContent=e2.message;btn.disabled=false;btn.textContent='Submit application';}return;}
+  const mk=g('sMob').replace(/\D/g,'').slice(-10);
+  if(CANDS.some(c=>c.job===applyJob&&String(c.mob||'').replace(/\D/g,'').slice(-10)===mk)){er.textContent='You have already applied for this job. HR will contact you soon.';btn.disabled=false;btn.textContent='Submit application';return;}
+  const id=nextCandId();CANDS.push({id,n,names,nick:names.first.split(' ')[0],mob:g('sMob'),em:g('sEmail'),city:'—',prov:'',job:applyJob,stage:'new',since:isoAgo(0),stageAt:new Date().toISOString(),applied:isoAgo(0),src:APPLY_SRC||'Career page',owner:j.owner,lang:'tl',quad:null,docs:false,exp:'—',skills:[],resume:f0.name});
+  const ref='C-'+String(2000+id);ACT.unshift({at:new Date().toISOString(),by:'Career page',text:`New application: ${n} for ${j.t} (${ref})`,job:applyJob});
+  saveData();applyDone={ref,nick:names.first.split(' ')[0],job:j.t};render();scrollTo(0,0);}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
