@@ -632,7 +632,7 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 .side a{transition:background-color .2s,color .2s,transform .1s,border-color .2s}
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
-.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar .pbtn{width:100%;font-size:16px;padding:14px 18px}</style>
+.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar{display:flex;gap:10px;align-items:center}.sbar .pbtn{margin:0!important;transform:none}.sbar .pbtn{font-size:16px;padding:14px 18px}.sbar #sGo{flex:1}.sbar .pbtn{white-space:nowrap;height:54px;padding-top:0!important;padding-bottom:0!important;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}.sbar #sBack{flex:none;min-width:0;padding:14px 18px}@media (max-width:420px){.sbar .pbtn{font-size:15px;padding:13px 14px}}</style>
 </head>
 <body class="locked">
 
@@ -3435,7 +3435,7 @@ function rApply(){const el=document.getElementById('s-apply');
       </div>
       <label class="pconsent" style="margin-top:12px"><input type="checkbox" id="sOk"><span>I agree that BRDC may collect and process my personal information for recruitment, under the Data Privacy Act of 2012.</span></label>
       <div class="err" id="aErr" role="alert"></div>
-      <div class="sbar"><button class="pbtn big" type="submit" id="sGo">Submit application</button></div>
+      <div class="sbar"><button class="pbtn ghost" type="button" id="sBack" onclick="apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers'${gen?'':`+'='+'${j.bu}'`});go('s-careers');scrollTo(0,0)">← Back</button><button class="pbtn big" type="submit" id="sGo">Submit application</button></div>
     </form></main>`;}
 async function submitSimple(e){if(e)e.preventDefault();const g=id=>(document.getElementById(id).value||'').trim(),er=document.getElementById('aErr'),btn=document.getElementById('sGo');
   document.querySelectorAll('#sApp .afbad').forEach(x=>x.classList.remove('afbad'));
