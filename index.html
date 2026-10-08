@@ -748,7 +748,6 @@ const BU = {br:"BRDC", sf:"Smartfuels", nb:"Neo Bros Ventures", uh:"U Hotels", t
 const STAGES = [
   {k:"new",        n:"New",                  sla:2,  c:"#2F9E44"},
   {k:"screening",  n:"Initial screening",    sla:3,  c:"#2466C9"},
-  {k:"hr_int",     n:"HR interview",         sla:3,  c:"#1F7A8C"},
   {k:"dept_int",   n:"Department interview", sla:4,  c:"#0E6E6E"},
   {k:"exam",       n:"Assessment",           sla:3,  c:"#7B4FB0"},
   {k:"final",      n:"Final interview",      sla:3,  c:"#B4620E"},
@@ -759,8 +758,8 @@ const STAGES = [
 ];
 const BU_LOGO = {br:"assets/bu/br.png", sf:"assets/bu/sf.png", nb:"assets/bu/nb.png", uh:"assets/bu/uh.png", th:"assets/bu/th.png", ex:"assets/bu/ex.png", pp:"assets/bu/pp.png", lf:"assets/bu/lf.png"};
 function buLogo(k,cls){const v=BU[k]||k;return BU_LOGO[k]?`<span class="bulogo ${cls||''} ${k==='br'||k==='uh'?'dark':''}"><img src="${BU_LOGO[k]}" alt="${v} logo" loading="lazy"></span>`:`<span class="bulogo ${cls||''} ini">${(v.split(' ').map(w=>w[0]).join('')).slice(0,2).toUpperCase()}</span>`;}
-const ACTIVE = ["new","screening","hr_int","dept_int","exam","final","offer","reqs"];
-const INTERVIEW_STAGES = ["hr_int","dept_int","final"];
+const ACTIVE = ["new","screening","dept_int","exam","final","offer","reqs"];
+const INTERVIEW_STAGES = ["dept_int","final"];
 const TODAY = new Date(); TODAY.setHours(0,0,0,0);
 function localISO(d){return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;}
 const todayKey=localISO(TODAY);
@@ -807,7 +806,7 @@ let CANDS = [
    quad:null, docs:false, exp:"Gasoline attendant – Petron Calamba (2023–2025)", skills:["Fuel dispensing","Basic math"]},
   {id:3, n:"Rowena Bautista", nick:"Weng", mob:"0906 771 2280", em:"rowena.b@email.com", city:"Biñan", prov:"Laguna", job:"SF-114", stage:"screening", since:isoAgo(2), applied:isoAgo(6), src:"Jobstreet", owner:"R. Cruz", lang:"en",
    quad:{A:31,B:24,C:20,D:17}, docs:false, exp:"Sales associate – SM Biñan (2021–2025)", skills:["POS","Inventory","Customer service"]},
-  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"hr_int", since:isoAgo(1), applied:isoAgo(9), src:"Referral", owner:"R. Cruz", lang:"tl",
+  {id:4, n:"Carlo Reyes", nick:"Carlo", mob:"0995 330 1187", em:"carlo.reyes@email.com", city:"Calamba", prov:"Laguna", job:"SF-114", stage:"dept_int", since:isoAgo(1), applied:isoAgo(9), src:"Referral", owner:"R. Cruz", lang:"tl",
    quad:{A:19,B:33,C:26,D:14}, docs:false, exp:"Warehouse staff – Puregold (2022–2026)", skills:["Inventory","Forklift","Teamwork","Cash handling"]},
   {id:5, n:"Kristine Villanueva", nick:"Tin", mob:"0917 884 2201", em:"kristine.v@email.com", city:"Manila", prov:"NCR", job:"UH-021", stage:"screening", since:isoAgo(5), applied:isoAgo(8), src:"Indeed", owner:"J. Tan", lang:"en",
    quad:{A:26,B:21,C:32,D:25}, docs:false, exp:"Front desk – Red Planet Manila (2023–2026)", skills:["Front office","English","Booking systems"]},
@@ -828,7 +827,7 @@ let CANDS = [
   const SRC=["Facebook","Facebook","Facebook","Walk-in (QR)","Walk-in (QR)","Jobstreet","Jobstreet","Referral","Indeed","Career page"];
   const EXTRA=["Customer service","Teamwork","Communication","Basic Excel","Driving","Leadership","Data entry","Inventory"];
   const PREV=["Service crew – Jollibee","Cashier – Puregold","Sales clerk – SM","Warehouse helper – LBC","Utility – Robinsons","Rider – Lalamove","Staff – Mercury Drug","Crew – McDonald's","Helper – construction","Clerk – LGU office"];
-  const W={new:6,screening:5,hr_int:4,dept_int:3,exam:3,final:2,offer:2,reqs:2,hired:1,onboarding:2};
+  const W={new:6,screening:5,dept_int:3,exam:3,final:2,offer:2,reqs:2,hired:1,onboarding:2};
   const bag=[];Object.entries(W).forEach(([k,n])=>{for(let i=0;i<n;i++)bag.push(k)});
   const jobsOpen=JOBS.filter(j=>j.status==='open'&&j.rf!=='general');
   for(let i=0;i<46;i++){
@@ -871,7 +870,7 @@ let MPR=[
 /* interviews */
 let INTV=[];
 (function(){
-  const who={hr_int:["R. Cruz","J. Tan","M. Lim"],dept_int:null,final:["BU General Manager"]};
+  const who={dept_int:["R. Cruz","J. Tan","M. Lim"],final:["BU General Manager"]};
   let n=1;
   CANDS.filter(c=>INTERVIEW_STAGES.includes(c.stage)).forEach((c,i)=>{
     const j=JOBS.find(x=>x.id===c.job), type=c.stage==='hr_int'?'HR interview':c.stage==='dept_int'?'Department interview':'Final interview';
@@ -1163,7 +1162,7 @@ const STORE='brdc-recruit-v3'; /* v3 = starts empty for test runs */
 let BRANCHES=null;
 function saveData(){if(REMOTE){if(SESSION)queueSave();return;}try{localStorage.setItem(STORE,JSON.stringify({v:2,day:todayKey,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)}));}catch(e){}}
 function loadData(){try{const d=JSON.parse(localStorage.getItem(STORE)||'null');if(!d||d.v!==2)return;
-  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
+  ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,DOCSTATE,HIST,TARGET}=d);if(d.BRANCHES)BRANCHES=d.BRANCHES;fixSla(d.SLA).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});}catch(e){}}
 function resetData(){if(REMOTE){if(!confirm('Clear ALL recruitment data in the shared database?\n\nApplicants, interviews, requests, messages and history will be deleted for EVERYONE. Jobs, branches and accounts are kept.'))return;CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];log('Cleared all recruitment data');saveData();render();toast('Data cleared');return;}if(!confirm('Clear ALL recruitment data and start from zero?\n\nApplicants, interviews, requests, messages and history will be deleted. Jobs and branches are kept. Accounts are not affected.'))return;try{localStorage.removeItem(STORE);localStorage.removeItem('brdc-sample');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function loadSample(){if(!confirm('Replace current data with sample data for a demo?\n\nAnything you entered will be lost.'))return;try{localStorage.removeItem(STORE);localStorage.setItem('brdc-sample','1');localStorage.removeItem('brdc-nojobs');}catch(e){}location.reload();}
 function wipeJobs(){if(!confirm('Delete ALL jobs and branches too?\n\nYou will create jobs again through Manpower requests.'))return;JOBS=JOBS.filter(j=>j.rf==='general');Object.keys(BRANCHES||{}).forEach(k=>BRANCHES[k]=[]);CANDS=[];try{localStorage.setItem('brdc-nojobs','1');}catch(e){}saveData();toast('All jobs and branches removed');render();}
@@ -1559,7 +1558,7 @@ function showHired(){
     ${done.map(h=>{const j=h.job?job(h.job):null,hc=(h.cid!=null&&cand(h.cid))||CANDS.find(c=>c.n===h.n&&(!h.job||c.job===h.job));return row(esc(h.n||'Hire record'),`${j&&j.t!=='—'?esc(j.t)+' · ':''}${BU[h.bu]||''} · via ${esc(h.src)}${h.day?' · '+fmtD(mk+'-'+String(h.day).padStart(2,'0')):''} · ${h.tth} days to hire`,'<span class="pill green">Employee</span>',hc?`<button class="btn sm" onclick="event.stopPropagation();closeModal();openCand(${hc.id})">Open</button>`:'',hc?hc.id:null);}).join('')||'<div class="mut" style="padding:6px 0">None yet this month</div>'}
     <div class="mdl-f"><button class="btn" onclick="closeModal();go('s-onb')">Go to Onboarding</button></div>`,'wide');}
 let paAll=false;
-const BU_GROUPS=[['Screening',['new','screening'],'#CFE8C4'],['Interviews',['hr_int','dept_int','final'],'#8FC77A'],['Assessment',['exam'],'#4E9E38'],['Offer & requirements',['offer','reqs'],'#2A6E1C'],['Onboarding',['hired','onboarding'],'#133F0C']];
+const BU_GROUPS=[['Screening',['new','screening'],'#CFE8C4'],['Interviews',['dept_int','final'],'#8FC77A'],['Assessment',['exam'],'#4E9E38'],['Offer & requirements',['offer','reqs'],'#2A6E1C'],['Onboarding',['hired','onboarding'],'#133F0C']];
 function buBoxes(){const mk=todayKey.slice(0,7);
   return `<div class="bulgd">${BU_GROUPS.map(([n,,c])=>`<span><i style="background:${c}"></i>${n}</span>`).join('')}</div><div class="bubox-grid">${Object.keys(BU).map(k=>{
     const bj=JOBS.filter(j=>j.bu===k&&jobOpen(j)), bc=CANDS.filter(c=>c.stage!=='draft'&&job(c.job).bu===k);
@@ -1871,7 +1870,7 @@ function rInt(){
     <div class="bar"><button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button></div>
     ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3><div class="fg">
       <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
-      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Type<select class="inp" id="iT"><option>Department interview</option><option>Final interview</option></select></label>
       <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
       <label>Interviewer<select class="inp" id="iI">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</select></label>
       <label>Location<input class="inp" id="iL" value="Video call"></label></div>
@@ -2191,7 +2190,7 @@ let VERSION=0, lastSaved='', pendingConsumed=[], saveTimer=null, saving=false, p
 function packData(){return {v:2,CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST,TARGET,BRANCHES,SLA:STAGES.map(s=>s.sla)};}
 function unpackData(d){if(!d||!Array.isArray(d.JOBS))return false;
   ({CANDS,JOBS,MSGS,POOL,MPR,INTV,NOTES,ACT,HIST}=d);CANDS=CANDS||[];MSGS=MSGS||[];POOL=POOL||[];MPR=MPR||[];INTV=INTV||[];NOTES=NOTES||{};ACT=ACT||[];HIST=HIST||[];
-  if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();(d.SLA||[]).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
+  if(d.TARGET)TARGET=d.TARGET;if(d.BRANCHES)BRANCHES=d.BRANCHES;initBranches();fixSla(d.SLA).forEach((v,i)=>{if(STAGES[i])STAGES[i].sla=v;});return true;}
 async function probeApi(){if(!/^https?:/.test(location.protocol))return null;
   for(let i=0;i<3;i++){try{const r=await fetch('api/public',{cache:'no-store'});if(r.ok){const j=await r.json();return j&&j.ready?j:null;}if(r.status===404)return null;}catch(e){}
     await new Promise(z=>setTimeout(z,1200*(i+1)));}return null;}
@@ -2203,7 +2202,7 @@ function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsume
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
-  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof migrateHrInt==='function'&&canEdit()&&migrateHrInt())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
   const fch=processForms(r.forms);
   if(!had||n||fch)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
@@ -2452,7 +2451,7 @@ function rInt(){
     <div class="bar">${canEdit()?`<button class="btn pri" onclick="intForm=!intForm;render()">${intForm?'Cancel':'+ Schedule interview'}</button>`:''}</div>
     ${intForm?`<div class="card" style="margin-bottom:14px"><h3>Schedule interview</h3>${elig.length?`<div class="fg">
       <label>Candidate<select class="inp" id="iC">${elig.map(c=>`<option value="${c.id}">${esc(c.n)} — ${esc(job(c.job).t)} (${stageName(c.stage)})</option>`).join('')}</select></label>
-      <label>Type<select class="inp" id="iT"><option>HR interview</option><option>Department interview</option><option>Final interview</option></select></label>
+      <label>Type<select class="inp" id="iT"><option>Department interview</option><option>Final interview</option></select></label>
       <label>Date and time<input class="inp" id="iW" type="datetime-local" value="${localDT(isoIn(1,10))}"></label>
       <label>Length<select class="inp" id="iD">${[30,45,60,90,120].map(m=>`<option value="${m}" ${m===intMinutes?'selected':''}>${m<60?m+' minutes':m/60+' hour'+(m>60?'s':'')}</option>`).join('')}</select></label>
       <label>Interviewer<input class="inp" id="iI" list="ivList" value="${esc(p0)}" onchange="const e=acctEmail(this.value);if(e)document.getElementById('iIE').value=e"><datalist id="ivList">${people.map(p=>`<option>${esc(p)}</option>`).join('')}</datalist></label>
@@ -3466,7 +3465,11 @@ function renameFSC(){let n=0;const re=/^\s*(fcs|fsc)\s*$/i;
   (JOBS||[]).forEach(j=>{if(re.test(j.t||'')){j.t=FSC_TITLE;j.rf='forecourt_service_crew';n++;}});
   (MPR||[]).forEach(m=>{if(re.test(m.pos||'')){m.pos=FSC_TITLE;n++;}});
   if(n)log(`Renamed ${n} "FCS" job${n>1?'s':''} / request${n>1?'s':''} to ${FSC_TITLE}`);return n;}
-(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+/* ===== v24: HR interview stage removed — move anyone still in it to Department interview ===== */
+function fixSla(a){return Array.isArray(a)&&a.length===10?a.filter((_,i)=>i!==2):(Array.isArray(a)?a:[]);}
+function migrateHrInt(){let n=0;(CANDS||[]).forEach(c=>{if(c.stage==='hr_int'){c.stage='dept_int';c.stageAt=new Date().toISOString();(c.notes=c.notes||[]).push({by:'BRDC Recruit',at:new Date().toISOString(),text:'Moved from HR interview to Department interview (HR interview stage removed)'});n++;}});
+  if(n)log(`Moved ${n} candidate${n>1?'s':''} from HR interview to Department interview (stage removed)`);return n;}
+(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
 </body>
