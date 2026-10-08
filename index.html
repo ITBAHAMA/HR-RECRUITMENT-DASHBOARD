@@ -287,6 +287,13 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 .jtabs .cnt.gr{background:#9AA39B}
 
 /* board */
+.bwrap{position:relative}
+.board.fit{height:calc(100vh - 250px);min-height:380px;align-items:stretch;scroll-behavior:smooth}
+.board.fit .bcol{display:flex;flex-direction:column;max-height:100%}
+.board.fit .bcards{flex:1;overflow-y:auto;min-height:60px;margin:0 -4px;padding:0 4px}
+.bscr{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid #CDD3C9;background:#fff;color:#26302A;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(16,24,16,.18);display:grid;place-items:center}
+.bscr:hover{background:#EEF4EA}.bscr.l{left:4px}.bscr.r{right:4px}.bscr[hidden]{display:none}
+@media (max-width:760px){.board.fit{height:calc(100vh - 200px)}.bscr{display:none}}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -1697,9 +1704,9 @@ function rJob(){
       <span style="flex:1"></span><span class="mut">Sort</span>
       <select class="inp" onchange="jf.sort=this.value;render()"><option value="days" ${jf.sort==='days'?'selected':''}>Days in stage</option><option value="fit" ${jf.sort==='fit'?'selected':''}>Fit score</option><option value="name" ${jf.sort==='name'?'selected':''}>Name</option></select>
       <span class="mut">Drag cards between columns to move a candidate</span></div>
-    <div class="board">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')">
+    <div class="bwrap">${bscrBtns()}<div class="board fit">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')">
       <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${s.n}<span class="n">${l.length}</span></div>
-      ${l.map(ccard).join('')||'<div class="bempty">Drop here</div>'}</div>`}).join('')}</div>`;
+      <div class="bcards">${l.map(ccard).join('')||'<div class="bempty">Drop here</div>'}</div></div>`}).join('')}</div></div>`;
   const summary=`<div class="pad"><div class="dg2">
       <div class="card"><div class="ch"><h3>Funnel for this job</h3></div>${hbars(STAGES.map(s=>({l:s.n,v:all.filter(c=>STAGES.findIndex(x=>x.k===c.stage)>=STAGES.findIndex(x=>x.k===s.k)).length,tip:`Reached ${s.n}`})))}</div>
       <div class="card"><div class="ch"><h3>Key facts</h3></div><dl class="kv">
@@ -3494,10 +3501,22 @@ function rBoard(){
       <select class="inp" onchange="bf.sort=this.value;render()"><option value="days" ${bf.sort==='days'?'selected':''}>Days in stage</option><option value="fit" ${bf.sort==='fit'?'selected':''}>Fit score</option><option value="name" ${bf.sort==='name'?'selected':''}>Name</option></select>
       ${bf.job?`<button class="btn" onclick="openJob('${esc(bf.job)}')">Open job</button>`:''}
     </div></div>
-    <div class="board">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ${canEdit()?`ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')"`:''}>
+    <div class="bwrap">${bscrBtns()}<div class="board fit">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ${canEdit()?`ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')"`:''}>
       <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${s.n}<span class="n">${l.length}</span></div>
-      ${l.map(card).join('')||'<div class="bempty">Drop here</div>'}</div>`}).join('')}</div>`);
+      <div class="bcards">${l.map(card).join('')||'<div class="bempty">Drop here</div>'}</div></div>`}).join('')}</div></div>`);
 }
+/* ===== v26: boards fit the screen; scroll left/right with arrows, Shift+wheel, or by dragging a card to the edge ===== */
+function bscrBtns(){return `<button class="bscr l" hidden title="Scroll left" aria-label="Scroll left" onclick="bscrGo(this,-1)">&#8249;</button><button class="bscr r" title="Scroll right" aria-label="Scroll right" onclick="bscrGo(this,1)">&#8250;</button>`;}
+function bscrGo(btn,d){const b=btn.parentElement.querySelector('.board');b.scrollBy({left:d*Math.max(300,b.clientWidth*.7)});}
+function bscrSync(){document.querySelectorAll('.bwrap').forEach(w=>{const b=w.querySelector('.board');if(!b)return;
+  if(!b._bs){b._bs=1;b.addEventListener('scroll',bscrSync,{passive:true});}
+  const l=w.querySelector('.bscr.l'),r=w.querySelector('.bscr.r');if(l)l.hidden=b.scrollLeft<8;if(r)r.hidden=b.scrollLeft+b.clientWidth>=b.scrollWidth-8;});}
+window.addEventListener('resize',bscrSync);
+let _edgeT=0;
+document.addEventListener('dragover',e=>{const b=e.target.closest&&e.target.closest('.board');if(!b)return;const r=b.getBoundingClientRect(),z=90;
+  const d=e.clientX>r.right-z?1:e.clientX<r.left+z?-1:0;if(!d)return;const now=Date.now();if(now-_edgeT<16)return;_edgeT=now;
+  b.style.scrollBehavior='auto';b.scrollLeft+=d*24;b.style.scrollBehavior='';});
+new MutationObserver(()=>{clearTimeout(window._bsT);window._bsT=setTimeout(bscrSync,30);}).observe(document.body,{childList:true,subtree:true});
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
