@@ -632,7 +632,7 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 .side a{transition:background-color .2s,color .2s,transform .1s,border-color .2s}
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
-.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}</style>
+.btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}</style>
 </head>
 <body class="locked">
 
@@ -3425,7 +3425,7 @@ function rApply(){const el=document.getElementById('s-apply');
     <div class="afhead"><img src="assets/brdc-logo.png" alt="" class="aflogo"><div><h2>Application Form</h2><p>Fill in your details and attach your resume. HR will contact you.</p></div></div>
     <form class="psec" id="sApp" onsubmit="submitSimple(event)" novalidate>
       <div class="pg2">
-        <label class="pf full">Position applied for<div class="pin" style="height:auto;min-height:46px;padding:11px 14px;background:#F1F5EE;font-weight:600;line-height:1.35;margin-top:6px">${esc(pos)}</div><small>${gen?'':'Selected from the job you chose · '}<a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a></small></label>
+        <label class="pf full">Position applied for<div class="pin posbox">${esc(pos)}</div><small>${gen?'':'Selected from the job you chose · '}<a href="#" onclick="event.preventDefault();apBu=${gen?'null':`'${j.bu}'`};history.replaceState(null,'','#careers');go('s-careers')">change position</a></small></label>
         <label class="pf">Last name <em>*</em><input class="pin" id="sLast" autocomplete="family-name" placeholder="Dela Cruz"></label>
         <label class="pf">First name <em>*</em><input class="pin" id="sFirst" autocomplete="given-name" placeholder="Juan"></label>
         <label class="pf">Middle name<input class="pin" id="sMid" autocomplete="additional-name" placeholder="Santos"></label>
