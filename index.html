@@ -295,6 +295,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 .bscr:hover{background:#EEF4EA}.bscr.l{left:4px}.bscr.r{right:4px}.bscr[hidden]{display:none}
 @media (max-width:760px){.board.fit{height:calc(100vh - 200px)}.bscr{display:none}}
 tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyframes newrow{0%{background:#C9EBB8}100%{background:#EAF6E4}}
+.jotc{display:block;width:100%;margin:2px 0 8px;padding:5px 8px;font-size:11.5px;font-weight:600;color:#1F5F2A;background:#EEF6E9;border:1px dashed #9CC98A;border-radius:6px;cursor:pointer;text-align:center}.jotc:hover{background:#DFF0D6}.jotc:disabled{opacity:.6;cursor:wait}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -3526,6 +3527,27 @@ const PROF_FROM={'s-pipe':'Candidates','s-board':'Pipeline board','s-job':'Job b
 function profBack(){const f=window.profFrom;if(f==='s-job')openJob(cand(curCand).job);else go(PROF_FROM[f]?f:'s-pipe');}
 function profBackBtns(){const f=PROF_FROM[window.profFrom]?window.profFrom:'s-pipe';
   return `<button class="btn sm" onclick="profBack()">← ${PROF_FROM[f]}</button>`+(f!=='s-pipe'?` <button class="btn sm" onclick="go('s-pipe')">All candidates</button>`:'')+(f!=='s-job'?` <button class="btn sm" onclick="openJob(cand(curCand).job)">Job board</button>`:'');}
+/* ===== v28: Check Jotform button on each candidate card — pulls that applicant's Jotform details in ===== */
+function needsJot(c){return REMOTE&&canEdit()&&!['hired','onboarding','rejected'].includes(c.stage)&&(!c.form||!c.exp||c.exp==='—'||!c.em||!c.city||c.city==='—');}
+const _ccardJ=ccard;
+ccard=function(c){const h=_ccardJ(c);if(!needsJot(c))return h;
+  return h.replace('<div class="cfoot">',`<button class="jotc" onclick="event.stopPropagation();jotCheckCand(${c.id},this)" ondragstart="event.preventDefault()" title="Look for this applicant's Jotform Application for Employment and fill in their details">&#x21bb; ${c.form?'Get Jotform details':'Check Jotform'}</button><div class="cfoot">`);};
+async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0);
+  document.querySelectorAll('.jotc').forEach(b=>{b.disabled=true;});if(btn)btn.textContent='Checking Jotform…';
+  const snap=JSON.stringify([c0.form,c0.exp,c0.em,c0.mob,c0.city,c0.prov,c0.salary,c0.avail,(c0.skills||[]).length]);
+  try{const r=await api('jotform',{method:'POST',body:{rematch:true}});
+    if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
+    if(r.error)throw new Error('Jotform: '+r.error);
+    await loadRemote(true);
+    const c=CANDS.find(x=>candRef(x)===ref);if(!c){render();return;}
+    if(!c.form){try{const f=await api('forms?ref='+encodeURIComponent(ref));if(f&&f.form){c.form=true;c.formAt=c.formAt||new Date().toISOString();}}catch(e){}}
+    if(c.form){await fillFromForm(c);
+      const now=JSON.stringify([c.form,c.exp,c.em,c.mob,c.city,c.prov,c.salary,c.avail,(c.skills||[]).length]);
+      if(now!==snap){log(`Jotform details added to ${c.n}`,c.job);saveData();toast(`${c.nick||c.n}: Jotform details added`);}
+      else toast(`${c.nick||c.n}: Jotform form is on file — nothing new to fill in`);}
+    else toast(`No Jotform application found for ${c.n} yet${r.throttled?' (Jotform was checked in the last 2 minutes — try again shortly)':''}`);}
+  catch(e){toast(e.message);}
+  render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
