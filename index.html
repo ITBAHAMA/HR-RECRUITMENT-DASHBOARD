@@ -294,6 +294,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 .bscr{position:absolute;top:50%;transform:translateY(-50%);z-index:5;width:38px;height:38px;border-radius:50%;border:1px solid #CDD3C9;background:#fff;color:#26302A;font-size:22px;line-height:1;cursor:pointer;box-shadow:0 2px 8px rgba(16,24,16,.18);display:grid;place-items:center}
 .bscr:hover{background:#EEF4EA}.bscr.l{left:4px}.bscr.r{right:4px}.bscr[hidden]{display:none}
 @media (max-width:760px){.board.fit{height:calc(100vh - 200px)}.bscr{display:none}}
+tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyframes newrow{0%{background:#C9EBB8}100%{background:#EAF6E4}}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -1052,7 +1053,7 @@ const SCREENS = [
 ];
 let cur="s-dash", curCand=1, profTab="app", pipeView="list", applyPage=1;
 
-function go(id){cur=id;document.body.classList.remove('sideopen');if(typeof closeModal==='function')closeModal();document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
+function go(id){if(id==='s-prof'&&cur!=='s-prof')window.profFrom=cur;cur=id;document.body.classList.remove('sideopen');if(typeof closeModal==='function')closeModal();document.getElementById('backhr').classList.toggle('on',PUBLIC_SCREENS.includes(id)&&!!SESSION);document.querySelectorAll('.screen').forEach(s=>s.classList.toggle('on',s.id===id));
   document.querySelectorAll('#sw button').forEach(b=>b.classList.toggle('on',b.dataset.s===id));render();window.scrollTo(0,0);}
 function toast(t){const el=document.getElementById('toast');el.textContent=t;el.classList.add('on');setTimeout(()=>el.classList.remove('on'),1900);}
 function esc(s){return String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));}
@@ -1362,7 +1363,7 @@ function rProf(){
   if(!c.docState)c.docState=DOCS.map(()=> 'pending');
   const deadline=c.docsStarted?fmtD(localISO(new Date(new Date(c.docsStarted).getTime()+14*864e5))):null;
   document.getElementById('s-prof').innerHTML = shell('pipe',`<div class="pad">
-    <div class="bar"><button class="btn sm" onclick="openJob(cand(curCand).job)">← Job board</button> <button class="btn sm" onclick="go('s-pipe')">All candidates</button></div>
+    <div class="bar">${profBackBtns()}</div>
     ${reviewBanner(c)}<div class="phead">
       <div class="cav" style="width:64px;height:64px;font-size:22px;background:${AVC[c.id%AVC.length]}">${initials(c.n)}</div>
       <div style="flex:1;min-width:0">
@@ -1749,6 +1750,7 @@ function rPipe(){
   let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.via||candOrigin(c).via.split(' + ')[0]===pf.via)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,candOrigin(c).via,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
   const key={name:c=>c.n,job:c=>job(c.job).t,stage:c=>STAGES.findIndex(s=>s.k===c.stage),days:c=>c.days,fit:c=>fitParts(c).total,src:c=>c.src};
   list.sort((a,b)=>{const x=key[pf.sort](a),y=key[pf.sort](b);return (x>y?1:x<y?-1:0)*pf.dir;});
+  if(window._newCid){const i=list.findIndex(c=>c.id===window._newCid);if(i>0)list.unshift(list.splice(i,1)[0]);}
   const th=(k,n)=>`<th class="srt" onclick="pf.dir=pf.sort==='${k}'?-pf.dir:-1;pf.sort='${k}';render()">${n}${pf.sort===k?(pf.dir<0?' ▾':' ▴'):''}</th>`;
   document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
     <h2>Candidates</h2><p class="sub">${list.length} of ${CANDS.length} candidates · click a column to sort</p>
@@ -1765,7 +1767,7 @@ function rPipe(){
       <button class="btn" onclick="exportCSV(${JSON.stringify(list.map(c=>c.id))})">Export CSV</button>
     </div>
     <div class="card" style="padding:0"><div class="tw"><table><thead><tr>${th('name','Candidate')}${th('job','Position')}${th('stage','Stage')}${th('days','In stage')}${th('fit','Fit')}${th('src','Source')}<th>Owner</th>${isAdmin()?'<th></th>':''}</tr></thead><tbody>
-    ${list.map(c=>{const f=fitParts(c);return `<tr class="clk" onclick="openCand(${c.id})">
+    ${list.map(c=>{const f=fitParts(c);return `<tr class="clk${c.id===window._newCid?' newrow':''}" onclick="openCand(${c.id})">
       <td><div style="display:flex;gap:10px;align-items:center"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><div class="mut">${esc(c.mob)} · ${esc(c.city)}</div></span></div></td>
       <td>${esc(job(c.job).t)}<div class="mut">${c.job} · ${BU[job(c.job).bu]}</div></td>
       <td>${c.stage==='draft'?'<span class="pill amber">Draft</span>':`<span class="sdot" style="background:${stg(c.stage).c}"></span>${stageName(c.stage)}`}</td>
@@ -2812,7 +2814,7 @@ async function saveNewCand(){const g=i=>(document.getElementById(i).value||'').t
   CANDS.push(c);log(`Added candidate ${c.n} for ${j.t} (${g('nS')})`,jid);
   if(file&&REMOTE){try{clearTimeout(saveTimer);await pushRemote();const r=await api('files',{method:'POST',body:{ref:candRef(c),kind:'resume',name:file.name,type:file.type,data:file.data}});(FILES[candRef(c)]=FILES[candRef(c)]||[]).unshift(r.file);}
     catch(e){toast('Candidate added, but the resume did not upload: '+e.message);}}
-  closeModal();toast(`${c.n} added`);openCand(c.id);}
+  closeModal();toast(`${c.n} added`);showNewCand(c.id);}
 
 /* ===== v9: delete a job ===== */
 function deleteJob(id){
@@ -3517,6 +3519,13 @@ document.addEventListener('dragover',e=>{const b=e.target.closest&&e.target.clos
   const d=e.clientX>r.right-z?1:e.clientX<r.left+z?-1:0;if(!d)return;const now=Date.now();if(now-_edgeT<16)return;_edgeT=now;
   b.style.scrollBehavior='auto';b.scrollLeft+=d*24;b.style.scrollBehavior='';});
 new MutationObserver(()=>{clearTimeout(window._bsT);window._bsT=setTimeout(bscrSync,30);}).observe(document.body,{childList:true,subtree:true});
+/* ===== v27: after adding a candidate, stay on Candidates; profile Back returns to where you came from ===== */
+function showNewCand(id){window._newCid=id;pf={job:'',bu:'',stage:'',q:'',sort:pf.sort||'days',dir:pf.dir||-1,late:false,via:''};go('s-pipe');
+  clearTimeout(window._newT);window._newT=setTimeout(()=>{window._newCid=null;if(cur==='s-pipe')renderSafe();},20000);}
+const PROF_FROM={'s-pipe':'Candidates','s-board':'Pipeline board','s-job':'Job board','s-dash':'Dashboard','s-int':'Interviews','s-onb':'Onboarding','s-pool':'Talent pool','s-bu':'Business units','s-jobs':'Jobs','s-msg':'Messages','s-rep':'Reports','s-mpr':'Manpower requests'};
+function profBack(){const f=window.profFrom;if(f==='s-job')openJob(cand(curCand).job);else go(PROF_FROM[f]?f:'s-pipe');}
+function profBackBtns(){const f=PROF_FROM[window.profFrom]?window.profFrom:'s-pipe';
+  return `<button class="btn sm" onclick="profBack()">← ${PROF_FROM[f]}</button>`+(f!=='s-pipe'?` <button class="btn sm" onclick="go('s-pipe')">All candidates</button>`:'')+(f!=='s-job'?` <button class="btn sm" onclick="openJob(cand(curCand).job)">Job board</button>`:'');}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
