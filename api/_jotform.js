@@ -280,3 +280,51 @@ export async function syncJotform({ all = false, max = 8, offset = 0, rematch = 
   }
   return out;
 }
+
+/* "Check Jotform" on ONE candidate card: look only for that person's submission (reference, mobile, email or first + last name)
+   and attach it to that candidate. Nobody else is imported or changed. */
+export async function checkOne(ref, S = null) {
+  const cfg = jotConfig(); if (!cfg.key) return { configured: false };
+  ref = String(ref || '').trim().toUpperCase(); if (!/^C-\d+$/.test(ref)) return { configured: true, error: 'Unknown candidate' };
+  const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
+  const c = (s.CANDS || []).find((x) => x.stage !== 'draft' && refOfC(x).toUpperCase() === ref);
+  if (!c) return { configured: true, error: 'Candidate not found — refresh the page and try again' };
+  if (S && !S.has(((s.JOBS || []).find((j) => j.id === c.job) || {}).bu)) return { configured: true, error: 'Not your business unit' };
+  const cmk = mobileKey(c.mob), cem = String(c.em || '').trim().toLowerCase(), cw = nk(c.n).split(' ').filter(Boolean);
+  const started = Date.now(); let best = null, checked = 0, total = 0;
+  try {
+    for (let off = 0; off < 1000 && Date.now() - started < 35000; off += 100) {
+      const page = await api(cfg, `/form/${cfg.form}/submissions?limit=100&offset=${off}&orderby=created_at`);
+      const subs = (page.content || []).filter((x) => x.status !== 'DELETED'); total = page.resultSet ? page.resultSet.count : total;
+      for (const sub of subs) {
+        checked++;
+        let mapped; try { mapped = mapSubmission(sub); } catch { continue; }
+        const { form } = mapped, sm = summary(form), mk = mobileKey(sm.mob), nm = form.name || {};
+        const fw = nk(`${nm.first || ''} ${nm.last || ''}`).split(' ').filter(Boolean), full = nk(sm.n);
+        const byRef = String(form.brdcRef || '').trim().toUpperCase() === ref;
+        const byMob = cmk.length >= 10 && mk === cmk, byEm = !!cem && String(sm.em || '').toLowerCase() === cem;
+        const byName = cw.length >= 2 && ((full && full === cw.join(' ')) || (fw.length >= 2 && cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1]));
+        // a reference alone is not trusted — the person must also match
+        const score = (byRef && (byMob || byEm || byName) ? 8 : 0) + (byMob ? 4 : 0) + (byEm ? 2 : 0) + (byName ? 1 : 0);
+        if (!score) continue;
+        const at = String(sub.created_at || '');
+        if (!best || score > best.score || (score === best.score && at > best.at)) best = { score, at, sub, mapped, by: byRef ? 'reference' : byMob ? 'mobile number' : byEm ? 'email' : 'name' };
+      }
+      if (subs.length < 100 || (best && best.score >= 4)) break;
+    }
+  } catch (e) { return { configured: true, error: 'Jotform: ' + String(e.message || e).slice(0, 160) }; }
+  if (!best) return { configured: true, found: false, checked, total, name: c.n };
+  const sid = String(best.sub.id);
+  const cur = (await q(`SELECT data FROM forms WHERE ref=$1`, [ref]))[0];
+  const already = !!(cur && cur.data && cur.data._jotform && String(cur.data._jotform.id) === sid);
+  // the same submission may have been imported before as its own candidate
+  const dup = (await q(`SELECT ref FROM forms WHERE data->'_jotform'->>'id' = $1 AND ref NOT LIKE '%~%' AND ref <> $2`, [sid, ref])).map((r) => r.ref);
+  if (!already) {
+    try { cleanForm(best.mapped.form); await attach(ref, best.mapped.form, best.mapped.files, cfg); }
+    catch (e) { return { configured: true, error: 'Could not attach the form: ' + String(e.message || e).slice(0, 160) }; }
+  }
+  // the regular sync must not import this submission again as a new applicant
+  await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING`, ['jot:' + sid]);
+  await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING`, [`jotm:${sid}:${ref}`]);
+  return { configured: true, found: true, already, by: best.by, sub: sid, at: best.at, name: c.n, checked, merged: dup.length ? [{ into: ref, from: dup, name: c.n, sub: sid }] : [] };
+}

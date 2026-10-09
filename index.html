@@ -3532,20 +3532,25 @@ function needsJot(c){return REMOTE&&canEdit()&&!['hired','onboarding','rejected'
 const _ccardJ=ccard;
 ccard=function(c){const h=_ccardJ(c);if(!needsJot(c))return h;
   return h.replace('<div class="cfoot">',`<button class="jotc" onclick="event.stopPropagation();jotCheckCand(${c.id},this)" ondragstart="event.preventDefault()" title="Look for this applicant's Jotform Application for Employment and fill in their details">&#x21bb; ${c.form?'Get Jotform details':'Check Jotform'}</button><div class="cfoot">`);};
-async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0);
-  document.querySelectorAll('.jotc').forEach(b=>{b.disabled=true;});if(btn)btn.textContent='Checking Jotform…';
+async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0),nm=c0.n;
+  document.querySelectorAll('.jotc').forEach(b=>{b.disabled=true;});if(btn)btn.textContent='Checking Jotform for '+(c0.nick||nm.split(' ')[0])+'…';
   const snap=JSON.stringify([c0.form,c0.exp,c0.em,c0.mob,c0.city,c0.prov,c0.salary,c0.avail,(c0.skills||[]).length]);
-  try{const r=await api('jotform',{method:'POST',body:{rematch:true}});
+  try{const r=await api('jotform',{method:'POST',body:{ref}});
     if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
-    if(r.error)throw new Error('Jotform: '+r.error);
+    if(r.error)throw new Error(r.error);
+    if(!r.found){toast(`No Jotform application found for ${nm} (checked ${r.checked||0} submissions by mobile, email and name)`);render();return;}
     await loadRemote(true);
     const c=CANDS.find(x=>candRef(x)===ref);if(!c){render();return;}
-    if(!c.form){try{const f=await api('forms?ref='+encodeURIComponent(ref));if(f&&f.form){c.form=true;c.formAt=c.formAt||new Date().toISOString();}}catch(e){}}
-    if(c.form){await fillFromForm(c);
-      const now=JSON.stringify([c.form,c.exp,c.em,c.mob,c.city,c.prov,c.salary,c.avail,(c.skills||[]).length]);
-      if(now!==snap){log(`Jotform details added to ${c.n}`,c.job);saveData();toast(`${c.nick||c.n}: Jotform details added`);}
-      else toast(`${c.nick||c.n}: Jotform form is on file — nothing new to fill in`);}
-    else toast(`No Jotform application found for ${c.n} yet${r.throttled?' (Jotform was checked in the last 2 minutes — try again shortly)':''}`);}
+    /* the same submission imported earlier as a separate candidate */
+    (r.merged||[]).forEach(m=>(m.from||[]).forEach(fr=>{const d=CANDS.find(x=>candRef(x)===fr);if(!d||d===c)return;
+      if(d.stage==='new'&&(d.via==='Jotform'||/Jotform/i.test((d.notes||[]).map(n=>n.text).join(' ')))&&!INTV.some(i=>i.cid===d.id)){CANDS=CANDS.filter(x=>x!==d);MSGS=MSGS.filter(x=>x.cid!==d.id);log(`Merged duplicate Jotform record ${fr} into ${c.n} (${ref})`,c.job);}
+      else (c.notes=c.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`The same Jotform application also exists as candidate ${fr} (${d.n}). Check and reject or delete the extra one.`});}));
+    c.form=true;c.formAt=c.formAt||new Date().toISOString();
+    if(!r.already)(c.notes=c.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`Application for Employment attached from Jotform (submission ${r.sub}, matched by ${r.by})`});
+    await fillFromForm(c);
+    const now=JSON.stringify([c.form,c.exp,c.em,c.mob,c.city,c.prov,c.salary,c.avail,(c.skills||[]).length]);
+    if(now!==snap||!r.already){log(`Jotform details added to ${c.n} (matched by ${r.by})`,c.job);saveData();toast(`${c.nick||c.n}: Jotform application found (by ${r.by}) — details filled in`);}
+    else toast(`${c.nick||c.n}: Jotform application is already on file — nothing new to fill in`);}
   catch(e){toast(e.message);}
   render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
