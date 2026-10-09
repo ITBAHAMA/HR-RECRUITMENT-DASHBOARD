@@ -1682,7 +1682,7 @@ function rDash(){
    ============================================================ */
 let curJob="SF-114", jobTab="cands", jf={q:'',src:'',late:false,sort:'days'}, dragId=null;
 function openJob(id){curJob=id;jobTab='cands';go('s-job');}
-function moveTo(id,stage){const c=cand(id);if(!c||c.stage===stage)return;const from=stageName(c.stage);
+function moveTo(id,stage){if(!canEdit())return;const c=cand(id);if(!c||c.stage===stage)return;const from=stageName(c.stage);
   if(stage==='hired'&&!['hired','onboarding'].includes(c.stage)){const j=job(c.job);j.filled=(j.filled||0)+1;c.start=localISO(new Date(isoIn(7)));c.onb=ONB_ITEMS.map(()=>false);if(j.filled>=j.head&&j.rf!=='general'){j.status='filled';toast(`${j.id} is now fully staffed`);}}
   if(stage==='onboarding'&&!c.onb){c.onb=ONB_ITEMS.map(()=>false);c.start=isoAgo(0);}
   c.stage=stage;c.since=isoAgo(0);c.stageAt=new Date().toISOString();log(`Moved ${c.n} from ${from} to ${stageName(stage)}`,c.job);
@@ -1708,7 +1708,7 @@ function rJob(){
       <span style="flex:1"></span><span class="mut">Sort</span>
       <select class="inp" onchange="jf.sort=this.value;render()"><option value="days" ${jf.sort==='days'?'selected':''}>Days in stage</option><option value="fit" ${jf.sort==='fit'?'selected':''}>Fit score</option><option value="name" ${jf.sort==='name'?'selected':''}>Name</option></select>
       <span class="mut">Drag cards between columns to move a candidate</span></div>
-    <div class="bwrap">${bscrBtns()}<div class="board fit">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')">
+    <div class="bwrap">${bscrBtns()}<div class="board fit">${STAGES.map(s=>{const l=cs.filter(c=>c.stage===s.k);return `<div class="bcol" style="--c:${s.c}" ${canEdit()?`ondragover="event.preventDefault();this.classList.add('over')" ondragleave="this.classList.remove('over')" ondrop="this.classList.remove('over');moveTo(dragId,'${s.k}')"`:''}>
       <div class="bcolh"><span class="dot">${ic('onb','width="10" height="10" stroke-width="3"')}</span>${s.n}<span class="n">${l.length}</span></div>
       <div class="bcards">${l.map(ccard).join('')||'<div class="bempty">Drop here</div>'}</div></div>`}).join('')}</div></div>`;
   const summary=`<div class="pad"><div class="dg2">
@@ -3404,7 +3404,7 @@ async function jotCheckNow(){const b=document.getElementById('jotNow');if(b){b.d
   try{const r=await api('jotform',{method:'POST',body:{rematch:true}});
     if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
     if(r.error)throw new Error('Jotform: '+r.error);
-    await loadRemote(true);
+    await flushSave();await loadRemote(true);
     let dropped=0;(r.merged||[]).forEach(m=>{const into=CANDS.find(c=>candRef(c)===m.into);(m.from||[]).forEach(fr=>{const d=CANDS.find(c=>candRef(c)===fr);if(!d||!into||d===into)return;
       if(d.stage==='new'&&(d.via==='Jotform'||/Jotform/i.test((d.notes||[]).map(n=>n.text).join(' ')))&&!INTV.some(i=>i.cid===d.id)){CANDS=CANDS.filter(c=>c!==d);MSGS=MSGS.filter(x=>x.cid!==d.id);dropped++;
         log(`Merged duplicate Jotform record ${fr} into ${into.n} (${m.into})`,into.job);}
@@ -3526,24 +3526,26 @@ new MutationObserver(()=>{clearTimeout(window._bsT);window._bsT=setTimeout(bscrS
 function showNewCand(id){window._newCid=id;pf={job:'',bu:'',stage:'',q:'',sort:pf.sort||'days',dir:pf.dir||-1,late:false,via:''};go('s-pipe');
   clearTimeout(window._newT);window._newT=setTimeout(()=>{window._newCid=null;if(cur==='s-pipe')renderSafe();},20000);}
 const PROF_FROM={'s-pipe':'Candidates','s-board':'Pipeline board','s-job':'Job board','s-dash':'Dashboard','s-int':'Interviews','s-onb':'Onboarding','s-pool':'Talent pool','s-bu':'Business units','s-jobs':'Jobs','s-msg':'Messages','s-rep':'Reports','s-mpr':'Manpower requests'};
-function profBack(){const f=window.profFrom;if(f==='s-job')openJob(cand(curCand).job);else go(PROF_FROM[f]?f:'s-pipe');}
+function profBack(){const f=window.profFrom;if(f==='s-job')openJob(curJob);else go(PROF_FROM[f]?f:'s-pipe');}
 function profBackBtns(){const f=PROF_FROM[window.profFrom]?window.profFrom:'s-pipe';
   return `<button class="btn sm" onclick="profBack()">← ${PROF_FROM[f]}</button>`+(f!=='s-pipe'?` <button class="btn sm" onclick="go('s-pipe')">All candidates</button>`:'')+(f!=='s-job'?` <button class="btn sm" onclick="openJob(cand(curCand).job)">Job board</button>`:'');}
 /* ===== v28: Check Jotform button on each candidate card — pulls that applicant's Jotform details in ===== */
 function jotOk(c){return REMOTE&&canEdit()&&!['hired','onboarding','rejected'].includes(c.stage);}
 function needsJot(c){return jotOk(c)&&(!c.form||!c.exp||c.exp==='—'||!c.em||!c.city||c.city==='—');}
 const _ccardJ=ccard;
-ccard=function(c){const h=_ccardJ(c);if(!jotOk(c))return h;const need=needsJot(c);
+ccard=function(c){const h=_ccardJ(c);if(!jotOk(c))return h;const need=needsJot(c);if(window._jotBusy&&window._jotBusy[c.id])return h.replace('<div class="cfoot">','<button class="jotc" disabled>Checking Jotform…</button><div class="cfoot">');
   const lbl=!c.form?'&#x21bb; Check Jotform':need?'&#x21bb; Get Jotform details':'&#10003; Jotform on file &middot; Re-check';
   return h.replace('<div class="cfoot">',`<button class="jotc${need?'':' done'}" onclick="event.stopPropagation();jotCheckCand(${c.id},this)" ondragstart="event.preventDefault()" title="${need?'Look for this applicant\'s Jotform Application for Employment and fill in their details':'This applicant\'s Jotform application is already attached. Click to look again (for example if they submitted a newer one).'}">${lbl}</button><div class="cfoot">`);};
-async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0),nm=c0.n;
+async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;window._jotBusy=window._jotBusy||{};if(window._jotBusy[id])return;window._jotBusy[id]=1;try{await jotCheckCand0(id,btn);}finally{delete window._jotBusy[id];renderSafe();}}
+async function flushSave(){if(!REMOTE)return;clearTimeout(saveTimer);for(let i=0;i<20&&saving;i++)await new Promise(r=>setTimeout(r,250));if(JSON.stringify(packData())!==lastSaved){try{await pushRemote();}catch(e){}}}
+async function jotCheckCand0(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0),nm=c0.n;
   document.querySelectorAll('.jotc').forEach(b=>{b.disabled=true;});if(btn)btn.textContent='Checking Jotform for '+(c0.nick||nm.split(' ')[0])+'…';
   const snap=JSON.stringify([c0.form,c0.exp,c0.em,c0.mob,c0.city,c0.prov,c0.salary,c0.avail,(c0.skills||[]).length]);
   try{const r=await api('jotform',{method:'POST',body:{ref}});
     if(r.configured===false)throw new Error('Jotform is not connected yet — see Settings → Jotform');
     if(r.error)throw new Error(r.error);
     if(!r.found){toast(`No Jotform application found for ${nm} (checked ${r.checked||0} submissions by mobile, email and name)`);render();return;}
-    await loadRemote(true);
+    await flushSave();await loadRemote(true);
     const c=CANDS.find(x=>candRef(x)===ref);if(!c){render();return;}
     /* the same submission imported earlier as a separate candidate */
     (r.merged||[]).forEach(m=>(m.from||[]).forEach(fr=>{const d=CANDS.find(x=>candRef(x)===fr);if(!d||d===c)return;
@@ -3566,7 +3568,7 @@ function refHit(c,q){const r=_sq(candRef(c)),k=_sq(q);return k&&(r===k||r==='c'+
 function candMatch(c,q,extra){q=String(q||'').trim().toLowerCase();if(!q)return true;
   if(refHit(c,q))return true;const k=_sq(q);
   if(k.length>=3&&/^c?\d+$/.test(k)&&_sq(candRef(c)).includes(k))return true;
-  if(/\d{4,}/.test(k)&&String(c.mob||'').replace(/\D/g,'').includes(k.replace(/\D/g,'').replace(/^63/,'0')))return true;
+  const qd=k.replace(/\D/g,''),d10=x=>String(x||'').replace(/\D/g,'').slice(-10);if(qd.length>=7&&!/^c\d+$/.test(k)&&d10(c.mob).includes(d10(qd)))return true;
   return [c.n,c.nick,c.mob,c.em,c.city,c.prov,candRef(c),(c.skills||[]).join(' '),...(extra||[])].join(' ').toLowerCase().includes(q);}
 /* ===== v31: explain why Send SMS is off ===== */
 function smsOffHelp(){modal(`<h3>SMS is not connected yet</h3>

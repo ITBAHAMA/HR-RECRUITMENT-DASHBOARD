@@ -305,7 +305,10 @@ export async function checkOne(ref, S = null) {
         const byMob = cmk.length >= 10 && mk === cmk, byEm = !!cem && String(sm.em || '').toLowerCase() === cem;
         const byName = cw.length >= 2 && ((full && full === cw.join(' ')) || (fw.length >= 2 && cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1]));
         // a reference alone is not trusted — the person must also match
-        const score = (byRef && (byMob || byEm || byName) ? 8 : 0) + (byMob ? 4 : 0) + (byEm ? 2 : 0) + (byName ? 1 : 0);
+        // a name alone is only trusted when the mobile / email on both sides do not contradict it
+        const mobClash = cmk.length >= 10 && mk.length >= 10 && mk !== cmk, emClash = !!cem && !!sm.em && String(sm.em).toLowerCase() !== cem;
+        const nameOk = byName && !mobClash && !emClash;
+        const score = (byRef && (byMob || byEm || nameOk) ? 8 : 0) + (byMob ? 4 : 0) + (byEm ? 2 : 0) + (nameOk ? 1 : 0);
         if (!score) continue;
         const at = String(sub.created_at || '');
         if (!best || score > best.score || (score === best.score && at > best.at)) best = { score, at, sub, mapped, by: byRef ? 'reference' : byMob ? 'mobile number' : byEm ? 'email' : 'name' };
@@ -319,12 +322,15 @@ export async function checkOne(ref, S = null) {
   const already = !!(cur && cur.data && cur.data._jotform && String(cur.data._jotform.id) === sid);
   // the same submission may have been imported before as its own candidate
   const dup = (await q(`SELECT ref FROM forms WHERE data->'_jotform'->>'id' = $1 AND ref NOT LIKE '%~%' AND ref <> $2`, [sid, ref])).map((r) => r.ref);
-  if (!already) {
+  const lock = await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING RETURNING key`, [`jot1:${sid}:${ref}`]);
+  if (!already && lock.length) {
     try { cleanForm(best.mapped.form); await attach(ref, best.mapped.form, best.mapped.files, cfg); }
-    catch (e) { return { configured: true, error: 'Could not attach the form: ' + String(e.message || e).slice(0, 160) }; }
+    catch (e) { await q(`DELETE FROM reminders WHERE key=$1`, [`jot1:${sid}:${ref}`]); return { configured: true, error: 'Could not attach the form: ' + String(e.message || e).slice(0, 160) }; }
   }
   // the regular sync must not import this submission again as a new applicant
   await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING`, ['jot:' + sid]);
   await q(`INSERT INTO reminders (key) VALUES ($1) ON CONFLICT (key) DO NOTHING`, [`jotm:${sid}:${ref}`]);
-  return { configured: true, found: true, already, by: best.by, sub: sid, at: best.at, name: c.n, checked, merged: dup.length ? [{ into: ref, from: dup, name: c.n, sub: sid }] : [] };
+  // only fold a separately imported duplicate into this candidate when the match is strong (reference, mobile or email)
+  const strong = best.score >= 2;
+  return { configured: true, found: true, already, by: best.by, sub: sid, at: best.at, name: c.n, checked, merged: strong && dup.length ? [{ into: ref, from: dup, name: c.n, sub: sid }] : [] };
 }
