@@ -3193,9 +3193,9 @@ function afSections(f,print){let h='';(f&&f._basic?AF_BASIC_STEPS:AF_STEPS).forE
 function appFormCard(c){const ref=candRef(c),st=AFC[ref];if(!st)setTimeout(()=>loadAppForm(c),0);const f=st&&st.form;
   return `<div class="card" style="margin-bottom:12px"><div class="ch"><h3>Application for Employment</h3>${f?`<span class="pill green">filled ${st.at?fmtD(String(st.at).slice(0,10)):''}</span>`:''}</div>
     ${!st?'<p class="mut">Loading…</p>':st.err?`<p class="mut">${esc(st.err)}</p>`:f?`<p class="sub">${f._source==='Jotform'?(f._attached?'Filled up by the applicant on Jotform':'Imported from Jotform'):'Submitted by the applicant'}${f.position?` for <b>${esc(f.position)}</b>`:''}.</p>
-      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendJot(${c.id})">Send Jotform link again</button>`:''}</div>`
+      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afView(${c.id})">View form</button><button class="btn" onclick="afPrint(${c.id})">Print / save as PDF</button>${canEdit()?`<button class="btn" onclick="afSendJot(${c.id})">Send Jotform link again</button>${quadBtn(c)}`:''}</div>${quadNote(c)}`
     :`<p class="sub">${c.jotSent?`<span class="pill amber">Jotform link sent ${fmtD(String(c.jotSent).slice(0,10))}</span> waiting for the applicant to submit.`:'Not filled yet. Send the applicant the Application for Employment — their answers come back to this candidate automatically.'}</p>
-      ${canEdit()?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afSendJot(${c.id})">${c.jotSent?'Send Jotform link again':'Send Jotform application link'}</button><button class="btn" onclick="afSendLink(${c.id})">Use BRDC Recruit form instead</button></div>`:''}`}</div>`;}
+      ${canEdit()?`<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn pri" onclick="afSendJot(${c.id})">${c.jotSent?'Send Jotform link again':'Send Jotform application link'}</button><button class="btn" onclick="afSendLink(${c.id})">Use BRDC Recruit form instead</button>${quadBtn(c)}</div>${quadNote(c)}`:''}`}</div>`;}
 function afView(id){const c=cand(id),f=(AFC[candRef(c)]||{}).form;if(!f)return;
   modal(`<h3>Application for Employment — ${esc(c.n)}</h3><div class="afview">${afSections(f)}</div><div class="mdl-f"><button class="btn" onclick="closeModal()">Close</button><button class="btn pri" onclick="afPrint(${id})">Print / save as PDF</button></div>`,'wide');}
 async function afImg(c,kind){if(!REMOTE)return '';const ref=candRef(c);if(!FILES[ref])await loadFiles(ref,true);const f=(FILES[ref]||[]).find(x=>x.kind===kind&&/^image\//.test(x.type||''));if(!f)return '';
@@ -3343,7 +3343,7 @@ function jotLink(c){const j=job(c.job)||{},nm=splitName(c.n),P=new URLSearchPara
   P.set('fullName[first]',nm.first);if(nm.last)P.set('fullName[last]',nm.last);if(c.nick)P.set('preferredName',c.nick);if(c.mob)P.set('mobileNumber',c.mob);if(c.em)P.set('positionApplied333',c.em);
   P.set('brdcRef',candRef(c));return `https://form.jotform.com/${(JOT&&JOT.form)||JOT_FORM_DEFAULT}?${P.toString()}`;}
 function afSendJot(id){const c=cand(id);if(!c)return;const url=jotLink(c),first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
-  const sms=`Hi ${first}, please fill up the BRDC Application for Employment${j.t&&j.rf!=='general'?' for '+j.t:''}: ${url} - BRDC HR`;
+  const sms=`Hi ${first}, BRDC HR here. Please fill up your application form${j.t&&j.rf!=='general'?' ('+j.t+')':''}: ${jotShort(c)}`;
   const canSms=REMOTE&&c.mob,canEm=REMOTE&&c.em&&MSGCFG&&MSGCFG.email;
   modal(`<h3>Send Jotform application — ${esc(c.n)}</h3>
     <p class="sub">The applicant opens the link, fills up the Application for Employment on Jotform and submits. Their answers, photo, ID, resume and signature are added to <b>this candidate</b> automatically (matched by reference, mobile number, email or name).</p>
@@ -3577,6 +3577,38 @@ function smsOffHelp(){modal(`<h3>SMS is not connected yet</h3>
     <li>When it shows <b>Ready</b>, come back here and press <b>Ctrl + Shift + R</b>. The pill at the top right should say <b>SMS on</b>.</li>
     <li>On the phone, the SMS Gateway app must be <b>Started</b> with <b>Cloud server</b> on and internet connected.</li></ol>
   <div class="mdl-f"><button class="btn" onclick="closeModal();MSGCFG.loaded=false;loadMsgCfg().then(render)">Check again</button><button class="btn pri" onclick="closeModal()">OK</button></div>`);}
+/* ===== v32: short Jotform link for SMS (one text instead of 3; long links often fail) — site/#j=C-5044 opens the Jotform form ===== */
+function jotShort(c){const f=(JOT&&JOT.form&&JOT.form!==JOT_FORM_DEFAULT)?'.'+JOT.form:'';return location.origin+'/#j='+candRef(c)+f;}
+(function(){const m=/^#j=(C-\d+)(?:\.(\d{6,20}))?$/i.exec(location.hash||'');if(!m)return;
+  document.documentElement.style.visibility='hidden';
+  location.replace(`https://form.jotform.com/${m[2]||JOT_FORM_DEFAULT}?brdcRef=${encodeURIComponent(m[1].toUpperCase())}`);})();
+/* ===== v33: send the Quadrant test (Jotform 252740892011452) by text, email or copied link ===== */
+const QUAD_FORM='252740892011452';
+function quadLink(c){return `https://form.jotform.com/${QUAD_FORM}?brdcRef=${encodeURIComponent(candRef(c))}`;}
+function quadShort(c){return location.origin+'/#q='+candRef(c);}
+function quadBtn(c){return canEdit()?`<button class="btn" onclick="quadSend(${c.id})">${c.quadSent?'Send Quadrant test again':'Send Quadrant test'}</button>`:'';}
+function quadNote(c){return c.quadSent?`<p class="mut" style="margin:8px 0 0;font-size:12.5px"><span class="pill amber">Quadrant test sent ${fmtD(String(c.quadSent).slice(0,10))}</span> via ${esc(c.quadVia||'link')}</p>`:'';}
+async function quadSend(id){const c=cand(id);if(!c)return;if(REMOTE&&!MSGCFG.loaded)await loadMsgCfg();const url=quadLink(c),first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
+  const sms=`Hi ${first}, BRDC HR here. Please answer this short Quadrant test${j.t&&j.rf!=='general'?' for your '+j.t+' application':''}: ${quadShort(c)}`;
+  const canSms=REMOTE&&c.mob&&MSGCFG&&MSGCFG.sms,canEm=REMOTE&&c.em&&MSGCFG&&MSGCFG.email;
+  modal(`<h3>Send Quadrant test — ${esc(c.n)}</h3>
+    <p class="sub">The applicant opens the link and answers the Quadrant test on Jotform.</p>
+    <input class="inp" style="width:100%" readonly value="${esc(url)}" onclick="this.select()">
+    ${canSms?`<p class="mut" style="font-size:12.5px;margin:8px 0 0">Text message: <i>${esc(sms)}</i></p>`:''}
+    <div class="mdl-f" style="flex-wrap:wrap"><button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn" onclick="copyText(${esc(JSON.stringify(url))},'Link copied — send it by Messenger, Viber or text');quadMark(${id},'link copied')">Copy link</button>
+      <button class="btn" onclick="window.open(${esc(JSON.stringify(url))},'_blank')">Open test</button>
+      ${canEm?`<button class="btn" onclick="quadEmail(${id})">Email it</button>`:''}
+      ${canSms?`<button class="btn pri" id="qSms" onclick="quadSms(${id},${esc(JSON.stringify(sms))})">Text it to ${esc(c.mob)}</button>`:REMOTE&&c.mob?`<button class="btn" style="opacity:.6" onclick="smsOffHelp()">Text it (SMS off)</button>`:''}</div>`);}
+function quadMark(id,how){const c=cand(id);if(!c)return;c.quadSent=new Date().toISOString();c.quadVia=how;(c.notes=c.notes||[]).push({by:ME(),at:c.quadSent,text:`Quadrant test sent (${how})`});log(`Sent Quadrant test to ${c.n} (${how})`,c.job);saveData();}
+async function quadSms(id,text){const c=cand(id),b=document.getElementById('qSms');if(b){b.disabled=true;b.textContent='Sending…';}
+  try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:text,ref:candRef(c)}});if(!r.ok)throw new Error(r.error||'SMS not sent');quadMark(id,'SMS');toast('Quadrant test sent by SMS');closeModal();render();}
+  catch(e){toast(e.message+' — copy the link and send it instead');if(b){b.disabled=false;b.textContent='Text it to '+c.mob;}}}
+async function quadEmail(id){const c=cand(id),j=job(c.job);try{const r=await api('send',{method:'POST',body:{channel:'email',to:c.em,subject:'BRDC Quadrant test',ref:candRef(c),
+    body:`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for applying${j.t&&j.rf!=='general'?' for '+j.t:''} at ${BU[j.bu]||'BRDC'}. Please answer this short Quadrant test:\n\n${quadLink(c)}\n\n— BRDC HR`}});
+  if(!r.ok)throw new Error(r.error||'Email not sent');quadMark(id,'email');toast('Quadrant test sent by email');closeModal();render();}catch(e){toast(e.message);}}
+(function(){const m=/^#q=(C-\d+)$/i.exec(location.hash||'');if(!m)return;document.documentElement.style.visibility='hidden';
+  location.replace(`https://form.jotform.com/${QUAD_FORM}?brdcRef=${encodeURIComponent(m[1].toUpperCase())}`);})();
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
