@@ -3611,9 +3611,9 @@ async function quadEmail(id){const c=cand(id),j=job(c.job);try{const r=await api
   location.replace(`https://form.jotform.com/${QUAD_FORM}?brdcRef=${encodeURIComponent(m[1].toUpperCase())}`);})();
 /* ===== v34: PH networks reject texts that contain links. The link goes by email (or Messenger/Viber via Copy link);
    the SMS is a short reminder WITHOUT a link. ===== */
-const LINKKIND={jot:{what:'application form',short:c=>jotShort(c),title:'Send Jotform application',url:c=>jotLink(c),mark:(id,h)=>jotMarkSent(id,h),
+const LINKKIND={jot:{what:'application form',short:c=>`https://form.jotform.com/${(JOT&&JOT.form)||JOT_FORM_DEFAULT}`,title:'Send Jotform application',url:c=>jotLink(c),mark:(id,h)=>jotMarkSent(id,h),
     subject:'BRDC Application for Employment',body:(c,j,u)=>`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for your interest in ${j.t&&j.rf!=='general'?j.t+' at ':''}${BU[j.bu]||'BRDC'}. Please fill up our Application for Employment here:\n\n${u}\n\nPlease prepare a 2x2 photo, a valid ID and your resume.\n\n— BRDC HR`},
-  quad:{what:'Quadrant test',short:c=>quadShort(c),title:'Send Quadrant test',url:c=>quadLink(c),mark:(id,h)=>quadMark(id,h),
+  quad:{what:'Quadrant test',short:c=>`https://form.jotform.com/${QUAD_FORM}`,title:'Send Quadrant test',url:c=>quadLink(c),mark:(id,h)=>quadMark(id,h),
     subject:'BRDC Quadrant test',body:(c,j,u)=>`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for applying${j.t&&j.rf!=='general'?' for '+j.t:''} at ${BU[j.bu]||'BRDC'}. Please answer this short Quadrant test:\n\n${u}\n\n— BRDC HR`}};
 function remindSms(c,k,viaEmail){const first=c.nick||String(c.n).split(' ')[0];
   return viaEmail?`Hi ${first}, BRDC HR: we emailed your ${LINKKIND[k].what}. Pls check your email inbox/spam. Ref ${candRef(c)}`
