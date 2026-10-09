@@ -3621,7 +3621,7 @@ function remindSms(c,k,viaEmail){const first=c.nick||String(c.n).split(' ')[0];
 async function linkModal(k,id){const c=cand(id);if(!c)return;if(REMOTE&&!MSGCFG.loaded)await loadMsgCfg();const K=LINKKIND[k],url=K.url(c);
   const canSms=REMOTE&&c.mob&&MSGCFG.sms,canEm=REMOTE&&c.em&&MSGCFG.email;
   modal(`<h3>${K.title} — ${esc(c.n)}</h3>
-    <p class="sub">Phone networks block text messages that contain links, so the text puts an <b>@</b> inside the link and tells the applicant to remove it before opening.</p>
+    <p class="sub">Phone networks block text messages that contain links, so the text writes the address with <b>[.]</b> instead of dots and tells the applicant to type it in their browser.</p>
     ${canSms?`<p class="mut" style="font-size:12.5px;margin:0 0 8px">Text message: <i>${esc(atSms(c,k))}</i></p>`:''}
     <input class="inp" style="width:100%" readonly value="${esc(url)}" onclick="this.select()">
     <div class="mdl-f" style="flex-wrap:wrap"><button class="btn" onclick="closeModal()">Close</button>
@@ -3640,7 +3640,8 @@ function quadSend(id){linkModal('quad',id);}
 /* ===== v35: texts carry the link with an "@" inside so the network does not treat it as a link; applicant removes the @ ===== */
 function atLink(u){u=String(u).replace(/^https?:\/\//,'');const i=u.indexOf('/'),host=i<0?u:u.slice(0,i),rest=i<0?'':u.slice(i),d=host.lastIndexOf('.');
   return (d>0?host.slice(0,d)+'@'+host.slice(d):host+'@')+rest;}
-function atSms(c,k){const first=c.nick||String(c.n).split(' ')[0];return `Hi ${first}, BRDC HR: pls open your ${LINKKIND[k].what} (remove the @ first): ${atLink(LINKKIND[k].short(c))}`;}
+function defang(u){return String(u).replace(/^https?:\/\//,'').replace(/\./g,'[.]');}
+function atSms(c,k){const first=c.nick||String(c.n).split(' ')[0];return `Hi ${first}, BRDC HR: pls answer your ${LINKKIND[k].what}. Type in browser: ${defang(LINKKIND[k].short(c))} (palitan ang [.] ng tuldok)`;}
 async function atSend(k,id){const c=cand(id),b=document.getElementById('lmT');if(b){b.disabled=true;b.textContent='Sending…';}
   try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:atSms(c,k),ref:candRef(c)}});if(!r.ok)throw new Error(r.error||'SMS not sent');
     LINKKIND[k].mark(id,'SMS');toast(`${LINKKIND[k].what[0].toUpperCase()+LINKKIND[k].what.slice(1)} texted`);closeModal();render();}
