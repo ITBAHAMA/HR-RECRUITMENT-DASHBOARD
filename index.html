@@ -3343,7 +3343,7 @@ function jotLink(c){const j=job(c.job)||{},nm=splitName(c.n),P=new URLSearchPara
   P.set('fullName[first]',nm.first);if(nm.last)P.set('fullName[last]',nm.last);if(c.nick)P.set('preferredName',c.nick);if(c.mob)P.set('mobileNumber',c.mob);if(c.em)P.set('positionApplied333',c.em);
   P.set('brdcRef',candRef(c));return `https://form.jotform.com/${(JOT&&JOT.form)||JOT_FORM_DEFAULT}?${P.toString()}`;}
 function afSendJot(id){const c=cand(id);if(!c)return;const url=jotLink(c),first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
-  const sms=`Hi ${first}, BRDC HR here. Please fill up your application form${j.t&&j.rf!=='general'?' ('+j.t+')':''}: ${jotShort(c)}`;
+  const sms=`Hi ${first}, pls fill up your BRDC application form: ${jotShort(c)}`;
   const canSms=REMOTE&&c.mob,canEm=REMOTE&&c.em&&MSGCFG&&MSGCFG.email;
   modal(`<h3>Send Jotform application — ${esc(c.n)}</h3>
     <p class="sub">The applicant opens the link, fills up the Application for Employment on Jotform and submits. Their answers, photo, ID, resume and signature are added to <b>this candidate</b> automatically (matched by reference, mobile number, email or name).</p>
@@ -3589,7 +3589,7 @@ function quadShort(c){return location.origin+'/#q='+candRef(c);}
 function quadBtn(c){return canEdit()?`<button class="btn" onclick="quadSend(${c.id})">${c.quadSent?'Send Quadrant test again':'Send Quadrant test'}</button>`:'';}
 function quadNote(c){return c.quadSent?`<p class="mut" style="margin:8px 0 0;font-size:12.5px"><span class="pill amber">Quadrant test sent ${fmtD(String(c.quadSent).slice(0,10))}</span> via ${esc(c.quadVia||'link')}</p>`:'';}
 async function quadSend(id){const c=cand(id);if(!c)return;if(REMOTE&&!MSGCFG.loaded)await loadMsgCfg();const url=quadLink(c),first=c.nick||String(c.n).split(' ')[0],j=job(c.job);
-  const sms=`Hi ${first}, BRDC HR here. Please answer this short Quadrant test${j.t&&j.rf!=='general'?' for your '+j.t+' application':''}: ${quadShort(c)}`;
+  const sms=`Hi ${first}, pls answer your BRDC Quadrant test: ${quadShort(c)}`;
   const canSms=REMOTE&&c.mob&&MSGCFG&&MSGCFG.sms,canEm=REMOTE&&c.em&&MSGCFG&&MSGCFG.email;
   modal(`<h3>Send Quadrant test — ${esc(c.n)}</h3>
     <p class="sub">The applicant opens the link and answers the Quadrant test on Jotform.</p>
