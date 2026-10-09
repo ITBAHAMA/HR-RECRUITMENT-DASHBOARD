@@ -3609,6 +3609,35 @@ async function quadEmail(id){const c=cand(id),j=job(c.job);try{const r=await api
   if(!r.ok)throw new Error(r.error||'Email not sent');quadMark(id,'email');toast('Quadrant test sent by email');closeModal();render();}catch(e){toast(e.message);}}
 (function(){const m=/^#q=(C-\d+)$/i.exec(location.hash||'');if(!m)return;document.documentElement.style.visibility='hidden';
   location.replace(`https://form.jotform.com/${QUAD_FORM}?brdcRef=${encodeURIComponent(m[1].toUpperCase())}`);})();
+/* ===== v34: PH networks reject texts that contain links. The link goes by email (or Messenger/Viber via Copy link);
+   the SMS is a short reminder WITHOUT a link. ===== */
+const LINKKIND={jot:{what:'application form',title:'Send Jotform application',url:c=>jotLink(c),mark:(id,h)=>jotMarkSent(id,h),
+    subject:'BRDC Application for Employment',body:(c,j,u)=>`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for your interest in ${j.t&&j.rf!=='general'?j.t+' at ':''}${BU[j.bu]||'BRDC'}. Please fill up our Application for Employment here:\n\n${u}\n\nPlease prepare a 2x2 photo, a valid ID and your resume.\n\n— BRDC HR`},
+  quad:{what:'Quadrant test',title:'Send Quadrant test',url:c=>quadLink(c),mark:(id,h)=>quadMark(id,h),
+    subject:'BRDC Quadrant test',body:(c,j,u)=>`Hi ${c.nick||String(c.n).split(' ')[0]},\n\nThank you for applying${j.t&&j.rf!=='general'?' for '+j.t:''} at ${BU[j.bu]||'BRDC'}. Please answer this short Quadrant test:\n\n${u}\n\n— BRDC HR`}};
+function remindSms(c,k,viaEmail){const first=c.nick||String(c.n).split(' ')[0];
+  return viaEmail?`Hi ${first}, BRDC HR: we emailed your ${LINKKIND[k].what}. Pls check your email inbox/spam. Ref ${candRef(c)}`
+    :`Hi ${first}, BRDC HR: we sent your ${LINKKIND[k].what} link via Messenger/Viber. Pls check. Ref ${candRef(c)}`;}
+async function linkModal(k,id){const c=cand(id);if(!c)return;if(REMOTE&&!MSGCFG.loaded)await loadMsgCfg();const K=LINKKIND[k],url=K.url(c);
+  const canSms=REMOTE&&c.mob&&MSGCFG.sms,canEm=REMOTE&&c.em&&MSGCFG.email;
+  modal(`<h3>${K.title} — ${esc(c.n)}</h3>
+    <p class="sub">Phone networks block text messages that contain links, so the link is sent by <b>email</b> (or copy it to Messenger / Viber) and the text message is only a reminder.</p>
+    <input class="inp" style="width:100%" readonly value="${esc(url)}" onclick="this.select()">
+    ${!c.em?'<p class="mut" style="font-size:12.5px;margin:8px 0 0">No email on file — add one with Edit details, or copy the link to Messenger / Viber.</p>':!MSGCFG.email&&REMOTE?'<p class="mut" style="font-size:12.5px;margin:8px 0 0">Email sending is not set up yet (Settings → Messaging), so copy the link to Messenger / Viber for now.</p>':''}
+    <div class="mdl-f" style="flex-wrap:wrap"><button class="btn" onclick="closeModal()">Close</button>
+      <button class="btn" onclick="window.open(${esc(JSON.stringify(url))},'_blank')">Open</button>
+      <button class="btn" onclick="copyText(${esc(JSON.stringify(url))},'Link copied — paste it in Messenger or Viber');LINKKIND['${k}'].mark(${id},'link copied')">Copy link</button>
+      ${canSms&&!canEm?`<button class="btn" id="lmS" onclick="linkSend('${k}',${id},false,true)">Copied to Messenger — text a reminder</button>`:''}
+      ${canEm?`<button class="btn ${canSms?'':'pri'}" id="lmE" onclick="linkSend('${k}',${id},true,false)">Email link</button>`:''}
+      ${canEm&&canSms?`<button class="btn pri" id="lmB" onclick="linkSend('${k}',${id},true,true)">Email link + text reminder</button>`:''}</div>`);}
+async function linkSend(k,id,email,sms){const c=cand(id),K=LINKKIND[k],j=job(c.job);document.querySelectorAll('#modal .mdl-f button').forEach(b=>b.disabled=true);
+  try{if(email){const r=await api('send',{method:'POST',body:{channel:'email',to:c.em,subject:K.subject,ref:candRef(c),body:K.body(c,j,K.url(c))}});if(!r.ok)throw new Error(r.error||'Email not sent');}
+    let smsErr='';if(sms){const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:remindSms(c,k,email),ref:candRef(c)}});if(!r.ok)smsErr=r.error||'reminder text not sent';}
+    K.mark(id,email&&sms?'email + SMS reminder':email?'email':'Messenger + SMS reminder');
+    toast(email?`${K.what[0].toUpperCase()+K.what.slice(1)} emailed${sms&&!smsErr?' + reminder texted':''}${smsErr?' (text failed: '+smsErr+')':''}`:smsErr?'Text failed: '+smsErr:'Reminder texted');closeModal();render();}
+  catch(e){toast(e.message);document.querySelectorAll('#modal .mdl-f button').forEach(b=>b.disabled=false);}}
+function afSendJot(id){linkModal('jot',id);}
+function quadSend(id){linkModal('quad',id);}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
