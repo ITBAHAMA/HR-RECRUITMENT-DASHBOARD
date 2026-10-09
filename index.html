@@ -1261,9 +1261,9 @@ function monthChart(){const hs=scopedHist().filter(h=>h.out==='hired');const mon
 /* ---------- global search ---------- */
 function gsearch(q){const box=document.querySelector('.screen.on .gres');if(!box)return;q=q.trim().toLowerCase();
   if(q.length<2){box.innerHTML='';box.classList.remove('on');return;}
-  const cs=CANDS.filter(c=>[c.n,c.mob,c.em,c.city,c.skills.join(' ')].join(' ').toLowerCase().includes(q)).slice(0,6);
+  const cs=CANDS.filter(c=>candMatch(c,q)).sort((a,b)=>refHit(b,q)-refHit(a,q)).slice(0,6);
   const js=JOBS.filter(j=>[j.id,j.t,BU[j.bu],j.dept,j.br].join(' ').toLowerCase().includes(q)).slice(0,5);
-  box.innerHTML=(cs.length||js.length)?`${cs.length?`<div class="gh">Candidates</div>${cs.map(c=>`<a onclick="openCand(${c.id})"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><small>${esc(job(c.job).t)} · ${stageName(c.stage)}</small></span></a>`).join('')}`:''}
+  box.innerHTML=(cs.length||js.length)?`${cs.length?`<div class="gh">Candidates</div>${cs.map(c=>`<a onclick="openCand(${c.id})"><span class="cav s" style="background:${AVC[c.id%AVC.length]}">${initials(c.n)}</span><span><b>${esc(c.n)}</b><small>${esc(candRef(c))} · ${esc(job(c.job).t)} · ${stageName(c.stage)}</small></span></a>`).join('')}`:''}
     ${js.length?`<div class="gh">Jobs</div>${js.map(j=>`<a onclick="openJob('${j.id}')"><span class="cav s" style="background:#256B12">${ic('jobs','width="14" height="14"')}</span><span><b>${esc(j.t)}</b><small>${j.id} · ${BU[j.bu]}</small></span></a>`).join('')}`:''}`
     :`<div class="gh">No matches for “${esc(q)}”</div>`;
   box.classList.add('on');}
@@ -1519,7 +1519,7 @@ function shell(active, body, extra){
     <div class="top">
       <button class="burger" onclick="toggleSide()" aria-label="Toggle menu">${ic('menu','width="20" height="20"')}</button>
       <span class="logo"><img src="assets/brdc-mark.png" alt=""><span>BRDC Recruit<small>Shared Services HR</small></span></span>
-      <div class="gsearch">${ic('search')}<input placeholder="Search by name, mobile, skill, job or business unit" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
+      <div class="gsearch">${ic('search')}<input placeholder="Search by name, reference no., mobile, skill or job" oninput="gsearch(this.value)" onfocus="gsearch(this.value)"><div class="gres"></div></div>
       <span class="spacer"></span>
       ${REMOTE?'<span id="syncState" class="sync ok">Shared database</span>':''}
       ${overdue?`<button class="odp" onclick="showOverdue()" data-tip="See who is overdue">${overdue} overdue</button>`:''}
@@ -1698,7 +1698,7 @@ function ccard(c){const f=fitParts(c), role=(c.exp||'—').split(/[;(]/)[0].trim
       <span data-tip="Source · received via ${esc(candOrigin(c).via)} ${fmtD(String(candOrigin(c).at||'').slice(0,10))}">${ic('bolt')} ${esc(c.src)}</span><span class="eye">${ic('eye')}</span></div></div>`;}
 function rJob(){
   const j=job(curJob), all=CANDS.filter(c=>c.job===curJob&&c.stage!=='draft');
-  let cs=all.filter(c=>(!jf.src||c.src===jf.src)&&(!jf.late||c.late)&&(!jf.q||(c.n+' '+c.skills.join(' ')+' '+c.city).toLowerCase().includes(jf.q.toLowerCase())));
+  let cs=all.filter(c=>(!jf.src||c.src===jf.src)&&(!jf.late||c.late)&&(!jf.q||candMatch(c,jf.q)));
   const sorter={days:(a,b)=>b.days-a.days,fit:(a,b)=>fitParts(b).total-fitParts(a).total,name:(a,b)=>a.n.localeCompare(b.n)}[jf.sort];cs.sort(sorter);
   const st={open:'<span class="bdg g">Published</span>',pending_approval:'<span class="bdg a">Pending approval</span>',filled:'<span class="bdg b">Filled</span>',on_hold:'<span class="bdg gr">On hold</span>'}[j.status]||'';
   const board=`<div class="jbar">
@@ -1750,7 +1750,7 @@ function rJob(){
    ============================================================ */
 let pf={job:'',bu:'',stage:'',q:'',sort:'days',dir:-1,late:false};
 function rPipe(){
-  let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.via||candOrigin(c).via.split(' + ')[0]===pf.via)&&(!pf.q||[c.n,c.mob,c.em,c.city,c.src,candOrigin(c).via,c.skills.join(' '),c.exp].join(' ').toLowerCase().includes(pf.q.toLowerCase())));
+  let list=CANDS.filter(c=>(!pf.late||(c.late&&ACTIVE.includes(c.stage)))&&(!pf.job||c.job===pf.job)&&(!pf.bu||job(c.job).bu===pf.bu)&&(!pf.stage||c.stage===pf.stage)&&(!pf.via||candOrigin(c).via.split(' + ')[0]===pf.via)&&(!pf.q||candMatch(c,pf.q,[c.src,candOrigin(c).via,c.exp])));
   const key={name:c=>c.n,job:c=>job(c.job).t,stage:c=>STAGES.findIndex(s=>s.k===c.stage),days:c=>c.days,fit:c=>fitParts(c).total,src:c=>c.src};
   list.sort((a,b)=>{const x=key[pf.sort](a),y=key[pf.sort](b);return (x>y?1:x<y?-1:0)*pf.dir;});
   if(window._newCid){const i=list.findIndex(c=>c.id===window._newCid);if(i>0)list.unshift(list.splice(i,1)[0]);}
@@ -1758,7 +1758,7 @@ function rPipe(){
   document.getElementById('s-pipe').innerHTML = shell('pipe',`<div class="pad">
     <h2>Candidates</h2><p class="sub">${list.length} of ${CANDS.length} candidates · click a column to sort</p>
     <div class="bar">
-      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="bulkResumes()">📄 Upload resumes (PDF)</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>${REMOTE?`<button class="btn" id="jotNow" onclick="jotCheckNow()" title="Get new Jotform applications now">🔄 Check Jotform</button>`:''}`:''}<input class="inp" placeholder="Search name, mobile, skills, resume…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
+      ${canEdit()?`<button class="btn pri" onclick="addCandidate()">+ Add candidate</button><button class="btn" onclick="bulkResumes()">📄 Upload resumes (PDF)</button><button class="btn" onclick="importApplicants()">⬆ Import candidates</button>${REMOTE?`<button class="btn" id="jotNow" onclick="jotCheckNow()" title="Get new Jotform applications now">🔄 Check Jotform</button>`:''}`:''}<input class="inp" placeholder="Search name, ref no., mobile, skills…" style="min-width:240px" value="${esc(pf.q)}" onchange="pf.q=this.value;render()">
       <select class="inp" onchange="pf.bu=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${pf.bu===k?'selected':''}>${v}</option>`).join('')}</select>
       <select class="inp" onchange="pf.job=this.value;render()"><option value="">All positions</option>${JOBS.map(j=>`<option value="${j.id}" ${pf.job===j.id?'selected':''}>${j.id} — ${esc(j.t)}</option>`).join('')}</select>
       <select class="inp" onchange="pf.stage=this.value;render()"><option value="">All stages</option><option value="draft" ${pf.stage==='draft'?'selected':''}>Draft</option>${STAGES.map(s=>`<option value="${s.k}" ${pf.stage===s.k?'selected':''}>${s.n}</option>`).join('')}</select>
@@ -3490,7 +3490,7 @@ function rBoard(){
   const jobs=JOBS.filter(j=>(!bf.bu||j.bu===bf.bu)).sort((a,b)=>String(a.id).localeCompare(String(b.id),undefined,{numeric:true}));
   if(bf.job&&!jobs.some(j=>j.id===bf.job))bf.job='';
   const all=CANDS.filter(c=>c.stage!=='draft'&&(bf.job?c.job===bf.job:(!bf.bu||(job(c.job)||{}).bu===bf.bu)));
-  let cs=all.filter(c=>(!bf.late||c.late)&&(!bf.q||[c.n,c.mob,c.city,(job(c.job)||{}).t,(c.skills||[]).join(' ')].join(' ').toLowerCase().includes(bf.q.toLowerCase())));
+  let cs=all.filter(c=>(!bf.late||c.late)&&(!bf.q||candMatch(c,bf.q,[(job(c.job)||{}).t])));
   const sorter={days:(a,b)=>b.days-a.days,fit:(a,b)=>fitParts(b).total-fitParts(a).total,name:(a,b)=>a.n.localeCompare(b.n)}[bf.sort];cs.sort(sorter);
   const card=c=>{const h=ccard(c);if(bf.job)return h;const j=job(c.job)||{};
     return h.replace('<div class="ctop">',`<div class="cjob" onclick="event.stopPropagation();openJob('${esc(c.job)}')" title="Open ${esc(j.t||'')}">${esc(c.job)} · ${esc(j.t||'—')}</div><div class="ctop">`);};
@@ -3499,7 +3499,7 @@ function rBoard(){
     <div class="bar">
       <select class="inp" onchange="bf.bu=this.value;bf.job='';render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${bf.bu===k?'selected':''}>${esc(v)}</option>`).join('')}</select>
       <select class="inp" onchange="bf.job=this.value;render()"><option value="">All jobs</option>${jobs.map(j=>`<option value="${esc(j.id)}" ${bf.job===j.id?'selected':''}>${esc(j.id)} — ${esc(j.t)}</option>`).join('')}</select>
-      <input class="inp" placeholder="Search name, city, position…" value="${esc(bf.q)}" onchange="bf.q=this.value;render()">
+      <input class="inp" placeholder="Search name, ref no., city, position…" value="${esc(bf.q)}" onchange="bf.q=this.value;render()">
       <label class="tgl"><input type="checkbox" ${bf.late?'checked':''} onchange="bf.late=this.checked;render()"> Overdue only</label>
       ${bf.job||bf.bu||bf.q||bf.late?`<button class="btn sm" onclick="bf={job:'',bu:'',q:'',late:false,sort:bf.sort};render()">Clear filters</button>`:''}
       <span style="flex:1"></span><span class="mut">Sort</span>
@@ -3560,6 +3560,14 @@ async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=ca
 /* ===== v29: flag files that are older than the candidate (left over from an earlier record with the same reference) ===== */
 function candCreatedAt(c){const ts=[...(c.notes||[]).map(n=>n.at),c.viaAt,c.applied].filter(Boolean).map(x=>new Date(x).getTime()).filter(Number.isFinite);return ts.length?Math.min(...ts):0;}
 function oldFile(c,f){const t=new Date(f.created_at).getTime(),c0=candCreatedAt(c);return !!(t&&c0&&t<c0-36*3600e3);}
+/* ===== v30: search finds candidates by reference number (C-5012, c5012, 5012), and mobile with or without spaces ===== */
+const _sq=x=>String(x||'').toLowerCase().replace(/[\s\-–.]/g,'');
+function refHit(c,q){const r=_sq(candRef(c)),k=_sq(q);return k&&(r===k||r==='c'+k)?1:0;}
+function candMatch(c,q,extra){q=String(q||'').trim().toLowerCase();if(!q)return true;
+  if(refHit(c,q))return true;const k=_sq(q);
+  if(k.length>=3&&/^c?\d+$/.test(k)&&_sq(candRef(c)).includes(k))return true;
+  if(/\d{4,}/.test(k)&&String(c.mob||'').replace(/\D/g,'').includes(k.replace(/\D/g,'').replace(/^63/,'0')))return true;
+  return [c.n,c.nick,c.mob,c.em,c.city,c.prov,candRef(c),(c.skills||[]).join(' '),...(extra||[])].join(' ').toLowerCase().includes(q);}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
