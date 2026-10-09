@@ -3641,7 +3641,7 @@ function quadSend(id){linkModal('quad',id);}
 function atLink(u){u=String(u).replace(/^https?:\/\//,'');const i=u.indexOf('/'),host=i<0?u:u.slice(0,i),rest=i<0?'':u.slice(i),d=host.lastIndexOf('.');
   return (d>0?host.slice(0,d)+'@'+host.slice(d):host+'@')+rest;}
 function defang(u){return String(u).replace(/^https?:\/\//,'').replace(/\./g,'[.]');}
-function atSms(c,k){const first=c.nick||String(c.n).split(' ')[0];return `Hi ${first}, BRDC HR: pls answer your ${LINKKIND[k].what}. Type in browser: ${defang(LINKKIND[k].short(c))} (palitan ang [.] ng tuldok)`;}
+function atSms(c,k){const first=c.nick||String(c.n).split(' ')[0];return `Hi ${first}, BRDC HR: pls answer your ${LINKKIND[k].what}. Type in browser: ${defang(LINKKIND[k].short(c))} (burahin ang [ ])`;}
 async function atSend(k,id){const c=cand(id),b=document.getElementById('lmT');if(b){b.disabled=true;b.textContent='Sending…';}
   try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:atSms(c,k),ref:candRef(c)}});if(!r.ok)throw new Error(r.error||'SMS not sent');
     LINKKIND[k].mark(id,'SMS');toast(`${LINKKIND[k].what[0].toUpperCase()+LINKKIND[k].what.slice(1)} texted`);closeModal();render();}
