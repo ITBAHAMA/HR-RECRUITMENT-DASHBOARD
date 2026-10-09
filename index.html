@@ -297,6 +297,7 @@ body.sidecol .side a span,body.sidecol .side .rv,body.sidecol .side .rvi{display
 tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyframes newrow{0%{background:#C9EBB8}100%{background:#EAF6E4}}
 .jotc{display:block;width:100%;margin:2px 0 8px;padding:5px 8px;font-size:11.5px;font-weight:600;color:#1F5F2A;background:#EEF6E9;border:1px dashed #9CC98A;border-radius:6px;cursor:pointer;text-align:center}.jotc:hover{background:#DFF0D6}.jotc:disabled{opacity:.6;cursor:wait}
 .oldf{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:#FDECEA;color:#9B2C22;font-weight:600;font-size:11px}
+.jotc.done{border-style:solid;border-color:#D6E6CE;background:transparent;color:#5E7A55;font-weight:500}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -3529,10 +3530,12 @@ function profBack(){const f=window.profFrom;if(f==='s-job')openJob(cand(curCand)
 function profBackBtns(){const f=PROF_FROM[window.profFrom]?window.profFrom:'s-pipe';
   return `<button class="btn sm" onclick="profBack()">← ${PROF_FROM[f]}</button>`+(f!=='s-pipe'?` <button class="btn sm" onclick="go('s-pipe')">All candidates</button>`:'')+(f!=='s-job'?` <button class="btn sm" onclick="openJob(cand(curCand).job)">Job board</button>`:'');}
 /* ===== v28: Check Jotform button on each candidate card — pulls that applicant's Jotform details in ===== */
-function needsJot(c){return REMOTE&&canEdit()&&!['hired','onboarding','rejected'].includes(c.stage)&&(!c.form||!c.exp||c.exp==='—'||!c.em||!c.city||c.city==='—');}
+function jotOk(c){return REMOTE&&canEdit()&&!['hired','onboarding','rejected'].includes(c.stage);}
+function needsJot(c){return jotOk(c)&&(!c.form||!c.exp||c.exp==='—'||!c.em||!c.city||c.city==='—');}
 const _ccardJ=ccard;
-ccard=function(c){const h=_ccardJ(c);if(!needsJot(c))return h;
-  return h.replace('<div class="cfoot">',`<button class="jotc" onclick="event.stopPropagation();jotCheckCand(${c.id},this)" ondragstart="event.preventDefault()" title="Look for this applicant's Jotform Application for Employment and fill in their details">&#x21bb; ${c.form?'Get Jotform details':'Check Jotform'}</button><div class="cfoot">`);};
+ccard=function(c){const h=_ccardJ(c);if(!jotOk(c))return h;const need=needsJot(c);
+  const lbl=!c.form?'&#x21bb; Check Jotform':need?'&#x21bb; Get Jotform details':'&#10003; Jotform on file &middot; Re-check';
+  return h.replace('<div class="cfoot">',`<button class="jotc${need?'':' done'}" onclick="event.stopPropagation();jotCheckCand(${c.id},this)" ondragstart="event.preventDefault()" title="${need?'Look for this applicant\'s Jotform Application for Employment and fill in their details':'This applicant\'s Jotform application is already attached. Click to look again (for example if they submitted a newer one).'}">${lbl}</button><div class="cfoot">`);};
 async function jotCheckCand(id,btn){const c0=cand(id);if(!c0)return;const ref=candRef(c0),nm=c0.n;
   document.querySelectorAll('.jotc').forEach(b=>{b.disabled=true;});if(btn)btn.textContent='Checking Jotform for '+(c0.nick||nm.split(' ')[0])+'…';
   const snap=JSON.stringify([c0.form,c0.exp,c0.em,c0.mob,c0.city,c0.prov,c0.salary,c0.avail,(c0.skills||[]).length]);
