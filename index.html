@@ -2393,7 +2393,7 @@ function rMsg(){
       </div>
       <div class="msgtxt">${esc(m.body)}</div>
       <div style="display:flex;gap:8px;flex-wrap:wrap">
-        ${REMOTE&&MSGCFG.sms&&m.mob&&canEdit()?`<button class="btn pri" id="mb${m.id}s" onclick="sendMsg(${m.id},'sms')">Send SMS</button>`:''}
+        ${REMOTE&&MSGCFG.sms&&m.mob&&canEdit()?`<button class="btn pri" id="mb${m.id}s" onclick="sendMsg(${m.id},'sms')">Send SMS</button>`:REMOTE&&m.mob&&canEdit()?`<button class="btn" style="opacity:.6" onclick="smsOffHelp()" title="SMS is not connected yet">Send SMS</button>`:''}
         ${REMOTE&&MSGCFG.email&&em&&canEdit()?`<button class="btn ${MSGCFG.sms&&m.mob?'':'pri'}" id="mb${m.id}e" onclick="sendMsg(${m.id},'email')">Send email</button>`:''}
         <button class="btn" onclick="copyMsg(${m.id})">Copy text</button>
         <button class="btn" onclick="copyNum(${m.id})">Copy number</button>
@@ -3568,6 +3568,15 @@ function candMatch(c,q,extra){q=String(q||'').trim().toLowerCase();if(!q)return 
   if(k.length>=3&&/^c?\d+$/.test(k)&&_sq(candRef(c)).includes(k))return true;
   if(/\d{4,}/.test(k)&&String(c.mob||'').replace(/\D/g,'').includes(k.replace(/\D/g,'').replace(/^63/,'0')))return true;
   return [c.n,c.nick,c.mob,c.em,c.city,c.prov,candRef(c),(c.skills||[]).join(' '),...(extra||[])].join(' ').toLowerCase().includes(q);}
+/* ===== v31: explain why Send SMS is off ===== */
+function smsOffHelp(){modal(`<h3>SMS is not connected yet</h3>
+  <p class="sub">The server does not see the SMS Gateway login, so texts can't be sent from here yet.</p>
+  <ol style="margin:6px 0 0 18px;line-height:1.7;font-size:13.5px">
+    <li>In Vercel → <b>Settings → Environment Variables</b>, check there are exactly two entries named <code>SMSGATE_USER</code> and <code>SMSGATE_PASSWORD</code> (all capitals, no spaces), with <b>Production</b> ticked.</li>
+    <li>Go to <b>Deployments</b> → <b>⋯</b> on the newest one → <b>Redeploy</b>. New variables only work after a redeploy.</li>
+    <li>When it shows <b>Ready</b>, come back here and press <b>Ctrl + Shift + R</b>. The pill at the top right should say <b>SMS on</b>.</li>
+    <li>On the phone, the SMS Gateway app must be <b>Started</b> with <b>Cloud server</b> on and internet connected.</li></ol>
+  <div class="mdl-f"><button class="btn" onclick="closeModal();MSGCFG.loaded=false;loadMsgCfg().then(render)">Check again</button><button class="btn pri" onclick="closeModal()">OK</button></div>`);}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
