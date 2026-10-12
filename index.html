@@ -2230,7 +2230,7 @@ function mergeInbox(inbox){let added=0;(inbox||[]).forEach(a=>{if(pendingConsume
   ACT.unshift({at:new Date(a.created_at).toISOString(),by:'Career page',text:`New application: ${d.n} for ${j.t} (${a.ref})`,job:d.job||a.job});pendingConsumed.push(a.id);added++;});return added;}
 async function loadRemote(silent){const r=await api('state');VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;FILECOUNT=r.files||{};applyScope(r.scope);
   const had=unpackData(r.data);if(!had){lastSaved='';CANDS=[];HIST=[];INTV=[];MSGS=[];POOL=[];MPR=[];NOTES={};ACT=[];JOBS.forEach(j=>{j.filled=0;});log('Shared database set up');} else lastSaved=JSON.stringify(packData());
-  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof migrateHrInt==='function'&&canEdit()&&migrateHrInt())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
+  const n=mergeInbox(r.inbox);if(n&&silent)toast(`${n} new application${n>1?'s':''} received`);if(typeof renameFSC==='function'&&isAdmin()&&renameFSC())queueSave();if(typeof migrateHrInt==='function'&&canEdit()&&migrateHrInt())queueSave();if(typeof migrateRejMsg==='function'&&canEdit()&&migrateRejMsg())queueSave();if(typeof seedBranches==='function'&&isAdmin()&&!(BRANCHES&&Array.isArray(BRANCHES._seed)&&BRANCHES._seed.includes('sf-2026-10'))){seedBranches();queueSave();}
   const fch=processForms(r.forms);
   if(!had||n||fch)queueSave();return r;}
 function queueSave(){clearTimeout(saveTimer);saveTimer=setTimeout(pushRemote,700);}
@@ -3677,7 +3677,9 @@ function doReject(id){const c=cand(id),el=document.querySelector('input[name=rjr
   MSGS.unshift({id:Date.now(),cand:c.n,cid:c.id,em:c.em||'',bu:j.bu,mob:c.mob,tpl:'Not pass — '+r.l,lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),body:REJECT_MSG});
   HIST.push({month:todayKey.slice(0,7),out:'rejected',bu:j.bu,src:c.src,n:c.n,job:c.job,applied:c.applied||null,reason:r.c});log(`Not pass: ${c.n} — ${r.l}`,c.job);
   CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();toast(pool?'Not pass · kept in talent pool · message queued':'Not pass · message queued');go('s-msg');}
-(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
+/* pending rejection messages written with the old wording get the new standard message */
+function migrateRejMsg(){let n=0;(MSGS||[]).forEach(m=>{if(m.status==='pending'&&/^Rejection|^Not pass/.test(m.tpl||'')&&m.body!==REJECT_MSG){m.body=REJECT_MSG;n++;}});return n;}
+(async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
 </body>
