@@ -298,6 +298,18 @@ tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyfra
 .jotc{display:block;width:100%;margin:2px 0 8px;padding:5px 8px;font-size:11.5px;font-weight:600;color:#1F5F2A;background:#EEF6E9;border:1px dashed #9CC98A;border-radius:6px;cursor:pointer;text-align:center}.jotc:hover{background:#DFF0D6}.jotc:disabled{opacity:.6;cursor:wait}
 .oldf{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:99px;background:#FDECEA;color:#9B2C22;font-weight:600;font-size:11px}
 .jotc.done{border-style:solid;border-color:#D6E6CE;background:transparent;color:#5E7A55;font-weight:500}
+.rjl{display:grid;gap:7px;margin-top:6px}
+.rjo{display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid #DDE3D8;border-radius:10px;cursor:pointer;font-size:13.5px;background:#fff;opacity:0;animation:rjin .32s cubic-bezier(.2,.8,.2,1) forwards;transition:border-color .15s,background .15s,transform .15s}
+.rjo:hover{border-color:#9CC98A;transform:translateX(3px)}.rjo input{position:absolute;opacity:0;pointer-events:none}
+.rjn{width:24px;height:24px;border-radius:50%;background:#EEF2EB;color:#4A5A45;font-weight:700;font-size:12px;display:grid;place-items:center;flex:none;transition:background .2s,color .2s,transform .2s}
+.rjo.sel{border-color:#B3352F;background:#FDF1F0}.rjo.sel .rjn{background:#B3352F;color:#fff;transform:scale(1.12)}
+.rjm{max-height:0;overflow:hidden;opacity:0;transform:translateY(-6px);transition:max-height .35s ease,opacity .3s ease,transform .3s ease,margin .3s;margin-top:0}
+.rjm.on{max-height:260px;opacity:1;transform:none;margin-top:12px}
+.rjt{background:#F6F8F4;border:1px solid #E1E5DE;border-radius:10px;padding:10px 12px;font-size:13px;line-height:1.55}
+.rjx .mdl-f .btn.danger{background:#B3352F;border-color:#B3352F;color:#fff}.rjx .mdl-f .btn.danger:disabled{opacity:.45}
+@keyframes rjin{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
+#modal .mdl-card:has(.rjx){animation:rjpop .34s cubic-bezier(.2,.9,.25,1.15) both}
+@keyframes rjpop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -787,12 +799,13 @@ const R = rng(20260924);
 const pick = a => a[Math.floor(R()*a.length)];
 
 const REASONS = [
-  {c:"insufficient_experience", l:"Experience did not match the role requirements", q:false},
-  {c:"incomplete_requirements", l:"Requirements were not completed on time", q:false},
-  {c:"failed_assessment", l:"Did not meet the assessment criteria", q:false},
-  {c:"location_mismatch", l:"Location is too far from the work site", q:true},
-  {c:"position_filled", l:"The position has been filled", q:true},
-  {c:"stronger_candidate", l:"Another candidate was a closer fit", q:true}
+  {c:"lack_experience", l:"Lack of experience", q:false},
+  {c:"education", l:"Educational requirements", q:false},
+  {c:"lack_skills", l:"Lack of relevant skills", q:false},
+  {c:"salary", l:"Salary expectations", q:false},
+  {c:"schedule", l:"Work schedule availability", q:false},
+  {c:"location", l:"Location concerns", q:false},
+  {c:"position_req", l:"Position-specific requirements", q:false}
 ];
 let JOBS = [
   {id:"SF-114", t:"Station Crew", bu:"sf", dept:"Station Operations", br:"Calamba", prov:"Laguna", rf:"station_crew", head:5, filled:1, open:isoAgo(43), owner:"R. Cruz", status:"open", sal:"₱13,000–15,000", vac:true, skills:["Cash handling","Customer service","Fuel dispensing","Basic math"], team:["R. Cruz","Station Manager – Calamba"]},
@@ -3648,6 +3661,22 @@ async function atSend(k,id){const c=cand(id),b=document.getElementById('lmT');if
   try{const r=await api('send',{method:'POST',body:{channel:'sms',to:c.mob,body:atSms(c,k),ref:candRef(c)}});if(!r.ok)throw new Error(r.error||'SMS not sent');
     LINKKIND[k].mark(id,'SMS');toast(`${LINKKIND[k].what[0].toUpperCase()+LINKKIND[k].what.slice(1)} texted`);closeModal();render();}
   catch(e){toast(e.message);if(b){b.disabled=false;b.textContent='Text it to '+c.mob;}}}
+/* ===== v36: Reject pop-up — 7 reasons, animated; the applicant gets one standard message ===== */
+const REJECT_MSG='Good day! Thank you for applying to Bahama Realty and Development Corporation. Unfortunately, you do not meet the qualifications for the position at this time. We appreciate your interest and wish you success in your job search.';
+function openReject(id){const c=cand(id);if(!c)return;if(!canEdit()){toast('Viewers cannot reject candidates');return;}
+  modal(`<div class="rjx"><h3>Not pass — ${esc(c.n)}</h3><p class="sub">${esc(job(c.job).t)} · choose the reason (for HR records — the applicant only sees the message below).</p>
+    <div class="rjl">${REASONS.map((r,i)=>`<label class="rjo" style="animation-delay:${60+i*45}ms"><input type="radio" name="rjr" value="${i}" onchange="rjPick()"><span class="rjn">${i+1}</span><span>${esc(r.l)}</span></label>`).join('')}</div>
+    <label class="tgl" style="margin:10px 0 0"><input type="checkbox" id="rjPool"> Keep in talent pool for other openings</label>
+    <div class="rjm" id="rjMsg"><div class="flab">Message to the applicant</div><div class="rjt">${esc(REJECT_MSG)}</div></div>
+    <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn danger" id="rjGo" disabled onclick="doReject(${id})">Not pass</button></div></div>`);}
+function rjPick(){const g=document.getElementById('rjGo'),m=document.getElementById('rjMsg');if(g)g.disabled=false;if(m)m.classList.add('on');
+  document.querySelectorAll('.rjo').forEach(l=>l.classList.toggle('sel',l.querySelector('input').checked));}
+function doReject(id){const c=cand(id),el=document.querySelector('input[name=rjr]:checked');if(!c||!el)return;const r=REASONS[+el.value],pool=document.getElementById('rjPool').checked,j=job(c.job);
+  c.stage=pool?'rejected_qualified':'rejected_not_qualified';c.late=false;c.days=0;
+  if(pool)POOL.unshift({id:900+c.id,n:c.n,mob:c.mob,city:c.city+(c.prov?", "+c.prov:''),rf:String(j.rf||'').replace('_',' '),last:isoAgo(0),reason:r.l,warm:"pending",reply:"not yet sent"});
+  MSGS.unshift({id:Date.now(),cand:c.n,cid:c.id,em:c.em||'',bu:j.bu,mob:c.mob,tpl:'Not pass — '+r.l,lang:c.lang,status:"pending",age:0,created:new Date().toISOString(),body:REJECT_MSG});
+  HIST.push({month:todayKey.slice(0,7),out:'rejected',bu:j.bu,src:c.src,n:c.n,job:c.job,applied:c.applied||null,reason:r.c});log(`Not pass: ${c.n} — ${r.l}`,c.job);
+  CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();toast(pool?'Not pass · kept in talent pool · message queued':'Not pass · message queued');go('s-msg');}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
