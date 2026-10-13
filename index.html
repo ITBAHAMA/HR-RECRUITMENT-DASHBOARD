@@ -1613,7 +1613,7 @@ function rDash(){
     ['For interview',n(INTERVIEW_STAGES),`${INTV.filter(i=>i.status==='scheduled').length} interviews scheduled`,'cal',"go('s-int')"],
     ['For evaluation',n('exam')+awaitRes,`${n('exam')} assessments · ${awaitRes} results due`,'req',"pf={job:'',bu:buF,stage:'exam',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
     ['Job offers',n('offer'),`${cs.filter(c=>c.stage==='offer'&&c.days>3).length} waiting > 3 days`,'doc',"pf={job:'',bu:buF,stage:'offer',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
-    ['Hired',hiredMTD,`this month · ${n('hired')+n('onboarding')} onboarding · ${hiredMTD-n('hired')-n('onboarding')} completed`,'onb',"showHired()"],
+    ['Ongoing requirements',n('reqs'),(()=>{const R=cs.filter(c=>c.stage==='reqs'),docs=R.reduce((t,c)=>t+(c.docs&&c.docState?c.docState.filter(x=>x!=='verified').length:DOCS.length),0);return `${docs} document${docs===1?'':'s'} pending · ${R.filter(c=>c.late).length} overdue`;})(),'req',"pf={job:'',bu:buF,stage:'reqs',q:'',sort:'days',dir:-1,late:false};go('s-pipe')"],
     ['Onboarding',n('onboarding')+n('hired'),`${n('hired')} starting soon`,'team',"go('s-onb')"]
   ];
   const H=hs.filter(h=>h.out==='hired'), closed=hs.length;
