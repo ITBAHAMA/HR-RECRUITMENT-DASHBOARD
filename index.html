@@ -311,6 +311,7 @@ tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyfra
 #modal .mdl-card:has(.rjx){animation:rjpop .34s cubic-bezier(.2,.9,.25,1.15) both}
 @keyframes rjpop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
+.ejnew{grid-column:1/-1;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));background:#F6F8F4;border:1px solid #E1E5DE;border-radius:10px;padding:10px}@media(max-width:600px){.ejnew{grid-template-columns:1fr}}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -3705,7 +3706,11 @@ function editJob(id){const j=job(id);if(!j||!canEdit())return;const gen=j.rf==='
     <div class="fgrid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
       <label style="grid-column:1/-1">Job title *<input class="inp" id="ejT" value="${esc(j.t)}" style="width:100%"></label>
       <label>Department<input class="inp" id="ejD" value="${esc(j.dept&&j.dept!=='—'?j.dept:'')}" style="width:100%"></label>
-      <label>Branch<select class="inp" id="ejB" style="width:100%">${branchOpts(j.bu,j.br)}</select></label>
+      <label>Branch<select class="inp" id="ejB" style="width:100%" onchange="ejBranch('${esc(j.bu)}')">${branchOpts(j.bu,j.br)}<option value="__new">+ Add new branch…</option></select></label>
+      <div id="ejNew" class="ejnew" style="display:none">
+        <label>New branch name *<input class="inp" id="ejNN" style="width:100%"></label><label>City / municipality<input class="inp" id="ejNC" style="width:100%"></label><label>Province<input class="inp" id="ejNP" style="width:100%"></label></div>
+      <label style="grid-column:1/-1">Branch address / location <span class="mut">(street, barangay)</span><input class="inp" id="ejBA" value="${esc((brOf(j)||{}).addr||'')}" placeholder="e.g. National Highway, Brgy. Real" style="width:100%"></label>
+      <label style="grid-column:1/-1">Google Maps link <span class="mut">(optional — Share link of the exact pin)</span><input class="inp" id="ejBL" value="${esc((brOf(j)||{}).map||'')}" placeholder="https://maps.app.goo.gl/…" style="width:100%"></label>
       <label>Headcount *<input class="inp" id="ejH" type="number" min="1" value="${+j.head||1}" style="width:100%" ${gen?'disabled':''}></label>
       <label>Salary (per month)<input class="inp" id="ejS" value="${esc(j.sal||'')}" placeholder="e.g. ₱15,000–18,000" style="width:100%"></label>
       <label>Type<select class="inp" id="ejV" style="width:100%"><option value="0" ${j.vac?'':'selected'}>New position</option><option value="1" ${j.vac?'selected':''}>Replacement</option></select></label>
@@ -3714,10 +3719,15 @@ function editJob(id){const j=job(id);if(!j||!canEdit())return;const gen=j.rf==='
     </div><div class="err" id="ejErr"></div>
     <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveJob('${esc(j.id)}')">Save changes</button></div>`);}
 function saveJob(id){const j=job(id),v=x=>(document.getElementById(x).value||'').trim(),err=m=>{document.getElementById('ejErr').textContent=m;};
-  const t=v('ejT'),h=parseInt(v('ejH'),10);if(!t)return err('Enter the job title.');if(j.rf!=='general'&&!(h>=1&&h<=500))return err('Headcount must be 1 or more.');
+  const t=v('ejT'),h=parseInt(v('ejH'),10);if(!t)return err('Enter the job title.');if(j.rf!=='general'&&!(h>=1&&h<=500))return err('Headcount must be 1 or more.');if(v('ejBL')&&!/^https:\/\//i.test(v('ejBL')))return err('The Google Maps link must start with https://');if(v('ejB')==='__new'&&!v('ejNN'))return err('Enter the new branch name.');
   const ch=[];const set=(k,nv,lbl)=>{if(String(j[k]??'')!==String(nv??'')){ch.push(lbl);j[k]=nv;}};
   set('t',t,'title');set('dept',v('ejD')||'—','department');
-  let br=v('ejB');if(br==='__tbc')br='To be confirmed';if(br&&br!==j.br){j.br=br;const b=branchesOf(j.bu).find(x=>x.n===br);if(b&&b.prov)j.prov=b.prov;ch.push('branch');}
+  let br=v('ejB');if(br==='__tbc')br='To be confirmed';
+  const ba=v('ejBA'),bl=v('ejBL');if(bl&&!/^https:\/\//i.test(bl))return err('The Google Maps link must start with https://');
+  if(br==='__new'){const nn=v('ejNN');if(!nn)return err('Enter the new branch name.');const ex=branchesOf(j.bu).find(x=>x.n.toLowerCase()===nn.toLowerCase());
+    if(!ex){addBranchRows(j.bu,[{n:nn,city:v('ejNC'),prov:v('ejNP'),addr:ba}]);}br=ex?ex.n:nn;}
+  if(br&&br!==j.br){j.br=br;const b=branchesOf(j.bu).find(x=>x.n===br);if(b&&b.prov)j.prov=b.prov;ch.push('branch');}
+  {const b=branchesOf(j.bu).find(x=>x.n===j.br);if(b){if((b.addr||'')!==ba){b.addr=ba;ch.push('branch address');}if((b.map||'')!==bl){b.map=bl;ch.push('map link');}}}
   if(j.rf!=='general'){set('head',h,'headcount');const st=v('ejX');if(st!==j.status){if(st==='open'&&j.status==='closed')j.open=isoAgo(0);set('status',st,'status');}}
   set('sal',v('ejS'),'salary');const vac=v('ejV')==='1';if(!!j.vac!==vac){j.vac=vac;ch.push('type');}
   const sk=v('ejK').split(',').map(x=>x.trim()).filter(Boolean);if(JSON.stringify(sk)!==JSON.stringify(j.skills||[])){j.skills=sk;ch.push('skills');}
@@ -3727,6 +3737,8 @@ function brOf(j){return (j&&j.br)?branchesOf(j.bu).find(b=>b.n===j.br)||null:nul
 function brMapUrl(b){if(b&&/^https:\/\//i.test(b.map||''))return b.map;return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([b&&b.addr,b&&(b.city||b.n),b&&b.prov,'Philippines'].filter(Boolean).join(', '));}
 function jobLoc(j){const b=brOf(j);const addr=(b&&b.addr)||j.brAddr||'',map=(b&&/^https:\/\//i.test(b.map||''))?b.map:(j.brMap||'');
   if(!addr&&!map)return {};return {addr,url:map||brMapUrl({addr,city:(b&&b.city)||j.brCity||j.br,prov:j.prov})};}
+function ejBranch(bu){const v=document.getElementById('ejB').value,nw=document.getElementById('ejNew');nw.style.display=v==='__new'?'grid':'none';
+  const b=branchesOf(bu).find(x=>x.n===v);document.getElementById('ejBA').value=b?(b.addr||''):'';document.getElementById('ejBL').value=b?(b.map||''):'';if(v==='__new')document.getElementById('ejNN').focus();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
