@@ -7,10 +7,14 @@ const BU = { br: 'BRDC', sf: 'Smartfuels', nb: 'Neo Bros Ventures', uh: 'U Hotel
 // Public endpoints: GET open jobs; POST {action:'apply'} new application; POST {action:'status'} status lookup
 const STAGE_TXT = { new: 'Received', screening: 'Under review', hr_int: 'Interview', dept_int: 'Interview', exam: 'Assessment', final: 'Final interview', offer: 'Job offer', reqs: 'Completing requirements', hired: 'Hired', onboarding: 'Onboarding' };
 const str = (v, n = 200) => String(v ?? '').trim().slice(0, n);
+// branch street address + map link for the careers page (only what an applicant needs to find the site)
+const brLoc = (s, j) => { const b = (((s.BRANCHES || {})[j.bu]) || []).find((x) => x && x.n === j.br); if (!b) return {};
+  const map = /^https:\/\//i.test(String(b.map || '')) ? String(b.map).slice(0, 500) : '';
+  return { brAddr: String(b.addr || '').slice(0, 200), brCity: String(b.city || '').slice(0, 80), brMap: map }; };
 export default handle(async (req, res) => {
   const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
   if (req.method === 'GET') {
-    const jobs = (s.JOBS || []).filter((j) => j.status === 'open').map((j) => ({ id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br, prov: j.prov, rf: j.rf, head: j.head, filled: j.filled || 0, open: j.open, status: j.status, sal: j.sal, vac: j.vac, skills: j.skills || [], basicForm: j.basicForm }));
+    const jobs = (s.JOBS || []).filter((j) => j.status === 'open').map((j) => ({ id: j.id, t: j.t, bu: j.bu, dept: j.dept, br: j.br, prov: j.prov, rf: j.rf, head: j.head, filled: j.filled || 0, open: j.open, status: j.status, sal: j.sal, vac: j.vac, skills: j.skills || [], basicForm: j.basicForm, ...brLoc(s, j) }));
     return send(res, 200, { ready: true, configured: !!(s.JOBS && s.JOBS.length), jobs });
   }
   if (req.method !== 'POST') return send(res, 405, { error: 'Method not allowed' });

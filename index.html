@@ -310,6 +310,7 @@ tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyfra
 @keyframes rjin{from{opacity:0;transform:translateY(8px) scale(.98)}to{opacity:1;transform:none}}
 #modal .mdl-card:has(.rjx){animation:rjpop .34s cubic-bezier(.2,.9,.25,1.15) both}
 @keyframes rjpop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -457,7 +458,7 @@ td.acts{white-space:nowrap}td.acts .btn{margin:2px 0}
 .brtabs{display:flex;gap:6px;flex-wrap:wrap;align-items:center;margin-bottom:10px}
 .brtabs label.btn{cursor:pointer}
 .brform .inp{min-width:0;width:100%}
-.brform{display:grid;grid-template-columns:1.4fr 1fr 1fr 1fr auto;gap:6px;background:#F6F8F4;border-radius:10px;padding:8px;margin-bottom:10px}
+.brform{display:grid;grid-template-columns:1.3fr 1.6fr 1fr 1fr 1fr auto;gap:6px;background:#F6F8F4;border-radius:10px;padding:8px;margin-bottom:10px}
 .brlist{display:grid;gap:0;max-height:48vh;overflow:auto}
 .bri{display:flex;gap:6px;align-items:center;padding:8px 4px;border-bottom:1px solid #EEF0F1}
 .bri.off{opacity:.55}
@@ -1310,12 +1311,12 @@ function branchOpts(k,sel){const L=sortBr(branchesOf(k).filter(b=>b.active!==fal
 function parseBranchLines(text){
   return text.split(/\r?\n/).map(l=>l.trim()).filter(Boolean).map(l=>{
     let p=l.includes('\t')?l.split('\t'):l.split(/\s*[,;|]\s*/);p=p.map(x=>x.replace(/^"|"$/g,'').trim());
-    return {n:p[0]||'',city:p[1]||'',prov:p[2]||'',mgr:p[3]||''};})
+    return {n:p[0]||'',city:p[1]||'',prov:p[2]||'',mgr:p[3]||'',addr:p.slice(4).filter(Boolean).join(', ')};})
   .filter((r,i)=>r.n&&!(i===0&&/^(branch|name|station)/i.test(r.n)&&/city|location|province/i.test(r.city+r.prov)));
 }
 function addBranchRows(k,rows){const L=branchesOf(k);let added=0,skipped=0;
   rows.forEach(r=>{if(L.some(b=>b.n.toLowerCase()===r.n.toLowerCase())){skipped++;return;}
-    L.push({id:brId(k),n:r.n,city:r.city||r.n,prov:r.prov,mgr:r.mgr,active:true});added++;});
+    L.push({id:brId(k),n:r.n,addr:r.addr||'',city:r.city||r.n,prov:r.prov,mgr:r.mgr,active:true});added++;});
   if(added)log(`Added ${added} branch${added>1?'es':''} to ${BU[k]}`);
   return {added,skipped};}
 
@@ -1327,15 +1328,15 @@ function drawBranches(k){const L=branchesOf(k), list=L.filter(b=>!brQ||[b.n,b.ci
       <button class="btn sm" style="margin-left:auto" onclick="closeModal();render()">Close</button></div>
     <div class="brtabs"><button class="btn sm pri" onclick="brBulk('${k}')">Paste a list</button><label class="btn sm">Import CSV<input type="file" accept=".csv,.txt" hidden onchange="brFile('${k}',this)"></label><button class="btn sm" onclick="brTemplate()">Download CSV template</button>
       <input class="inp" placeholder="Search branches…" value="${esc(brQ)}" oninput="brQ=this.value;drawBranches('${k}');setTimeout(()=>{const i=document.querySelector('.brtabs input');i.focus();i.setSelectionRange(i.value.length,i.value.length)},0)" style="margin-left:auto;min-width:180px"></div>
-    <div class="brform"><input class="inp" id="bN" placeholder="Branch name *"><input class="inp" id="bC" placeholder="City / municipality"><input class="inp" id="bP" placeholder="Province"><input class="inp" id="bM" placeholder="Branch manager"><button class="btn pri" onclick="brAddOne('${k}')">Add</button></div>
-    <div class="brlist">${list.map(b=>`<div class="bri ${b.active===false?'off':''}"><span class="brn"><b>${esc(b.n)}</b><small>${esc([b.city,b.prov].filter(Boolean).join(', ')||'—')}${b.mgr?' · Mgr: '+esc(b.mgr):''}</small></span>
+    <div class="brform"><input class="inp" id="bN" placeholder="Branch name *"><input class="inp" id="bA" placeholder="Address / location (street, barangay)"><input class="inp" id="bC" placeholder="City / municipality"><input class="inp" id="bP" placeholder="Province"><input class="inp" id="bM" placeholder="Branch manager"><button class="btn pri" onclick="brAddOne('${k}')">Add</button></div>
+    <div class="brlist">${list.map(b=>`<div class="bri ${b.active===false?'off':''}"><span class="brn"><b>${esc(b.n)}</b><small>${b.addr?'📍 '+esc(b.addr)+' · ':''}${esc([b.city,b.prov].filter(Boolean).join(', ')||'—')}${b.mgr?' · Mgr: '+esc(b.mgr):''}</small></span>
         ${used(b.n)?`<span class="pill green">${used(b.n)} job${used(b.n)>1?'s':''}</span>`:''}${b.active===false?'<span class="pill mute">inactive</span>':''}
-        <button class="btn sm" onclick="brEdit('${k}','${b.id}')">Edit</button><button class="btn sm" onclick="brToggle('${k}','${b.id}')">${b.active===false?'Activate':'Deactivate'}</button>
+        ${b.addr||b.map||b.city?`<a class="btn sm" href="${esc(brMapUrl(b))}" target="_blank" rel="noopener">Map</a>`:''}<button class="btn sm" onclick="brEdit('${k}','${b.id}')">Edit</button><button class="btn sm" onclick="brToggle('${k}','${b.id}')">${b.active===false?'Activate':'Deactivate'}</button>
         <button class="btn sm brdel" onclick="brDel('${k}','${b.id}')">Remove</button></div>`).join('')||'<div class="empty">No branches yet. Add one above, paste a list, or import a CSV.</div>'}</div>`,'wide');}
 function brAddOne(k){const g=id=>document.getElementById(id).value.trim();if(!g('bN')){toast('Branch name is required');return;}
-  const r=addBranchRows(k,[{n:g('bN'),city:g('bC'),prov:g('bP'),mgr:g('bM')}]);toast(r.added?`${g('bN')} added`:'That branch already exists');saveData();drawBranches(k);}
+  const r=addBranchRows(k,[{n:g('bN'),addr:g('bA'),city:g('bC'),prov:g('bP'),mgr:g('bM')}]);toast(r.added?`${g('bN')} added`:'That branch already exists');saveData();drawBranches(k);}
 function brBulk(k){modal(`<h3>Paste ${BU[k]} branches</h3>
-  <p class="sub">One branch per line: <b>Branch name, City, Province, Manager</b>. City, province and manager are optional. You can copy columns straight from Excel.</p>
+  <p class="sub">One branch per line: <b>Branch name, City, Province, Manager, Address</b>. Everything after the branch name is optional. You can copy columns straight from Excel.</p>
   <textarea class="inp" id="bTxt" rows="12" style="width:100%;font-family:ui-monospace,Consolas,monospace;font-size:12.5px" placeholder="Calamba Crossing, Calamba, Laguna, J. Santos&#10;Sto. Tomas, Sto. Tomas, Batangas&#10;Lipa Bypass, Lipa, Batangas"></textarea>
   <div class="mut" id="bPrev" style="margin-top:6px"></div>
   <div class="mdl-f"><button class="btn" onclick="drawBranches('${k}')">Back</button><button class="btn pri" onclick="brBulkSave('${k}')">Add branches</button></div>`,'wide');
@@ -1343,14 +1344,17 @@ function brBulk(k){modal(`<h3>Paste ${BU[k]} branches</h3>
 function brBulkSave(k){const rows=parseBranchLines(document.getElementById('bTxt').value);if(!rows.length){toast('Paste at least one branch');return;}
   const r=addBranchRows(k,rows);saveData();toast(`${r.added} added${r.skipped?` · ${r.skipped} already existed`:''}`);drawBranches(k);}
 function brFile(k,inp){const f=inp.files[0];if(!f)return;const rd=new FileReader();rd.onload=()=>{const rows=parseBranchLines(String(rd.result));const r=addBranchRows(k,rows);saveData();toast(`Imported ${r.added} branch${r.added===1?'':'es'}${r.skipped?` · ${r.skipped} skipped (duplicates)`:''}`);drawBranches(k);};rd.readAsText(f);}
-function brTemplate(){const csv='Branch name,City,Province,Manager\r\nCalamba Crossing,Calamba,Laguna,J. Santos\r\nSto. Tomas,Sto. Tomas,Batangas,\r\n';
+function brTemplate(){const csv='Branch name,City,Province,Manager,Address\r\nCalamba Crossing,Calamba,Laguna,J. Santos,"National Hwy, Brgy. Real"\r\nSto. Tomas,Sto. Tomas,Batangas,,\r\n';
   const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv'}));a.download='branches-template.csv';a.click();}
 function brEdit(k,id){const b=branchesOf(k).find(x=>x.id===id);modal(`<h3>Edit branch</h3><div class="fg">
   <label>Branch name<input class="inp" id="eN" value="${esc(b.n)}"></label><label>City / municipality<input class="inp" id="eC" value="${esc(b.city)}"></label>
-  <label>Province<input class="inp" id="eP" value="${esc(b.prov)}"></label><label>Branch manager<input class="inp" id="eM" value="${esc(b.mgr)}"></label></div>
+  <label>Province<input class="inp" id="eP" value="${esc(b.prov)}"></label><label>Branch manager<input class="inp" id="eM" value="${esc(b.mgr)}"></label>
+  <label style="grid-column:1/-1">Address / location<input class="inp" id="eA" value="${esc(b.addr||'')}" placeholder="e.g. National Highway, Brgy. Real"></label>
+  <label style="grid-column:1/-1">Google Maps link <span class="mut">(optional — paste the Share link of the exact pin)</span><input class="inp" id="eL" value="${esc(b.map||'')}" placeholder="https://maps.app.goo.gl/…"></label></div>
   <div class="mdl-f"><button class="btn" onclick="drawBranches('${k}')">Cancel</button><button class="btn pri" onclick="brEditSave('${k}','${id}')">Save</button></div>`);}
 function brEditSave(k,id){const b=branchesOf(k).find(x=>x.id===id),g=i=>document.getElementById(i).value.trim();if(!g('eN')){toast('Name required');return;}
-  const old=b.n;Object.assign(b,{n:g('eN'),city:g('eC'),prov:g('eP'),mgr:g('eM')});
+  const mp=g('eL');if(mp&&!/^https:\/\//i.test(mp)){toast('The map link must start with https://');return;}
+  const old=b.n;Object.assign(b,{n:g('eN'),city:g('eC'),prov:g('eP'),mgr:g('eM'),addr:g('eA'),map:mp});
   if(old!==b.n)JOBS.forEach(j=>{if(j.bu===k&&j.br===old)j.br=b.n;});
   log(`Updated branch ${b.n} (${BU[k]})`);saveData();drawBranches(k);}
 function brToggle(k,id){const b=branchesOf(k).find(x=>x.id===id);b.active=b.active===false;log(`${b.active?'Activated':'Deactivated'} branch ${b.n}`);saveData();drawBranches(k);}
@@ -1748,7 +1752,7 @@ function rJob(){
         <div class="jt"><button class="btn sm" onclick="go('s-jobs')">← Jobs</button><h2>${esc(j.t)}</h2>${st}<span class="chip"><span class="mini">${j.owner?initials(j.owner):'—'}</span>${esc(j.owner||'Unassigned')}</span>
           ${canEdit()?`<button class="btn sm" onclick="editJob('${j.id}')">Edit job</button>`:''}<button class="btn sm pri" onclick="shareJob('${j.id}')">Share apply link</button>
           <select class="inp" onchange="openJob(this.value)" title="Switch job">${JOBS.filter(x=>x.rf!=='general').map(x=>`<option value="${x.id}" ${x.id===curJob?'selected':''}>${x.id} — ${esc(x.t)}</option>`).join('')}</select></div>
-        <div class="jmeta"><div>${ic('dept')} ${BU[j.bu]} · ${esc(j.dept)} · ${esc(j.id)}</div><div>${ic('pin')} ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</div>${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}</div>
+        <div class="jmeta"><div>${ic('dept')} ${BU[j.bu]} · ${esc(j.dept)} · ${esc(j.id)}</div><div>${ic('pin')} ${esc(j.br)}${(()=>{const b=brOf(j);return (b&&b.addr?' · '+esc(b.addr):'')+(b&&b.city&&b.city!==j.br?', '+esc(b.city):'');})()}${j.prov?', '+esc(j.prov):''}${brOf(j)?` <a class="lnk" href="${esc(brMapUrl(brOf(j)))}" target="_blank" rel="noopener">Map</a>`:''}</div>${j.sal?`<div>${ic('peso')} ${esc(j.sal)} / month</div>`:''}</div>
         <div class="tags"><span class="tag">${ic('tag','width="12" height="12"')} ${j.head} headcount</span>${j.vac?`<span class="tag red">${ic('flag','width="12" height="12"')} Replacement</span>`:`<span class="tag">${ic('flag','width="12" height="12"')} New position</span>`}<span class="tag">${ic('clock','width="12" height="12"')} Open ${daysSince(j.open)} days</span></div>
       </div>
       <div class="jsum"><div><b>${all.filter(c=>ACTIVE.includes(c.stage)).length}</b><span>In process</span></div><div><b>${all.filter(c=>INTERVIEW_STAGES.includes(c.stage)).length}</b><span>For interview</span></div><div><b>${j.filled||0}/${j.head}</b><span>Filled</span></div></div>
@@ -2138,7 +2142,7 @@ function rCareers(){
     <div class="pbuhead"><span class="pbul lg ${apBu==='br'||apBu==='uh'?'dark':''}">${BU_LOGO[apBu]?`<img src="${BU_LOGO[apBu]}" alt="">`:''}</span><div><h2>${BU[apBu]}</h2><p>${js.length} open position${js.length===1?'':'s'} · choose the one you want to apply for</p></div></div>
     <div class="pjobs">${js.map(j=>`<article class="pjob">
       <div class="pjt"><h3>${esc(j.t)}</h3><span class="pjo">${vacancies(j)} opening${vacancies(j)>1?'s':''}</span></div>
-      <div class="pjm"><span>📍 ${esc(j.br)}${j.prov?', '+esc(j.prov):''}</span>${j.sal?`<span>💰 ${esc(j.sal)} / month</span>`:''}<span>🕒 Full-time</span></div>
+      <div class="pjm"><span>📍 ${esc(j.br)}${(()=>{const L=jobLoc(j);return L.addr?' · '+esc(L.addr):'';})()}${j.prov?', '+esc(j.prov):''}${(()=>{const L=jobLoc(j);return L.url?` <a class="lnk" href="${esc(L.url)}" target="_blank" rel="noopener">Map</a>`:'';})()}</span>${j.sal?`<span>💰 ${esc(j.sal)} / month</span>`:''}<span>🕒 Full-time</span></div>
       ${(j.skills||[]).length?`<div class="pjs">${j.skills.map(s=>`<span>${esc(s)}</span>`).join('')}</div>`:''}
       <div class="pja"><button class="pbtn" onclick="openApply('${j.id}')">Apply for this job →</button><button class="pbtn ghost sm" onclick="copyText(jobLink('${j.id}'),'Link copied — share it with a friend')">Share</button></div>
     </article>`).join('')||`<div class="empty">No openings at ${BU[apBu]} right now. <button class="pbtn ghost sm" onclick="openApply('GEN-SF')">Send a general application</button></div>`}</div>
@@ -3718,6 +3722,11 @@ function saveJob(id){const j=job(id),v=x=>(document.getElementById(x).value||'')
   set('sal',v('ejS'),'salary');const vac=v('ejV')==='1';if(!!j.vac!==vac){j.vac=vac;ch.push('type');}
   const sk=v('ejK').split(',').map(x=>x.trim()).filter(Boolean);if(JSON.stringify(sk)!==JSON.stringify(j.skills||[])){j.skills=sk;ch.push('skills');}
   closeModal();if(!ch.length){toast('No changes');return;}log(`Edited job ${j.id}: ${ch.join(', ')}`,j.id);saveData();toast('Job updated');render();}
+/* ===== v39: branch address / location + map link ===== */
+function brOf(j){return (j&&j.br)?branchesOf(j.bu).find(b=>b.n===j.br)||null:null;}
+function brMapUrl(b){if(b&&/^https:\/\//i.test(b.map||''))return b.map;return 'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent([b&&b.addr,b&&(b.city||b.n),b&&b.prov,'Philippines'].filter(Boolean).join(', '));}
+function jobLoc(j){const b=brOf(j);const addr=(b&&b.addr)||j.brAddr||'',map=(b&&/^https:\/\//i.test(b.map||''))?b.map:(j.brMap||'');
+  if(!addr&&!map)return {};return {addr,url:map||brMapUrl({addr,city:(b&&b.city)||j.brCity||j.br,prov:j.prov})};}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
