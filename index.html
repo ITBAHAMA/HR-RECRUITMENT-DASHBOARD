@@ -3688,6 +3688,7 @@ async function quadCheck(id,quiet){const c0=cand(id);if(!c0)return;const ref=can
   try{const r=await api('jotform',{method:'POST',body:{quadRef:ref}});
     if(r.configured===false)throw new Error('Jotform is not connected yet');if(r.error)throw new Error(r.error);
     const c=CANDS.find(x=>candRef(x)===ref);if(!c)return;
+    if(!r.found&&r.unreadable){const msg=`Found ${c0.n}'s Jotform test (submission ${r.sub}, by ${r.by}) but could not read the answers. Send this to IT: ${r.seen}`;if(st)st.textContent=msg;if(!quiet)toast('Found the Jotform test but could not read the answers — see the Tests tab');return;}
     if(!r.found){if(st)st.textContent=c.quadSent?`Not yet taken · test sent ${fmtD(String(c.quadSent).slice(0,10))} (no Jotform answers found yet)`:'Not yet taken — no Jotform answers found yet.';if(!quiet)toast(`No Quadrant test answers found on Jotform for ${c.n}`);return;}
     c.quad=r.quad;c.quadVia='Jotform';c.quadAt=r.at||new Date().toISOString();c.quadSub=r.sub;
     (c.notes=c.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`Quadrant test results received from Jotform (matched by ${r.by}): Facts ${r.quad.A} · Form ${r.quad.B} · Feelings ${r.quad.C} · Future ${r.quad.D}`});
