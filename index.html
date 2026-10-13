@@ -1424,8 +1424,8 @@ function rProf(){
     </div>
     <div class="tp ${profTab==='test'?'on':''}">
       <div class="card"><h3>Four Quadrant Brain Dominance</h3>
-      ${q?`<p class="sub">Submitted · section totals (max 36 each)</p>${Object.keys(q).map(k=>`<div class="quad"><span>${SECNAMES[k]}</span><div class="qb"><i style="width:${q[k]/36*100}%"></i></div><b>${q[k]}</b></div>`).join('')}`
-        :`<p class="sub">Not yet taken.</p><button class="btn" onclick="sendTest(${c.id})">Send invite</button> <button class="btn" onclick="testFor=${c.id};go('s-test')">Take test now (on this device)</button>`}
+      ${q?`<p class="sub">${c.quadVia==='Jotform'?`Taken on Jotform${c.quadAt?' · '+fmtDT(c.quadAt):''}`:'Submitted'} · section totals (max 36 each)</p>${Object.keys(q).map(k=>`<div class="quad"><span>${SECNAMES[k]}</span><div class="qb"><i style="width:${q[k]/36*100}%"></i></div><b>${q[k]}</b></div>`).join('')}`
+        :`<p class="sub" id="qStat${c.id}">${quadAuto(c)}</p>${REMOTE&&canEdit()?`<button class="btn pri" id="qChk${c.id}" onclick="quadCheck(${c.id})">&#x21bb; Check Jotform for results</button> `:''}<button class="btn" onclick="${REMOTE?`quadSend(${c.id})`:`sendTest(${c.id})`}">Send invite</button> <button class="btn" onclick="testFor=${c.id};go('s-test')">Take test now (on this device)</button>`}
       </div>
     </div>
     <div class="tp ${profTab==='doc'?'on':''}">
@@ -3679,6 +3679,21 @@ function doReject(id){const c=cand(id),el=document.querySelector('input[name=rjr
   CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();toast(pool?'Not pass · kept in talent pool · message queued':'Not pass · message queued');go('s-msg');}
 /* pending rejection messages written with the old wording get the new standard message */
 function migrateRejMsg(){let n=0;(MSGS||[]).forEach(m=>{if(m.status==='pending'&&/^Rejection|^Not pass/.test(m.tpl||'')&&m.body!==REJECT_MSG){m.body=REJECT_MSG;n++;}});return n;}
+/* ===== v37: Quadrant test results from Jotform (form 252740892011452) into the Tests tab ===== */
+const _quadTried={};
+function quadAuto(c){if(REMOTE&&canEdit()&&!_quadTried[c.id]){_quadTried[c.id]=1;setTimeout(()=>quadCheck(c.id,true),50);return 'Checking Jotform for results…';}
+  return c.quadSent?`Not yet taken · test sent ${fmtD(String(c.quadSent).slice(0,10))}`:'Not yet taken.';}
+async function quadCheck(id,quiet){const c0=cand(id);if(!c0)return;const ref=candRef(c0),b=document.getElementById('qChk'+id),st=document.getElementById('qStat'+id);
+  if(b){b.disabled=true;b.textContent='Checking Jotform…';}
+  try{const r=await api('jotform',{method:'POST',body:{quadRef:ref}});
+    if(r.configured===false)throw new Error('Jotform is not connected yet');if(r.error)throw new Error(r.error);
+    const c=CANDS.find(x=>candRef(x)===ref);if(!c)return;
+    if(!r.found){if(st)st.textContent=c.quadSent?`Not yet taken · test sent ${fmtD(String(c.quadSent).slice(0,10))} (no Jotform answers found yet)`:'Not yet taken — no Jotform answers found yet.';if(!quiet)toast(`No Quadrant test answers found on Jotform for ${c.n}`);return;}
+    c.quad=r.quad;c.quadVia='Jotform';c.quadAt=r.at||new Date().toISOString();c.quadSub=r.sub;
+    (c.notes=c.notes||[]).push({by:'Jotform',at:new Date().toISOString(),text:`Quadrant test results received from Jotform (matched by ${r.by}): Facts ${r.quad.A} · Form ${r.quad.B} · Feelings ${r.quad.C} · Future ${r.quad.D}`});
+    log(`${c.n} completed the Quadrant test (Jotform)`,c.job);saveData();toast(`${c.nick||c.n}: Quadrant test results added`);}
+  catch(e){if(st)st.textContent='Not yet taken.';if(!quiet)toast(e.message);}
+  finally{const bb=document.getElementById('qChk'+id);if(bb){bb.disabled=false;bb.innerHTML='&#x21bb; Check Jotform for results';}if(cand(id)&&cand(id).quad)renderSafe();}}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

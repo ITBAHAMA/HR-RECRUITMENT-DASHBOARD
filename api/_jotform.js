@@ -334,3 +334,64 @@ export async function checkOne(ref, S = null) {
   const strong = best.score >= 2;
   return { configured: true, found: true, already, by: best.by, sub: sid, at: best.at, name: c.n, checked, merged: strong && dup.length ? [{ into: ref, from: dup, name: c.n, sub: sid }] : [] };
 }
+
+/* ===== Quadrant test (Jotform "Four Quadrant Brain Dominance", 48 statements, 12 per section A–D,
+   scale Very Much 3 / Yes 2 / Somewhat 1 / Not at all 0 → each section total out of 36). ===== */
+export const QUAD_FORM_ID = () => String(process.env.QUAD_FORM_ID || '252740892011452').trim();
+const SCALE = (v) => { const t = norm(v); return t === 'very much' ? 3 : t === 'yes' ? 2 : t === 'somewhat' ? 1 : t === 'not at all' ? 0 : null; };
+const SEC_HEAD = [[/fact/, 'A'], [/\bform\b/, 'B'], [/feel/, 'C'], [/future/, 'D']];
+export function scoreQuad(sub) {
+  const ans = Object.values(sub.answers || {}).sort((a, b) => (+a.order || 0) - (+b.order || 0));
+  const items = []; let sec = null, name = {}, email = '', phone = '';
+  for (const a of ans) {
+    const label = norm(a.text), type = a.type || '';
+    if (/control_(head|text)/.test(type)) { for (const [re, k] of SEC_HEAD) if (re.test(label)) { sec = k; break; } continue; }
+    if (type === 'control_fullname' && a.answer && typeof a.answer === 'object') { name = a.answer; continue; }
+    if (type === 'control_email' || /e ?mail/.test(label)) { if (!email) email = asText(a.answer); continue; }
+    if (type === 'control_phone' || /phone|mobile|contact/.test(label)) { if (!phone) phone = asText(a.answer && a.answer.full ? a.answer.full : a.answer); continue; }
+    if (type === 'control_matrix') {
+      let m = a.answer; if (typeof m === 'string') { try { m = JSON.parse(m); } catch { m = null; } }
+      if (m && typeof m === 'object') for (const v of Object.values(m)) { const sc = SCALE(Array.isArray(v) ? v[0] : v); if (sc != null) items.push({ sec, sc }); }
+      continue;
+    }
+    if (/control_(radio|scale|dropdown)/.test(type)) { const sc = SCALE(a.answer); if (sc != null) items.push({ sec, sc }); }
+  }
+  if (items.length < 8) return null;
+  // no usable section headings → the statements come in order: 12 Facts, 12 Form, 12 Feelings, 12 Future
+  const useOrder = items.some((x) => !x.sec) || new Set(items.map((x) => x.sec)).size < 4;
+  const per = Math.max(1, Math.round(items.length / 4)), tot = { A: 0, B: 0, C: 0, D: 0 }, cnt = { A: 0, B: 0, C: 0, D: 0 };
+  items.forEach((x, i) => { const k = useOrder ? 'ABCD'[Math.min(3, Math.floor(i / per))] : x.sec; tot[k] += x.sc; cnt[k]++; });
+  for (const k of 'ABCD') tot[k] = cnt[k] ? Math.min(36, Math.round(tot[k] / (cnt[k] * 3) * 36)) : 0;
+  return { quad: tot, answered: items.length, name, email: String(email || '').trim(), phone: String(phone || '').trim() };
+}
+export async function checkQuad(ref, S = null) {
+  const cfg = jotConfig(); if (!cfg.key) return { configured: false };
+  ref = String(ref || '').trim().toUpperCase(); if (!/^C-\d+$/.test(ref)) return { configured: true, error: 'Unknown candidate' };
+  const s = (await q(`SELECT data FROM app_state WHERE id='main'`))[0].data || {};
+  const c = (s.CANDS || []).find((x) => x.stage !== 'draft' && refOfC(x).toUpperCase() === ref);
+  if (!c) return { configured: true, error: 'Candidate not found — refresh the page and try again' };
+  if (S && !S.has(((s.JOBS || []).find((j) => j.id === c.job) || {}).bu)) return { configured: true, error: 'Not your business unit' };
+  const cmk = mobileKey(c.mob), cem = String(c.em || '').trim().toLowerCase(), cw = nk(c.n).split(' ').filter(Boolean);
+  const started = Date.now(); let best = null, checked = 0;
+  try {
+    for (let off = 0; off < 1000 && Date.now() - started < 35000; off += 100) {
+      const page = await api(cfg, `/form/${QUAD_FORM_ID()}/submissions?limit=100&offset=${off}&orderby=created_at`);
+      const subs = (page.content || []).filter((x) => x.status !== 'DELETED');
+      for (const sub of subs) {
+        checked++;
+        const r = scoreQuad(sub); if (!r) continue;
+        const mk = mobileKey(r.phone), em = r.email.toLowerCase(), fw = nk(`${r.name.first || ''} ${r.name.last || ''}`).split(' ').filter(Boolean);
+        const byMob = cmk.length >= 10 && mk === cmk, byEm = !!cem && em === cem;
+        const byName = cw.length >= 2 && fw.length >= 2 && cw[0] === fw[0] && cw[cw.length - 1] === fw[fw.length - 1];
+        const clash = (cmk.length >= 10 && mk.length >= 10 && mk !== cmk) || (cem && em && em !== cem);
+        const score = (byMob ? 4 : 0) + (byEm ? 2 : 0) + (byName && !clash ? 1 : 0);
+        if (!score) continue;
+        const at = String(sub.created_at || '');
+        if (!best || score > best.score || (score === best.score && at > best.at)) best = { score, at, sid: String(sub.id), r, by: byMob ? 'mobile number' : byEm ? 'email' : 'name' };
+      }
+      if (subs.length < 100) break;
+    }
+  } catch (e) { return { configured: true, error: 'Jotform: ' + String(e.message || e).slice(0, 160) }; }
+  if (!best) return { configured: true, found: false, checked, name: c.n };
+  return { configured: true, found: true, quad: best.r.quad, answered: best.r.answered, by: best.by, sub: best.sid, at: best.at ? new Date(best.at.replace(' ', 'T') + '+08:00').toISOString() : null, checked };
+}
