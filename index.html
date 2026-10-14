@@ -312,6 +312,7 @@ tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyfra
 @keyframes rjpop{from{opacity:0;transform:translateY(18px) scale(.94)}to{opacity:1;transform:none}}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .ejnew{grid-column:1/-1;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));background:#F6F8F4;border:1px solid #E1E5DE;border-radius:10px;padding:10px}@media(max-width:600px){.ejnew{grid-template-columns:1fr}}
+.btn.unresp{color:#9A6400;border-color:#E3C27A}.btn.unresp:hover{background:#FFF6E3}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -1405,6 +1406,7 @@ function rProf(){
         <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}${isAdmin()?`<button class="btn del" onclick="deleteCand(${c.id})">Delete candidate</button>`:''}
         <button class="btn" onclick="sendTest(${c.id})">Send test</button>
         <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
+        ${canEdit()&&!['hired','onboarding'].includes(c.stage)?`<button class="btn unresp" onclick="markUnresponsive(${c.id})">Unresponsive</button>`:''}
       </div>
     </div>
     <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents'+fileN(c))}${tab('sens','Sensitive')}</div>
@@ -3739,6 +3741,19 @@ function jobLoc(j){const b=brOf(j);const addr=(b&&b.addr)||j.brAddr||'',map=(b&&
   if(!addr&&!map)return {};return {addr,url:map||brMapUrl({addr,city:(b&&b.city)||j.brCity||j.br,prov:j.prov})};}
 function ejBranch(bu){const v=document.getElementById('ejB').value,nw=document.getElementById('ejNew');nw.style.display=v==='__new'?'grid':'none';
   const b=branchesOf(bu).find(x=>x.n===v);document.getElementById('ejBA').value=b?(b.addr||''):'';document.getElementById('ejBL').value=b?(b.map||''):'';if(v==='__new')document.getElementById('ejNN').focus();}
+/* ===== v40: Unresponsive → moved to the talent pool ===== */
+function markUnresponsive(id){const c=cand(id);if(!c||!canEdit())return;
+  modal(`<div class="rjx"><h3>Unresponsive — ${esc(c.n)}</h3><p class="sub">${esc(job(c.job).t)} · ${esc(stageName(c.stage))}. The applicant is removed from this job and moved to the <b>Talent pool</b>, so you can contact them again for another opening.</p>
+    <label class="flab" style="display:block;margin-top:8px">Note (optional)</label><input class="inp" id="urNote" style="width:100%" placeholder="e.g. No reply to 3 calls and 2 texts since Oct 10">
+    <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="doUnresponsive(${id})">Move to talent pool</button></div></div>`);
+  setTimeout(()=>{const i=document.getElementById('urNote');if(i)i.focus();},50);}
+function doUnresponsive(id){const c=cand(id);if(!c)return;const j=job(c.job),note=(document.getElementById('urNote').value||'').trim(),stg=stageName(c.stage);
+  POOL.unshift({id:Date.now(),n:c.n,mob:c.mob,em:c.em||'',ref:candRef(c),city:[c.city,c.prov].filter(x=>x&&x!=='—').join(', ')||'—',rf:String(j.rf||j.t||'').replace(/_/g,' '),
+    last:isoAgo(0),reason:`Unresponsive — ${j.t} (${stg})${note?': '+note:''}`,warm:'no_reply',reply:'unresponsive',src:c.src,job:c.job,skills:c.skills||[]});
+  HIST.push({month:todayKey.slice(0,7),out:'withdrew',reason:'unresponsive',bu:j.bu,src:c.src,n:c.n,job:c.job,applied:c.applied||null});
+  log(`${c.n} marked unresponsive at ${stg} — moved to talent pool${note?' ('+note+')':''}`,c.job);
+  INTV.forEach(i=>{if(i.cid===c.id&&i.status==='scheduled')i.status='cancelled';});
+  CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();saveData();toast(`${c.nick||c.n} moved to the talent pool (unresponsive)`);go('s-pool');}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
