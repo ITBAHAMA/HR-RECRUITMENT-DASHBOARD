@@ -2499,7 +2499,7 @@ function rInt(){
     <div class="card" style="padding:0"><div class="tw"><table><thead><tr><th>When</th><th>Candidate</th><th>Type</th><th>Interviewer</th><th>Location</th><th>${intTab==='done'?'Result':''}</th></tr></thead><tbody>
     ${rows.map(i=>{const c=cand(i.cid);if(!c)return '';const today=localISO(new Date(i.when))===todayKey;
       return `<tr><td>${today?'<span class="pill green">Today</span> ':''}${fmtDT(i.when)}${i.minutes?`<div class="mut">${i.minutes} min</div>`:''}</td><td><a class="lnk" onclick="openCand(${c.id})"><b>${esc(c.n)}</b></a><div class="mut">${esc(job(c.job).t)} · ${BU_ALL[job(c.job).bu]||''}</div></td><td>${i.type}</td><td>${esc(i.interviewer)}${i.invited&&i.invited.length?'<div><span class="pill green">invited</span></div>':''}</td><td>${esc(i.loc)}</td>
-      <td>${intTab==='up'?`<div class="acts"><button class="btn sm" onclick="dlIcs(${i.id})" title="Download calendar invite">📅 .ics</button><button class="btn sm" onclick="gcal(${i.id})">Google Calendar</button>${canEdit()?`${REMOTE&&(MSGCFG.sms||MSGCFG.email)?`<button class="btn sm" onclick="reinvite(${i.id})">Send invitation</button>`:''}<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button>`:''}</div>`
+      <td>${intTab==='up'?`<div class="acts"><button class="btn sm" onclick="dlIcs(${i.id})" title="Download calendar invite">📅 .ics</button><button class="btn sm" onclick="gcal(${i.id})">Google Calendar</button>${canEdit()?`${REMOTE&&(MSGCFG.sms||MSGCFG.email)?`<button class="btn sm" onclick="reinvite(${i.id})">Send invitation</button>`:''}<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button> <button class="btn sm" onclick="editInt(${i.id})">Edit</button>`:''}</div>`
         :intTab==='await'?(canEdit()?`<div class="rec"><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`:'<span class="mut">Awaiting result</span>')
         :`<span class="pill ${i.result==='pass'?'green':i.result==='fail'?'red':'amber'}">${i.result}${i.score?' · '+i.score+'/5':''}</span>${i.remarks?`<div class="mut">${esc(i.remarks)}</div>`:''}`}</td></tr>`;}).join('')||`<tr><td colspan="6"><div class="empty">Nothing here.</div></td></tr>`}
     </tbody></table></div></div>`);
@@ -3754,6 +3754,33 @@ function doUnresponsive(id){const c=cand(id);if(!c)return;const j=job(c.job),not
   log(`${c.n} marked unresponsive at ${stg} — moved to talent pool${note?' ('+note+')':''}`,c.job);
   INTV.forEach(i=>{if(i.cid===c.id&&i.status==='scheduled')i.status='cancelled';});
   CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();saveData();toast(`${c.nick||c.n} moved to the talent pool (unresponsive)`);go('s-pool');}
+/* ===== v41: edit a scheduled interview ===== */
+function dtLocal(iso){const d=new Date(iso);if(isNaN(d))return '';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}
+function editInt(id){const i=INTV.find(x=>x.id===id);if(!i||!canEdit())return;const c=cand(i.cid)||{n:'(removed)'};
+  const types=['Department interview','Final interview','Initial interview','Assessment'];if(!types.includes(i.type))types.unshift(i.type);
+  modal(`<h3>Edit interview — ${esc(c.n)}</h3><p class="sub">${esc(job(c.job||'').t||'')}</p>
+    <div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+      <label>Date & time *<input class="inp" type="datetime-local" id="eiW" value="${dtLocal(i.when)}" style="width:100%"></label>
+      <label>Duration<select class="inp" id="eiD" style="width:100%">${[15,30,45,60,90,120].map(m=>`<option value="${m}" ${(+i.minutes||60)===m?'selected':''}>${m} min</option>`).join('')}</select></label>
+      <label>Type<select class="inp" id="eiT" style="width:100%">${types.map(t=>`<option ${t===i.type?'selected':''}>${esc(t)}</option>`).join('')}</select></label>
+      <label>Interviewer *<input class="inp" id="eiI" value="${esc(i.interviewer||'')}" style="width:100%"></label>
+      <label style="grid-column:1/-1">Interviewer email<input class="inp" id="eiE" value="${esc(i.ivEmail||'')}" style="width:100%"></label>
+      <label style="grid-column:1/-1">Location / meeting link<input class="inp" id="eiL" value="${esc(i.loc||'')}" style="width:100%"></label>
+    </div>
+    <label class="tgl" style="margin-top:10px"><input type="checkbox" id="eiN" checked> If the time or place changes, add an updated message for the applicant in Messages</label>
+    <div class="err" id="eiErr"></div>
+    <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="saveInt(${id})">Save changes</button></div>`);}
+function saveInt(id){const i=INTV.find(x=>x.id===id),g=x=>(document.getElementById(x).value||'').trim(),err=m=>{document.getElementById('eiErr').textContent=m;};
+  const w=g('eiW'),iv=g('eiI'),ive=g('eiE');if(!w||isNaN(new Date(w)))return err('Pick the date and time.');if(!iv)return err('Enter the interviewer.');
+  if(ive&&!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(ive))return err('Check the interviewer email.');
+  const when=new Date(w).toISOString(),loc=g('eiL')||'BRDC office',moved=when!==i.when||loc!==i.loc,ch=[];
+  if(when!==i.when)ch.push('time');if(loc!==i.loc)ch.push('location');if(iv!==i.interviewer)ch.push('interviewer');if(g('eiT')!==i.type)ch.push('type');if((+g('eiD'))!==(+i.minutes||60))ch.push('duration');
+  Object.assign(i,{when,loc,interviewer:iv,ivEmail:ive,type:g('eiT'),minutes:+g('eiD')||60});if(moved){i.reminded=false;i.remindedAt=null;}
+  const notify=document.getElementById('eiN').checked,c=cand(i.cid);closeModal();if(!ch.length){saveData();toast('Saved');render();return;}
+  if(c)log(`Edited ${i.type} with ${c.n}: ${ch.join(', ')}`,c.job);
+  if(c&&moved&&notify){MSGS.unshift({id:Date.now(),cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl:'Interview update',lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),
+    body:c.lang==='tl'?`Hi ${c.nick||c.n}, may pagbabago po sa inyong ${i.type.toLowerCase()}: ${fmtDT(when)} (${loc}). Pakireply para kumpirmahin. - BRDC HR`:`Hi ${c.nick||c.n}, your ${i.type.toLowerCase()} has been updated: ${fmtDT(when)} (${loc}). Please reply to confirm. - BRDC HR`});}
+  saveData();toast(moved&&notify?'Interview updated · updated message added to Messages':'Interview updated');render();}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>
