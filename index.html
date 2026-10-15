@@ -1915,7 +1915,7 @@ function rInt(){
     ${rows.map(i=>{const c=cand(i.cid);if(!c)return '';const today=localISO(new Date(i.when))===todayKey;
       return `<tr><td>${today?'<span class="pill green">Today</span> ':''}${fmtDT(i.when)}</td><td><a class="lnk" onclick="openCand(${c.id})"><b>${esc(c.n)}</b></a><div class="mut">${esc(job(c.job).t)} · ${BU[job(c.job).bu]}</div></td><td>${i.type}</td><td>${esc(i.interviewer)}</td><td>${esc(i.loc)}</td>
       <td>${intTab==='up'?`<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button>`
-        :intTab==='await'?`<div class="rec"><select class="inp" id="sc${i.id}"><option value="">Score</option>${[5,4,3,2,1].map(s=>`<option>${s}</option>`).join('')}</select><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`
+        :intTab==='await'?`<div class="rec"><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`
         :`<span class="pill ${i.result==='pass'?'green':i.result==='fail'?'red':'amber'}">${i.result}${i.score?' · '+i.score+'/5':''}</span>${i.remarks?`<div class="mut">${esc(i.remarks)}</div>`:''}`}</td></tr>`;}).join('')||`<tr><td colspan="6"><div class="empty">Nothing here.</div></td></tr>`}
     </tbody></table></div></div>`);
 }
@@ -1926,8 +1926,8 @@ function schedInt(){const cid=+document.getElementById('iC').value,w=document.ge
   intForm=false;log(`Scheduled ${t} with ${c.n}`,c.job);toast('Interview scheduled · invitation queued in Messages');render();}
 function markDone(id){INTV.find(i=>i.id===id).status='done';intTab='await';render();}
 function noShow(id){const i=INTV.find(x=>x.id===id);i.status='done';i.result='no-show';log(`${cand(i.cid).n} did not attend ${i.type}`,cand(i.cid).job);render();}
-function recInt(id,res){const i=INTV.find(x=>x.id===id),s=document.getElementById('sc'+id).value;if(!s){toast('Add a score first');return;}
-  i.score=+s;i.result=res;i.remarks=document.getElementById('rm'+id).value;const c=cand(i.cid);log(`${i.type} result for ${c.n}: ${res} (${s}/5)`,c.job);
+function recInt(id,res){const i=INTV.find(x=>x.id===id),s='';
+  i.result=res;i.remarks=document.getElementById('rm'+id).value;const c=cand(i.cid);log(`${i.type} result for ${c.n}: ${res}${i.remarks?' — '+i.remarks:''}`,c.job);
   if(res==='pass'){const k=STAGES.findIndex(x=>x.k===c.stage);if(k>=0&&k<STAGES.length-1)moveTo(c.id,STAGES[k+1].k);else render();}
   else{toast('Recorded as fail — reject from the candidate profile to send feedback');render();}}
 
@@ -2500,7 +2500,7 @@ function rInt(){
     ${rows.map(i=>{const c=cand(i.cid);if(!c)return '';const today=localISO(new Date(i.when))===todayKey;
       return `<tr><td>${today?'<span class="pill green">Today</span> ':''}${fmtDT(i.when)}${i.minutes?`<div class="mut">${i.minutes} min</div>`:''}</td><td><a class="lnk" onclick="openCand(${c.id})"><b>${esc(c.n)}</b></a><div class="mut">${esc(job(c.job).t)} · ${BU_ALL[job(c.job).bu]||''}</div></td><td>${i.type}</td><td>${esc(i.interviewer)}${i.invited&&i.invited.length?'<div><span class="pill green">invited</span></div>':''}</td><td>${esc(i.loc)}</td>
       <td>${intTab==='up'?`<div class="acts"><button class="btn sm" onclick="dlIcs(${i.id})" title="Download calendar invite">📅 .ics</button><button class="btn sm" onclick="gcal(${i.id})">Google Calendar</button>${canEdit()?`${REMOTE&&(MSGCFG.sms||MSGCFG.email)?`<button class="btn sm" onclick="reinvite(${i.id})">Send invitation</button>`:''}<button class="btn sm" onclick="markDone(${i.id})">Mark done</button> <button class="btn sm" onclick="noShow(${i.id})">No-show</button>`:''}</div>`
-        :intTab==='await'?(canEdit()?`<div class="rec"><select class="inp" id="sc${i.id}"><option value="">Score</option>${[5,4,3,2,1].map(s=>`<option>${s}</option>`).join('')}</select><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`:'<span class="mut">Awaiting result</span>')
+        :intTab==='await'?(canEdit()?`<div class="rec"><input class="inp" id="rm${i.id}" placeholder="Remarks"><button class="btn sm pri" onclick="recInt(${i.id},'pass')">Pass</button><button class="btn sm" onclick="recInt(${i.id},'fail')">Fail</button></div>`:'<span class="mut">Awaiting result</span>')
         :`<span class="pill ${i.result==='pass'?'green':i.result==='fail'?'red':'amber'}">${i.result}${i.score?' · '+i.score+'/5':''}</span>${i.remarks?`<div class="mut">${esc(i.remarks)}</div>`:''}`}</td></tr>`;}).join('')||`<tr><td colspan="6"><div class="empty">Nothing here.</div></td></tr>`}
     </tbody></table></div></div>`);
 }
