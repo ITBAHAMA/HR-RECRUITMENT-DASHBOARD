@@ -1,4 +1,5 @@
 import { q, mobileKey } from './_lib.js';
+import { saveFile } from './_blob.js';
 // Turns Indeed / Jobstreet application notification emails into new applications.
 // Used by /api/inbound (forwarded emails) and /api/mailcheck (reads the Zoho mailbox).
 const MAX = 3 * 1024 * 1024;
@@ -88,7 +89,7 @@ export async function ingest(m, via) {
     const row = (await q(`INSERT INTO applications (ref, job, mobile_key, data) VALUES ('pending',$1,$2,$3::jsonb) ON CONFLICT DO NOTHING RETURNING id`, [job.id, dupKey, JSON.stringify(data)]))[0];
     if (!row) { out.push({ skipped: 'Already in BRDC Recruit', name: person.name }); continue; }
     const ref = 'C-' + (5000 + row.id); await q(`UPDATE applications SET ref=$1 WHERE id=$2`, [ref, row.id]);
-    if (person.withFiles) for (const f of files.slice(0, 5)) await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,$7)`, [ref, f === resume ? 'resume' : 'Other', f.name, f.type, Math.floor(f.data.length * 3 / 4), f.data, p.src + ' email']);
+    if (person.withFiles) for (const f of files.slice(0, 5)) await saveFile({ ref, kind: f === resume ? 'resume' : 'Other', name: f.name, type: f.type, b64: f.data, by: p.src + ' email' });
     out.push({ ok: true, ref, name: data.n });
   }
   } catch (e) { if (!out.some((x) => x.ok)) await q(`DELETE FROM reminders WHERE key=$1`, ['mail:' + mid]); throw e; }

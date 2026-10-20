@@ -1,5 +1,6 @@
 import { q, mobileKey } from './_lib.js';
 import { cleanForm } from './_form.js';
+import { saveFile } from './_blob.js';
 // Brings Jotform "Application for Employment" submissions into BRDC Recruit (as new applications with the full form + files).
 // Settings (Vercel → Environment Variables): JOTFORM_API_KEY, optional JOTFORM_FORM_ID, optional JOTFORM_API_HOST (eu-api.jotform.com for EU accounts).
 export const jotConfig = () => ({ key: String(process.env.JOTFORM_API_KEY || '').trim(), form: String(process.env.JOTFORM_FORM_ID || '260282284429460').trim(), host: String(process.env.JOTFORM_API_HOST || 'api.jotform.com').replace(/^https?:\/\//, '').replace(/\/$/, '') });
@@ -195,7 +196,7 @@ async function attach(ref, form, files, cfg) {
   const missing = [];
   for (const fl of files.slice(0, 8)) {
     try { const d = await fetchFile(fl.url, cfg.key);
-      await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,'Jotform')`, [ref, fl.kind, d.name, d.type, d.size, d.b64]); }
+      await saveFile({ ref, kind: fl.kind, name: d.name, type: d.type, b64: d.b64, by: 'Jotform' }); }
     catch (e) { missing.push({ kind: fl.kind, url: fl.url, why: String(e.message || e).slice(0, 80) }); }
   }
   if (missing.length) form._missing = missing;
@@ -262,7 +263,7 @@ export async function syncJotform({ all = false, max = 8, offset = 0, rematch = 
         const ref = 'C-' + (5000 + row.id); await q(`UPDATE applications SET ref=$1 WHERE id=$2`, [ref, row.id]);
         const missing = [];
         for (const fl of files.slice(0, 8)) {
-          try { const d = await fetchFile(fl.url, cfg.key); await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,'Jotform')`, [ref, fl.kind, d.name, d.type, d.size, d.b64]);
+          try { const d = await fetchFile(fl.url, cfg.key); await saveFile({ ref, kind: fl.kind, name: d.name, type: d.type, b64: d.b64, by: 'Jotform' });
             if (fl.kind === 'resume') await q(`UPDATE applications SET data = jsonb_set(data, '{resume}', to_jsonb($1::text)) WHERE id=$2`, [d.name, row.id]); }
           catch (e) { missing.push({ kind: fl.kind, url: fl.url, why: String(e.message || e).slice(0, 80) }); }
         }

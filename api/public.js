@@ -1,6 +1,7 @@
 import { q, handle, body, send, mobileKey, sign, verify, rateLimit } from './_lib.js';
 import { cleanForm, UP_KINDS } from './_form.js';
 import { providers, sendSms, sendEmail } from './_msg.js';
+import { saveFile, dropBlobs } from './_blob.js';
 const MAX_BYTES = 3 * 1024 * 1024;
 const OK_TYPES = /^(application\/pdf|application\/msword|application\/vnd\.openxmlformats-officedocument\.wordprocessingml\.document|image\/(jpeg|png|webp|heic|heif))$/;
 const BU = { br: 'BRDC', sf: 'Smartfuels', nb: 'Neo Bros Ventures', uh: 'U Hotels', th: 'Toilena Hotel', ex: 'Exelhaul Logistics', pp: 'Pan Pacific', lf: 'La Ferme Organique' };
@@ -52,7 +53,7 @@ export default handle(async (req, res) => {
     if (!row) return send(res, 409, { error: 'You have already applied for this job. HR will contact you soon.' });
     const ref = 'C-' + (5000 + row.id); await q(`UPDATE applications SET ref=$1 WHERE id=$2`, [ref, row.id]);
     if (form) await q(`INSERT INTO forms (ref, data) VALUES ($1, $2::jsonb) ON CONFLICT (ref) DO UPDATE SET data=EXCLUDED.data, updated_at=now()`, [ref, JSON.stringify(form)]);
-    if (file) await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,'resume',$2,$3,$4,$5,'Applicant')`, [ref, str(file.name, 120) || 'resume', String(file.type), Math.floor(fb64.length * 3 / 4), fb64]);
+    if (file) await saveFile({ ref, kind: 'resume', name: str(file.name, 120) || 'resume', type: String(file.type), b64: fb64, by: 'Applicant' });
     // acknowledgment (only when a provider is set up; never blocks the application)
     const p = providers(), nick = clean.nick || clean.n.split(' ')[0], co = BU[job.bu] || 'BRDC';
     const ack = { sms: false, email: false };
@@ -74,8 +75,8 @@ export default handle(async (req, res) => {
     if (!OK_TYPES.test(String(f.type || ''))) return send(res, 400, { error: 'Only PDF, Word or photo files are accepted.' });
     const n = (await q(`SELECT count(*)::int n FROM files WHERE ref=$1 AND uploaded_by='Applicant'`, [t.ref]))[0].n;
     if (n >= 12) return send(res, 429, { error: 'Too many files for this application.' });
-    if (kind === 'signature' || kind === 'photo') await q(`DELETE FROM files WHERE ref=$1 AND kind=$2 AND uploaded_by='Applicant'`, [t.ref, kind]);
-    await q(`INSERT INTO files (ref, kind, name, type, size, b64, uploaded_by) VALUES ($1,$2,$3,$4,$5,$6,'Applicant')`, [t.ref, kind, str(f.name, 120) || kind, String(f.type), Math.floor(b64.length * 3 / 4), b64]);
+    if (kind === 'signature' || kind === 'photo') { const old = await q(`DELETE FROM files WHERE ref=$1 AND kind=$2 AND uploaded_by='Applicant' RETURNING blob_url`, [t.ref, kind]); await dropBlobs(old.map((x) => x.blob_url)); }
+    await saveFile({ ref: t.ref, kind, name: str(f.name, 120) || kind, type: String(f.type), b64, by: 'Applicant' });
     return send(res, 200, { ok: true });
   }
   // Form link sent by HR to an existing candidate (walk-in, Jobstreet, imported …)

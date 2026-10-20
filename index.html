@@ -1963,7 +1963,7 @@ function rSet(){
         <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
         <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
         ${REMOTE?'':`<div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div>`}</div>
-      ${msgSetupCard()}${jobBoardCard()}${jotformCard()}
+      ${msgSetupCard()}${jobBoardCard()}${jotformCard()}${blobCard()}
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){if(REMOTE){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(packData(),null,1)],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();return;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
@@ -3781,6 +3781,35 @@ function saveInt(id){const i=INTV.find(x=>x.id===id),g=x=>(document.getElementBy
   if(c&&moved&&notify){MSGS.unshift({id:Date.now(),cand:c.n,cid:c.id,em:c.em||'',bu:job(c.job).bu,mob:c.mob,tpl:'Interview update',lang:c.lang,status:'pending',age:0,created:new Date().toISOString(),
     body:c.lang==='tl'?`Hi ${c.nick||c.n}, may pagbabago po sa inyong ${i.type.toLowerCase()}: ${fmtDT(when)} (${loc}). Pakireply para kumpirmahin. - BRDC HR`:`Hi ${c.nick||c.n}, your ${i.type.toLowerCase()} has been updated: ${fmtDT(when)} (${loc}). Please reply to confirm. - BRDC HR`});}
   saveData();toast(moved&&notify?'Interview updated · updated message added to Messages':'Interview updated');render();}
+
+/* v42 — File storage: Vercel Blob */
+let BLOBST=null, BLOBRUN=false;
+async function loadBlobSt(){if(!REMOTE||!isAdmin()||BLOBST&&BLOBST.loading)return;BLOBST={loading:1};try{BLOBST=await api('files?blob=status');}catch(e){BLOBST={err:e.message};}if(cur==='s-set')renderSafe();}
+function blobCard(){
+  if(!REMOTE)return'';
+  if(!BLOBST){setTimeout(loadBlobSt,0);return`<div class="card" style="margin-top:14px"><h3>File storage</h3><p class="mut">Checking…</p></div>`;}
+  const b=BLOBST;
+  if(b.loading)return`<div class="card" style="margin-top:14px"><h3>File storage</h3><p class="mut">Checking…</p></div>`;
+  if(b.err)return`<div class="card" style="margin-top:14px"><h3>File storage</h3><p class="mut">Could not check: ${esc(b.err)}</p><button class="btn" onclick="BLOBST=null;render()">Try again</button></div>`;
+  const on=b.configured;
+  return`<div class="card" style="margin-top:14px"><h3>File storage <span class="pill ${on?'green':'mute'}">${on?'Vercel Blob connected':'Database'}</span></h3>
+    <p class="mut" style="margin-bottom:10px">${on?'New resumes, IDs, photos and signatures are saved in Vercel Blob. The database keeps only a link, so it stays small.':'Uploaded files are saved inside the database, which uses up its storage. Create a Blob store in Vercel → Storage, connect it to this project, then redeploy.'}</p>
+    <div class="doc"><span>Files in Vercel Blob</span><b>${b.inBlob||0}</b></div>
+    <div class="doc"><span>Files still in the database</span><b>${b.left||0}</b></div>
+    ${on&&b.left?`<button class="btn pri" style="margin-top:10px" ${BLOBRUN?'disabled':''} onclick="blobMove()">${BLOBRUN?'Moving… '+esc(BLOBRUN):'Move existing files to Vercel Blob'}</button>`:''}
+    ${on&&!b.left?`<p class="mut" style="margin-top:8px">✓ All files are in Vercel Blob.</p>`:''}</div>`;
+}
+async function blobMove(){
+  if(BLOBRUN)return;BLOBRUN='starting';render();let tot=0;
+  try{for(let i=0;i<500;i++){const r=await api('files',{method:'POST',body:{action:'toBlob'}});
+      if(!r.configured)throw new Error('Vercel Blob is not connected yet');
+      tot+=r.moved;BLOBST={configured:true,left:r.left,inBlob:r.inBlob};BLOBRUN=`${tot} moved, ${r.left} left`;if(cur==='s-set')renderSafe();
+      if(r.errors&&r.errors.length)throw new Error(r.errors[0]);
+      if(!r.left||!r.moved)break;}
+    toast(`${tot} file${tot===1?'':'s'} moved to Vercel Blob`);}
+  catch(e){toast('Stopped: '+e.message);}
+  BLOBRUN=false;BLOBST=null;render();
+}
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
 </script>

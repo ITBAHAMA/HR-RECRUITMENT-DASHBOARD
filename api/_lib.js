@@ -33,6 +33,9 @@ export async function ensureSchema() {
   try { await q(`CREATE UNIQUE INDEX IF NOT EXISTS applications_job_mk ON applications (job, mobile_key)`); } catch (e) { /* duplicates present — app-level checks still apply */ }
   await q(`CREATE TABLE IF NOT EXISTS files (id serial PRIMARY KEY, ref text NOT NULL, kind text NOT NULL DEFAULT 'resume', name text NOT NULL, type text, size integer, b64 text NOT NULL, uploaded_by text, created_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE INDEX IF NOT EXISTS files_ref ON files (ref)`);
+  await q(`ALTER TABLE files ADD COLUMN IF NOT EXISTS blob_url text`);
+  await q(`ALTER TABLE files ADD COLUMN IF NOT EXISTS blob_access text`);
+  await q(`ALTER TABLE files ALTER COLUMN b64 DROP NOT NULL`);
   await q(`CREATE TABLE IF NOT EXISTS outbox (id serial PRIMARY KEY, channel text NOT NULL, recipient text, subject text, body text, status text NOT NULL, provider_id text, error text, sent_by text, ref text, created_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE TABLE IF NOT EXISTS forms (ref text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE TABLE IF NOT EXISTS kv (k text PRIMARY KEY, v jsonb, updated_at timestamptz NOT NULL DEFAULT now())`);

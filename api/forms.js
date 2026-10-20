@@ -2,6 +2,7 @@ import { q, handle, body, send, requireUser, sign } from './_lib.js';
 import { scopeOf } from './_scope.js';
 import { buOfRef } from './files.js';
 import { redact } from './_form.js';
+import { dropBlobs } from './_blob.js';
 // Staff side of the Application for Employment: read a candidate's form, or make a link the applicant can fill in.
 export default handle(async (req, res) => {
   const me = await requireUser(req);
@@ -21,7 +22,7 @@ export default handle(async (req, res) => {
   if (req.method === 'DELETE') { // admin only: remove a deleted candidate's form (and older versions) and files
     if (me.role !== 'hr_admin') return send(res, 403, { error: 'Only an administrator can delete candidates' });
     const f = await q(`DELETE FROM forms WHERE ref=$1 OR ref LIKE $2 RETURNING ref`, [ref, ref + '~%']);
-    const d = await q(`DELETE FROM files WHERE ref=$1 RETURNING id`, [ref]);
+    const d = await q(`DELETE FROM files WHERE ref=$1 RETURNING id, blob_url`, [ref]); await dropBlobs(d.map((x) => x.blob_url));
     await q(`DELETE FROM applications WHERE ref=$1`, [ref]);
     return send(res, 200, { ok: true, forms: f.length, files: d.length });
   }
