@@ -1,7 +1,7 @@
-// Uploaded files (resumes, photos, IDs, signatures) live in Vercel Blob when BLOB_READ_WRITE_TOKEN is set;
+// Uploaded files (resumes, photos, IDs, signatures) live in Vercel Blob when a store is connected (BLOB_STORE_ID or BLOB_READ_WRITE_TOKEN);
 // the database only keeps a pointer. Without the token they stay in the database (old behaviour).
 import { q } from './_lib.js';
-export const blobOn = () => !!(process.env.BLOB_READ_WRITE_TOKEN || globalThis.__mockBlob);
+export const blobOn = () => !!(process.env.BLOB_READ_WRITE_TOKEN || process.env.BLOB_STORE_ID || globalThis.__mockBlob);
 const sdk = async () => globalThis.__mockBlob || await import('@vercel/blob');
 let ACCESS = process.env.BLOB_ACCESS || null; // 'private' (preferred) or 'public' — learned on first upload
 const safe = (s) => String(s || 'file').replace(/[^\w.\-]+/g, '_').slice(0, 80);
