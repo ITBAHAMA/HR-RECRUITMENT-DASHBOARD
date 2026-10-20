@@ -2250,7 +2250,7 @@ async function pushRemote(){if(!REMOTE||!SESSION||saving)return;const s=JSON.str
     else{setSync('Not saved — retrying','warn');setTimeout(pushRemote,5000);}}
   finally{saving=false;if(JSON.stringify(packData())!==lastSaved)queueSave();}}
 function renderSafe(){const a=document.activeElement;if(document.getElementById('modal')&&document.getElementById('modal').classList.contains('on'))return;if(a&&/INPUT|TEXTAREA|SELECT/.test(a.tagName)&&a.closest('.main'))return;render();}
-function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(async()=>{if(!REMOTE||!SESSION||saving||remoteBusy)return;if(JSON.stringify(packData())!==lastSaved)return;
+function startPoll(){clearInterval(pollTimer);pollTimer=setInterval(async()=>{if(!REMOTE||!SESSION||saving||remoteBusy||document.hidden)return;if(JSON.stringify(packData())!==lastSaved)return;
   try{remoteBusy=true;const r=await api('state');FILECOUNT=r.files||FILECOUNT;if(r.version!==VERSION||(r.inbox||[]).length){VERSION=r.version;ID_FLOOR=r.maxIds||ID_FLOOR;unpackData(r.data);lastSaved=JSON.stringify(packData());const n=mergeInbox(r.inbox);if(n){toast(`${n} new application${n>1?'s':''} received`);queueSave();}refreshDerived();renderSafe();}if(processForms(r.forms)){queueSave();renderSafe();}}catch(e){if(e.status===401)logout();}finally{remoteBusy=false;}},30000);}
 async function refreshAccounts(){if(!REMOTE||!isAdmin())return;try{const r=await api('accounts');ACCOUNTS=r.accounts.map(a=>({...a,hash:a.hasPassword?'set':null,status:a.hasPassword?a.status:'pending'}));}catch(e){}}
 async function enterRemote(res){TOKEN=res.token;SESSION={user:res.user.u,name:res.user.name,first:res.user.first||res.user.name.split(' ')[0],role:res.user.role,at:new Date()};

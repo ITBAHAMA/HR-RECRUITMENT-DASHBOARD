@@ -6,11 +6,11 @@
     },
     {
       "path": "/api/mailcheck",
-      "schedule": "*/5 * * * *"
+      "schedule": "*/30 0-13,23 * * *"
     },
     {
       "path": "/api/jotform",
-      "schedule": "*/5 * * * *"
+      "schedule": "*/30 0-13,23 * * *"
     }
   ],
   "functions": {
