@@ -9,6 +9,7 @@
     "@neondatabase/serverless": "^1.1.0",
     "@vercel/blob": "^2.8.2",
     "imapflow": "^2.1.2",
-    "mailparser": "^3.9.31"
+    "mailparser": "^3.9.31",
+    "postgres": "^3.4.9"
   }
 }

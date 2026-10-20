@@ -2,27 +2,47 @@
 import crypto from 'node:crypto';
 
 let _q = null;
+// Which database: SUPABASE_DB_URL (current) wins; otherwise the Neon connection added by Vercel Storage.
+export function dbUrls() {
+  const E = process.env, keys = Object.keys(E).filter((k) => k !== 'SUPABASE_DB_URL');
+  const pick = (re) => { const k = keys.find(k => re.test(k) && /^postgres(ql)?:\/\//.test(E[k] || '')); return k ? E[k] : null; };
+  const neonUrl = E.DATABASE_URL || E.POSTGRES_URL || pick(/(^|_)DATABASE_URL$/) || pick(/(^|_)POSTGRES_URL$/) || pick(/_URL$/);
+  const sb = E.SUPABASE_DB_URL && /^postgres(ql)?:\/\//.test(E.SUPABASE_DB_URL) ? E.SUPABASE_DB_URL : null;
+  return { current: sb || neonUrl, old: sb ? neonUrl : null, kind: sb ? 'supabase' : (neonUrl ? 'neon' : null) };
+}
+export async function makeDriver(url) {
+  if (/neon\.tech/i.test(url)) {
+    const { neon } = await import('@neondatabase/serverless');
+    const sql = neon(url);
+    return { query: (t, p = []) => sql.query(t, p), tx: (list) => sql.transaction(list.map(([t, p]) => sql.query(t, p || []))) };
+  }
+  const postgres = (await import('postgres')).default; // Supabase (use the pooler connection string, port 6543)
+  const sql = postgres(url, { prepare: false, max: Number(process.env.PG_MAX) || 3, idle_timeout: 20, connect_timeout: 15, ssl: /localhost|127\.0\.0\.1/.test(url) ? false : 'require', onnotice: () => {},
+    // same as the Neon/pg drivers: a string sent to a json/jsonb parameter is already JSON
+    types: { json: { to: 114, from: [114, 3802], serialize: (x) => (typeof x === 'string' ? x : JSON.stringify(x)), parse: (x) => JSON.parse(x) } } });
+  const rows = (r) => Array.from(r);
+  return { query: async (t, p = []) => rows(await sql.unsafe(t, p)),
+           tx: (list) => sql.begin(async (s) => { const out = []; for (const [t, p] of list) out.push(rows(await s.unsafe(t, p || []))); return out; }),
+           end: () => sql.end({ timeout: 2 }) };
+}
 async function driver() {
   if (_q) return _q;
-  if (process.env.PGLITE_DIR) { // local testing only
+  if (process.env.PGLITE_DIR && !process.env.SUPABASE_DB_URL) { // local testing only
     const { PGlite } = await import('@electric-sql/pglite');
     const db = globalThis.__pglite || (globalThis.__pglite = new PGlite(process.env.PGLITE_DIR));
     _q = { query: async (t, p = []) => (await db.query(t, p)).rows,
            tx: async (list) => { const out = []; await db.transaction(async (tx) => { for (const [t, p] of list) out.push((await tx.query(t, p || [])).rows); }); return out; } };
   } else {
-    const E = process.env, keys = Object.keys(E);
-    const pick = (re) => { const k = keys.find(k => re.test(k) && /^postgres(ql)?:\/\//.test(E[k] || '')); return k ? E[k] : null; };
-    const url = E.DATABASE_URL || E.POSTGRES_URL || pick(/(^|_)DATABASE_URL$/) || pick(/(^|_)POSTGRES_URL$/) || pick(/_URL$/);
-    if (!url) throw Object.assign(new Error('Database is not connected (DATABASE_URL missing)'), { status: 503 });
-    const { neon } = await import('@neondatabase/serverless');
-    const sql = neon(url);
-    _q = { query: (t, p = []) => sql.query(t, p), tx: (list) => sql.transaction(list.map(([t, p]) => sql.query(t, p || []))) };
+    const { current } = dbUrls();
+    if (!current) throw Object.assign(new Error('Database is not connected (SUPABASE_DB_URL missing)'), { status: 503 });
+    _q = await makeDriver(current);
   }
   return _q;
 }
 export async function q(t, p) { return (await driver()).query(t, p); }
 export async function tx(list) { return (await driver()).tx(list); }
 
+export const TABLES = ['accounts', 'app_state', 'applications', 'files', 'forms', 'kv', 'outbox', 'reminders'];
 let schemaReady = false;
 export async function ensureSchema() {
   if (schemaReady) return;
@@ -40,6 +60,7 @@ export async function ensureSchema() {
   await q(`CREATE TABLE IF NOT EXISTS forms (ref text PRIMARY KEY, data jsonb NOT NULL, updated_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE TABLE IF NOT EXISTS kv (k text PRIMARY KEY, v jsonb, updated_at timestamptz NOT NULL DEFAULT now())`);
   await q(`CREATE TABLE IF NOT EXISTS reminders (key text PRIMARY KEY, created_at timestamptz NOT NULL DEFAULT now())`);
+  if (dbUrls().kind === 'supabase') for (const t of TABLES) { try { await q(`ALTER TABLE ${t} ENABLE ROW LEVEL SECURITY`); } catch (e) { /* not owner — already set by migration */ } }
   await q(`INSERT INTO app_state (id, data) VALUES ('main', '{}'::jsonb) ON CONFLICT (id) DO NOTHING`);
   const n = await q(`SELECT count(*)::int AS n FROM accounts`);
   if (!n[0].n) {

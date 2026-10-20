@@ -1963,7 +1963,7 @@ function rSet(){
         <div class="doc" style="margin-top:10px"><span><b>Start from zero</b><br><small class="mut">Deletes applicants, interviews, requests, messages and history. Keeps jobs, branches and accounts.</small></span><button class="btn" style="color:var(--danger)" onclick="resetData()">Clear data</button></div>
         <div class="doc"><span><b>Remove all jobs and branches</b><br><small class="mut">For a completely empty system.</small></span><button class="btn" style="color:var(--danger)" onclick="wipeJobs()">Remove jobs</button></div>
         ${REMOTE?'':`<div class="doc"><span><b>Load sample data</b><br><small class="mut">Fills the system with example applicants for a demo.</small></span><button class="btn" onclick="loadSample()">Load sample</button></div>`}</div>
-      ${msgSetupCard()}${jobBoardCard()}${jotformCard()}${blobCard()}
+      ${msgSetupCard()}${jobBoardCard()}${jotformCard()}${blobCard()}${dbCard()}
       <div class="card" style="margin-top:14px"><h3>Rejection reasons</h3>${REASONS.map(r=>`<div class="doc"><span>${esc(r.l)}</span><span class="pill ${r.q?'green':'mute'}">${r.q?'keeps in talent pool':'not qualified'}</span></div>`).join('')}</div></div></div>`);
 }
 function exportJSON(){if(REMOTE){const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(packData(),null,1)],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();return;}const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([localStorage.getItem(STORE)||'{}'],{type:'application/json'}));a.download=`brdc-recruit-backup-${todayKey}.json`;a.click();}
@@ -3809,6 +3809,31 @@ async function blobMove(){
     toast(`${tot} file${tot===1?'':'s'} moved to Vercel Blob`);}
   catch(e){toast('Stopped: '+e.message);}
   BLOBRUN=false;BLOBST=null;render();
+}
+
+/* v43 — Database: copy old Neon data into Supabase */
+let DBST=null, DBRUN=false;
+async function loadDbSt(){if(!REMOTE||!isAdmin()||DBST&&DBST.loading)return;DBST={loading:1};try{DBST=await api('dbcopy');}catch(e){DBST={err:e.message};}if(cur==='s-set')renderSafe();}
+function dbCard(){
+  if(!REMOTE)return'';
+  if(!DBST){setTimeout(loadDbSt,0);return'';}
+  if(DBST.loading||DBST.err)return'';
+  const sb=DBST.kind==='supabase';
+  return`<div class="card" style="margin-top:14px"><h3>Database <span class="pill ${sb?'green':'mute'}">${sb?'Supabase':'Neon'}</span></h3>
+    ${sb&&DBST.oldAvailable?`<p class="mut" style="margin-bottom:10px">The old Neon database is still connected. Copy its records here once (after Neon's monthly quota resets). This <b>replaces</b> everything currently in Supabase, including accounts and passwords.</p>
+      <button class="btn pri" ${DBRUN?'disabled':''} onclick="dbCopy()">${DBRUN?'Copying… '+esc(DBRUN):'Copy all data from Neon'}</button>`
+      :`<p class="mut">${sb?'Running on Supabase.':'Running on Neon (Vercel Storage).'}</p>`}</div>`;
+}
+async function dbCopy(){
+  if(DBRUN)return;
+  if(!confirm('Copy all data from the old Neon database?\n\nEverything now in Supabase (applicants, jobs, accounts) will be replaced by the Neon copy.'))return;
+  DBRUN='starting';render();
+  try{const s=await api('dbcopy',{method:'POST',body:{step:'start'}});
+    for(const t of s.tables){let after=null,n=0;for(let i=0;i<5000;i++){const r=await api('dbcopy',{method:'POST',body:{table:t,after}});n+=r.n;after=r.next;DBRUN=`${t} ${n}/${s.counts[t]||0}`;if(cur==='s-set')renderSafe();if(r.done)break;}}
+    const f=await api('dbcopy',{method:'POST',body:{step:'finish'}});
+    alert('Copy finished.\n\n'+Object.entries(f.counts).map(([k,v])=>`${k}: ${v}`).join('\n')+'\n\nPlease sign in again.');
+    DBRUN=false;location.reload();}
+  catch(e){DBRUN=false;toast('Copy stopped: '+e.message);render();}
 }
 (async()=>{const ok=await remoteBoot();if(!ok){if(seedBranches()&&BRANCHES._seed)saveData();if(renameFSC())saveData();if(migrateHrInt())saveData();if(migrateRejMsg())saveData();localAutoLogin();}const _pub=routeFromHash();if(_pub)enterPublic(_pub);else render();})();
 
