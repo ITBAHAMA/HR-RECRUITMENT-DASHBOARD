@@ -313,6 +313,7 @@ tr.newrow td{background:#EAF6E4!important;animation:newrow 2.4s ease-out}@keyfra
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 .ejnew{grid-column:1/-1;gap:8px;grid-template-columns:repeat(3,minmax(0,1fr));background:#F6F8F4;border:1px solid #E1E5DE;border-radius:10px;padding:10px}@media(max-width:600px){.ejnew{grid-template-columns:1fr}}
 .btn.unresp{color:#9A6400;border-color:#E3C27A}.btn.unresp:hover{background:#FFF6E3}
+.btn.wdrw{color:#6B5B95;border-color:#C9BFE3}.btn.wdrw:hover{background:#F4F1FB}
 .board{display:flex;gap:14px;overflow-x:auto;padding:16px 18px 20px;align-items:flex-start}
 .cjob{font-size:11px;font-weight:600;color:#3E6B2F;background:#EEF4EA;border-radius:5px;padding:2px 6px;margin:0 0 6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer}.cjob:hover{text-decoration:underline}
 .bcol{width:268px;flex:none;background:#E9ECE6;border-radius:10px;padding:0 8px 8px}
@@ -1406,7 +1407,7 @@ function rProf(){
         <button class="btn" onclick="openReject(${c.id})">Reject…</button>${canEdit()?`<button class="btn" onclick="editCand(${c.id})">Edit details</button>`:''}${isAdmin()?`<button class="btn del" onclick="deleteCand(${c.id})">Delete candidate</button>`:''}
         <button class="btn" onclick="sendTest(${c.id})">Send test</button>
         <button class="btn" onclick="startDocs(${c.id})" ${c.docs?'disabled':''}>${c.docs?'Documents started':'Start documents'}</button>
-        ${canEdit()&&!['hired','onboarding'].includes(c.stage)?`<button class="btn unresp" onclick="markUnresponsive(${c.id})">Unresponsive</button>`:''}
+        ${canEdit()&&!['hired','onboarding'].includes(c.stage)?`<button class="btn unresp" onclick="markUnresponsive(${c.id})">Unresponsive</button><button class="btn wdrw" onclick="markWithdrawn(${c.id})">Withdrawn application</button>`:''}
       </div>
     </div>
     <div class="tabs">${tab('app','Application')}${tab('act','Activity')}${tab('test','Tests')}${tab('doc','Documents'+fileN(c))}${tab('sens','Sensitive')}</div>
@@ -3754,6 +3755,21 @@ function doUnresponsive(id){const c=cand(id);if(!c)return;const j=job(c.job),not
   log(`${c.n} marked unresponsive at ${stg} — moved to talent pool${note?' ('+note+')':''}`,c.job);
   INTV.forEach(i=>{if(i.cid===c.id&&i.status==='scheduled')i.status='cancelled';});
   CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();saveData();toast(`${c.nick||c.n} moved to the talent pool (unresponsive)`);go('s-pool');}
+/* ===== v44: Withdrawn application ===== */
+const WD_REASONS=['Accepted another job offer','Salary / compensation','Location or commute','Work schedule','Personal or family reasons','No longer interested','Other'];
+function markWithdrawn(id){const c=cand(id);if(!c||!canEdit())return;
+  modal(`<div class="rjx"><h3>Withdrawn application — ${esc(c.n)}</h3><p class="sub">${esc(job(c.job).t)} · ${esc(stageName(c.stage))}. The applicant withdrew, so they are removed from this job and counted as <b>Withdrew</b> in reports.</p>
+    <label class="flab" style="display:block;margin-top:8px">Reason</label><select class="inp" id="wdR" style="width:100%">${WD_REASONS.map(r=>`<option>${esc(r)}</option>`).join('')}</select>
+    <label class="flab" style="display:block;margin-top:8px">Note (optional)</label><input class="inp" id="wdNote" style="width:100%" placeholder="e.g. Texted on Nov 4 that she took a job in Makati">
+    <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="wdPool"> Keep in the Talent pool for future openings</label>
+    <div class="mdl-f"><button class="btn" onclick="closeModal()">Cancel</button><button class="btn pri" onclick="doWithdrawn(${id})">Mark as withdrawn</button></div></div>`);}
+function doWithdrawn(id){const c=cand(id);if(!c)return;const j=job(c.job),stg=stageName(c.stage),why=document.getElementById('wdR').value,note=(document.getElementById('wdNote').value||'').trim(),pool=document.getElementById('wdPool').checked;
+  if(pool)POOL.unshift({id:Date.now(),n:c.n,mob:c.mob,em:c.em||'',ref:candRef(c),city:[c.city,c.prov].filter(x=>x&&x!=='—').join(', ')||'—',rf:String(j.rf||j.t||'').replace(/_/g,' '),
+    last:isoAgo(0),reason:`Withdrew — ${j.t} (${stg}): ${why}${note?' — '+note:''}`,warm:'not_sent',reply:'withdrew',src:c.src,job:c.job,skills:c.skills||[]});
+  HIST.push({month:todayKey.slice(0,7),out:'withdrew',reason:why,bu:j.bu,src:c.src,n:c.n,job:c.job,applied:c.applied||null});
+  log(`${c.n} withdrew the application at ${stg} — ${why}${note?' ('+note+')':''}${pool?' · kept in talent pool':''}`,c.job);
+  INTV.forEach(i=>{if(i.cid===c.id&&i.status==='scheduled')i.status='cancelled';});
+  CANDS=CANDS.filter(x=>x.id!==c.id);closeModal();saveData();toast(`${c.nick||c.n} marked as withdrawn${pool?' · kept in talent pool':''}`);go(pool?'s-pool':'s-pipe');}
 /* ===== v41: edit a scheduled interview ===== */
 function dtLocal(iso){const d=new Date(iso);if(isNaN(d))return '';const p=n=>String(n).padStart(2,'0');return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;}
 function editInt(id){const i=INTV.find(x=>x.id===id);if(!i||!canEdit())return;const c=cand(i.cid)||{n:'(removed)'};
