@@ -8,6 +8,7 @@
 <link rel="icon" href="favicon.ico" sizes="any">
 <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
 <meta name="theme-color" content="#0D2406">
+<script>try{var xd=new Date(),xm=xd.getMonth();if((xm>=10||(xm===0&&xd.getDate()<=6))&&localStorage.getItem('brdc-xmas')!=='off')document.documentElement.classList.add('xmas');}catch(e){}</script>
 <script>try{if(localStorage.getItem('brdc-theme')==='dark'){document.documentElement.dataset.theme='dark';document.documentElement.style.background='#111512';}}catch(e){}</script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -661,6 +662,81 @@ body.tabanim .tabs button.on::after{content:'';position:absolute;left:0;right:0;
 html.themefade,html.themefade *{transition:background-color .35s ease,color .35s ease,border-color .35s ease!important}
 @media (prefers-reduced-motion:reduce){.anim-in,body.tabanim .tabs button.on::after{animation:none}html.themefade *{transition:none!important}}
 .btn.del{color:#B42318;border-color:#F3C1BC}.btn.del:hover{background:#FDECEA}.pin.posbox{height:auto;min-height:46px;padding:11px 14px;background:#EEF4EA;color:#1B3214;border-color:#CFDDC6;font-weight:600;line-height:1.35;margin-top:6px}.sbar{position:sticky;bottom:0;z-index:5;margin:10px -20px -18px;padding:12px 20px 16px;background:linear-gradient(180deg,rgba(255,255,255,0),#fff 28%);border-radius:0 0 16px 16px}.sbar{display:flex;gap:10px;align-items:center}.sbar .pbtn{margin:0!important;transform:none}.sbar .pbtn{font-size:16px;padding:14px 18px}.sbar #sGo{flex:1}.sbar .pbtn{white-space:nowrap;height:54px;padding-top:0!important;padding-bottom:0!important;line-height:1;display:inline-flex;align-items:center;justify-content:center;box-sizing:border-box}.sbar #sBack{flex:none;min-width:0;padding:14px 18px}@media (max-width:420px){.sbar .pbtn{font-size:15px;padding:13px 14px}}.aflogo-w{flex:none;width:118px;height:64px;border-radius:12px;border:1px solid #E3E9DE;background:#fff;display:flex;align-items:center;justify-content:center;padding:6px;box-sizing:border-box;overflow:hidden}.aflogo-w.dark{background:#0E1A10;border-color:#0E1A10}.aflogo-w img{max-width:100%;max-height:100%;object-fit:contain;display:block}@media (max-width:520px){.aflogo-w{width:84px;height:50px}}html[data-theme="dark"] .aflogo-w:not(.dark){background:#fff!important}.bri.clk{cursor:pointer;border-radius:10px;transition:background-color .15s}.bri.clk:hover{background:#F2F6EF}.bri.clk:hover .brn b{color:#1C5A12;text-decoration:underline}</style>
+<style id="xmascss">
+/* ============ CHRISTMAS THEME — seasonal layer (html.xmas), works with light and dark ============ */
+#xsnow{position:fixed;inset:0;width:100%;height:100%;pointer-events:none;z-index:38}
+html:not(.xmas) #xsnow,.xmb,.xm-lgnote{display:none}
+.xmt{display:inline-grid;place-items:center}
+html.xmas .xmt.on{color:#F3D98F;border-color:rgba(227,196,126,.55);background:rgba(201,164,92,.18);box-shadow:0 0 14px -3px rgba(240,199,90,.55)}
+/* top bar: evergreen + gold hairline + string lights */
+html.xmas .top{background:linear-gradient(90deg,#071B05 0%,#0E3009 42%,#174610 78%,#1D5014 100%);box-shadow:inset 0 -1px 0 rgba(227,196,126,.45)}
+html.xmas .top::before,html.xmas .top::after{content:"";position:absolute;left:0;right:0;top:calc(100% - 2px);height:22px;pointer-events:none;background-repeat:repeat-x;background-size:144px 22px}
+html.xmas .top::after{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='22'%3E%3Cpath d='M0 2 Q36 16 72 2 Q108 16 144 2' fill='none' stroke='%23C9A45C' stroke-width='1' stroke-opacity='.85'/%3E%3Crect x='16.6' y='6.7' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='18.0' cy='12.4' rx='2.5' ry='3.5' fill='%23E2483F'/%3E%3Cellipse cx='17.2' cy='11.2' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3Crect x='34.6' y='8.4' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='36.0' cy='14.2' rx='2.5' ry='3.5' fill='%23F4CF6A'/%3E%3Cellipse cx='35.2' cy='13.0' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3Crect x='52.6' y='6.7' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='54.0' cy='12.4' rx='2.5' ry='3.5' fill='%2345C07A'/%3E%3Cellipse cx='53.2' cy='11.2' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3Crect x='88.6' y='6.7' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='90.0' cy='12.4' rx='2.5' ry='3.5' fill='%23FFF1C9'/%3E%3Cellipse cx='89.2' cy='11.2' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3Crect x='106.6' y='8.4' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='108.0' cy='14.2' rx='2.5' ry='3.5' fill='%23E2483F'/%3E%3Cellipse cx='107.2' cy='13.0' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3Crect x='124.6' y='6.7' width='2.8' height='2.6' rx='.6' fill='%23C9A45C'/%3E%3Cellipse cx='126.0' cy='12.4' rx='2.5' ry='3.5' fill='%23F4CF6A'/%3E%3Cellipse cx='125.2' cy='11.2' rx='.7' ry='1.1' fill='%23fff' opacity='.7'/%3E%3C/svg%3E")}
+html.xmas .top::before{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='144' height='22'%3E%3Cdefs%3E%3CradialGradient id='g0'%3E%3Cstop offset='0' stop-color='%23E2483F' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%23E2483F' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='g1'%3E%3Cstop offset='0' stop-color='%23F4CF6A' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%23F4CF6A' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='g2'%3E%3Cstop offset='0' stop-color='%2345C07A' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%2345C07A' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='g3'%3E%3Cstop offset='0' stop-color='%23FFF1C9' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%23FFF1C9' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='g4'%3E%3Cstop offset='0' stop-color='%23E2483F' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%23E2483F' stop-opacity='0'/%3E%3C/radialGradient%3E%3CradialGradient id='g5'%3E%3Cstop offset='0' stop-color='%23F4CF6A' stop-opacity='.85'/%3E%3Cstop offset='1' stop-color='%23F4CF6A' stop-opacity='0'/%3E%3C/radialGradient%3E%3C/defs%3E%3Ccircle cx='18.0' cy='12.4' r='8' fill='url(%23g0)'/%3E%3Ccircle cx='54.0' cy='12.4' r='8' fill='url(%23g2)'/%3E%3Ccircle cx='108.0' cy='14.2' r='8' fill='url(%23g4)'/%3E%3C/svg%3E");animation:xmTw 2.6s ease-in-out infinite alternate}
+@keyframes xmTw{from{opacity:.2}to{opacity:1}}
+html.xmas .top .logo{position:relative}
+html.xmas .top .logo::after{content:"";position:absolute;left:-8px;top:-6px;width:20px;height:20px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cdefs%3E%3ClinearGradient id='l' x1='0' x2='1'%3E%3Cstop offset='0' stop-color='%232F8A3D'/%3E%3Cstop offset='1' stop-color='%236CC46F'/%3E%3C/linearGradient%3E%3CradialGradient id='b' cx='.35' cy='.35' r='.7'%3E%3Cstop offset='0' stop-color='%23FF8C80'/%3E%3Cstop offset='.5' stop-color='%23E2483F'/%3E%3Cstop offset='1' stop-color='%238E1F1A'/%3E%3C/radialGradient%3E%3C/defs%3E%3Cg transform='translate(12 11) rotate(150)'%3E%3Cpath d='M0 0 Q1 -1 2.5 -2.6 Q3.6 -1.4 5.5 -3.2 Q6.8 -1.6 8.5 -2.6 Q9.6 -1.2 12 0 Q9.6 1.2 8.5 2.6 Q6.8 1.6 5.5 3.2 Q3.6 1.4 2.5 2.6 Q1 1 0 0Z' fill='url(%23l)'/%3E%3Cpath d='M.5 0H11' stroke='%231F5A28' stroke-width='.5'/%3E%3C/g%3E%3Cg transform='translate(12 11) rotate(30)'%3E%3Cpath d='M0 0 Q1 -1 2.5 -2.6 Q3.6 -1.4 5.5 -3.2 Q6.8 -1.6 8.5 -2.6 Q9.6 -1.2 12 0 Q9.6 1.2 8.5 2.6 Q6.8 1.6 5.5 3.2 Q3.6 1.4 2.5 2.6 Q1 1 0 0Z' fill='url(%23l)'/%3E%3Cpath d='M.5 0H11' stroke='%231F5A28' stroke-width='.5'/%3E%3C/g%3E%3Ccircle cx='10.4' cy='10.2' r='2' fill='url(%23b)'/%3E%3Ccircle cx='13.6' cy='10.2' r='2' fill='url(%23b)'/%3E%3Ccircle cx='12' cy='7.6' r='2' fill='url(%23b)'/%3E%3C/svg%3E") center/contain no-repeat;filter:drop-shadow(0 1px 1px rgba(0,0,0,.4));pointer-events:none}
+html.xmas .top .logo>span{background:linear-gradient(100deg,#FBF0CF 0%,#E3C47E 38%,#BE9246 62%,#F4E2AE 100%);-webkit-background-clip:text;background-clip:text;color:transparent}
+html.xmas .top .logo small{color:#C9D8C1;-webkit-text-fill-color:#C9D8C1}
+/* work area: ivory with faint gold snowflakes */
+html.xmas .main{background-color:#FFFDF8;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg stroke='%23C9A45C' stroke-opacity='.18' stroke-width='.9' stroke-linecap='round' fill='none'%3E%3Cpath d='M40.0 52.0L40.0 43.0M40.0 47.0L38.1 45.1M40.0 47.0L41.9 45.1M40.0 44.8L38.9 43.7M40.0 44.8L41.1 43.7M40.0 52.0L47.8 47.5M44.3 49.5L45.0 46.9M44.3 49.5L46.9 50.2M46.2 48.4L46.6 46.9M46.2 48.4L47.7 48.8M40.0 52.0L47.8 56.5M44.3 54.5L46.9 53.8M44.3 54.5L45.0 57.1M46.2 55.6L47.7 55.2M46.2 55.6L46.6 57.1M40.0 52.0L40.0 61.0M40.0 57.0L41.9 58.9M40.0 57.0L38.1 58.9M40.0 59.2L41.1 60.3M40.0 59.2L38.9 60.3M40.0 52.0L32.2 56.5M35.7 54.5L35.0 57.1M35.7 54.5L33.1 53.8M33.8 55.6L33.4 57.1M33.8 55.6L32.3 55.2M40.0 52.0L32.2 47.5M35.7 49.5L33.1 50.2M35.7 49.5L35.0 46.9M33.8 48.4L32.3 48.8M33.8 48.4L33.4 46.9M152.0 30.0L152.0 24.0M152.0 26.7L150.7 25.4M152.0 26.7L153.3 25.4M152.0 25.2L151.3 24.5M152.0 25.2L152.7 24.5M152.0 30.0L157.2 27.0M154.9 28.4L155.3 26.6M154.9 28.4L156.6 28.8M156.2 27.6L156.4 26.6M156.2 27.6L157.1 27.9M152.0 30.0L157.2 33.0M154.9 31.6L156.6 31.2M154.9 31.6L155.3 33.4M156.2 32.4L157.1 32.1M156.2 32.4L156.4 33.4M152.0 30.0L152.0 36.0M152.0 33.3L153.3 34.6M152.0 33.3L150.7 34.6M152.0 34.8L152.7 35.5M152.0 34.8L151.3 35.5M152.0 30.0L146.8 33.0M149.1 31.6L148.7 33.4M149.1 31.6L147.4 31.2M147.8 32.4L147.6 33.4M147.8 32.4L146.9 32.1M152.0 30.0L146.8 27.0M149.1 28.3L147.4 28.8M149.1 28.3L148.7 26.6M147.8 27.6L146.9 27.9M147.8 27.6L147.6 26.6M112.0 142.0L112.0 131.0M112.0 135.9L109.7 133.6M112.0 135.9L114.3 133.6M112.0 133.2L110.7 131.9M112.0 133.2L113.3 131.9M112.0 142.0L121.5 136.5M117.2 139.0L118.1 135.8M117.2 139.0L120.4 139.8M119.6 137.6L120.1 135.8M119.6 137.6L121.4 138.1M112.0 142.0L121.5 147.5M117.2 145.0L120.4 144.2M117.2 145.0L118.1 148.2M119.6 146.4L121.4 145.9M119.6 146.4L120.1 148.2M112.0 142.0L112.0 153.0M112.0 148.1L114.3 150.4M112.0 148.1L109.7 150.4M112.0 150.8L113.3 152.1M112.0 150.8L110.7 152.1M112.0 142.0L102.5 147.5M106.8 145.0L105.9 148.2M106.8 145.0L103.6 144.2M104.4 146.4L103.9 148.2M104.4 146.4L102.6 145.9M112.0 142.0L102.5 136.5M106.8 139.0L103.6 139.8M106.8 139.0L105.9 135.8M104.4 137.6L102.6 138.1M104.4 137.6L103.9 135.8M192.0 174.0L192.0 169.0M192.0 171.2L190.9 170.2M192.0 171.2L193.1 170.2M192.0 170.0L191.4 169.4M192.0 170.0L192.6 169.4M192.0 174.0L196.3 171.5M194.4 172.6L194.8 171.2M194.4 172.6L195.8 173.0M195.5 172.0L195.7 171.2M195.5 172.0L196.3 172.2M192.0 174.0L196.3 176.5M194.4 175.4L195.8 175.0M194.4 175.4L194.8 176.8M195.5 176.0L196.3 175.8M195.5 176.0L195.7 176.8M192.0 174.0L192.0 179.0M192.0 176.8L193.1 177.8M192.0 176.8L190.9 177.8M192.0 178.0L192.6 178.6M192.0 178.0L191.4 178.6M192.0 174.0L187.7 176.5M189.6 175.4L189.2 176.8M189.6 175.4L188.2 175.0M188.5 176.0L188.3 176.8M188.5 176.0L187.7 175.8M192.0 174.0L187.7 171.5M189.6 172.6L188.2 173.0M189.6 172.6L189.2 171.2M188.5 172.0L187.7 172.2M188.5 172.0L188.3 171.2M28.0 186.0L28.0 181.5M28.0 183.5L27.0 182.6M28.0 183.5L29.0 182.6M28.0 182.4L27.5 181.9M28.0 182.4L28.5 181.9M28.0 186.0L31.9 183.8M30.1 184.8L30.5 183.5M30.1 184.8L31.4 185.1M31.1 184.2L31.3 183.5M31.1 184.2L31.9 184.4M28.0 186.0L31.9 188.2M30.1 187.2L31.4 186.9M30.1 187.2L30.5 188.5M31.1 187.8L31.9 187.6M31.1 187.8L31.3 188.5M28.0 186.0L28.0 190.5M28.0 188.5L29.0 189.4M28.0 188.5L27.0 189.4M28.0 189.6L28.5 190.1M28.0 189.6L27.5 190.1M28.0 186.0L24.1 188.2M25.9 187.2L25.5 188.5M25.9 187.2L24.6 186.9M24.9 187.8L24.7 188.5M24.9 187.8L24.1 187.6M28.0 186.0L24.1 183.8M25.9 184.8L24.6 185.1M25.9 184.8L25.5 183.5M24.9 184.2L24.1 184.4M24.9 184.2L24.7 183.5'/%3E%3C/g%3E%3Cg fill='%23C9A45C' fill-opacity='.18'%3E%3Ccircle cx='90' cy='20' r='1.1'/%3E%3Ccircle cx='200' cy='92' r='1.1'/%3E%3Ccircle cx='70' cy='100' r='1.1'/%3E%3Ccircle cx='160' cy='210' r='1.1'/%3E%3Ccircle cx='12' cy='128' r='1.1'/%3E%3Ccircle cx='128' cy='76' r='1.1'/%3E%3C/g%3E%3C/svg%3E");background-size:220px 220px}
+html.xmas .side{background:#F8F5EC}
+html.xmas .side a:hover{background:#F1EADA}
+html.xmas .side a.on{background:linear-gradient(90deg,#F1E4C2,#F7EFDB 70%,#F8F5EC);color:#12330D;box-shadow:inset 3px 0 0 #C9A45C}
+html.xmas .side a.on svg{color:#A9803A}
+html.xmas .tabs button.on{border-bottom-color:#B8893A}
+html.xmas .btn.pri{box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 0 0 1px rgba(201,164,92,.35)}
+/* KPI cards: gold foil edge + snowflake watermark */
+html.xmas .k7{border-color:#ECE3CF;background:linear-gradient(180deg,#fff,#FFFCF4)}
+html.xmas .k7::after{background:linear-gradient(#EED48A,#B8893A 55%,#8E6A2A)}
+html.xmas .k7::before{content:"";position:absolute;right:-12px;top:-12px;width:68px;height:68px;background:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32.0 32.0L32.0 4.0M32.0 16.6L26.1 10.7M32.0 16.6L37.9 10.7M32.0 9.6L28.6 6.2M32.0 9.6L35.4 6.2M32.0 32.0L56.2 18.0M45.3 24.3L47.5 16.2M45.3 24.3L53.5 26.5M51.4 20.8L52.6 16.2M51.4 20.8L56.0 22.0M32.0 32.0L56.2 46.0M45.3 39.7L53.5 37.5M45.3 39.7L47.5 47.8M51.4 43.2L56.0 42.0M51.4 43.2L52.6 47.8M32.0 32.0L32.0 60.0M32.0 47.4L37.9 53.3M32.0 47.4L26.1 53.3M32.0 54.4L35.4 57.8M32.0 54.4L28.6 57.8M32.0 32.0L7.8 46.0M18.7 39.7L16.5 47.8M18.7 39.7L10.5 37.5M12.6 43.2L11.4 47.8M12.6 43.2L8.0 42.0M32.0 32.0L7.8 18.0M18.7 24.3L10.5 26.5M18.7 24.3L16.5 16.2M12.6 20.8L8.0 22.0M12.6 20.8L11.4 16.2' stroke='%23C9A45C' stroke-width='1.6' stroke-linecap='round' fill='none' stroke-opacity='.35'/%3E%3C/svg%3E") center/contain no-repeat;opacity:.55;pointer-events:none;transition:transform .7s ease}
+html.xmas .k7:hover::before{transform:rotate(30deg)}
+html.xmas .k7:hover{box-shadow:0 10px 24px -14px rgba(140,100,30,.5)}
+html.xmas .k7i{background:#F6EEDA;color:#9A7128}
+/* holiday banner on the dashboard */
+html.xmas .xmb{position:relative;display:flex;align-items:center;gap:18px;margin:0 0 16px;padding:20px 24px;border-radius:16px;overflow:hidden;color:#F5EFE2;
+  background:radial-gradient(70% 140% at 100% 0%,rgba(178,40,38,.42) 0%,transparent 60%),radial-gradient(120% 160% at 0% 0%,#22601A 0%,#0F320B 52%,#071A05 100%);
+  border:1px solid rgba(227,196,126,.4);box-shadow:0 18px 40px -24px rgba(7,26,5,.8),inset 0 1px 0 rgba(255,255,255,.08);animation:xmIn .6s cubic-bezier(.2,.7,.2,1) both;transition:opacity .3s,transform .3s}
+html.xmas .xmb::before{content:"";position:absolute;inset:6px;border:1px solid rgba(227,196,126,.2);border-radius:11px;pointer-events:none}
+html.xmas .xmb::after{content:"";position:absolute;inset:0;pointer-events:none;opacity:.55;
+  background-image:radial-gradient(circle,rgba(255,255,255,.6) .9px,transparent 1.4px),radial-gradient(circle,rgba(255,255,255,.35) .7px,transparent 1.2px);
+  background-size:46px 46px,29px 29px;background-position:0 0,13px 17px;-webkit-mask-image:linear-gradient(90deg,#000 10%,transparent 75%);mask-image:linear-gradient(90deg,#000 10%,transparent 75%);animation:xmDrift 24s linear infinite}
+@keyframes xmDrift{to{background-position:0 92px,13px 104px}}
+@keyframes xmIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+html.xmas .xmb.bye{opacity:0;transform:translateY(-6px)}
+.xmb-tx{position:relative;z-index:1;flex:1;min-width:0}
+.xmb-ey{font-size:10.5px;letter-spacing:.24em;text-transform:uppercase;color:#E3C47E;display:flex;align-items:center;gap:10px;font-weight:600}
+.xmb-ey i{width:24px;height:1px;background:linear-gradient(90deg,#E3C47E,transparent)}
+.xmb-h{display:flex;align-items:baseline;gap:10px;margin:6px 0 4px;flex-wrap:wrap}
+.xmb-h b{font:600 48px/1 "Cormorant Garamond",Georgia,serif;background:linear-gradient(180deg,#FCEFC6,#E3C47E 45%,#B07F33);-webkit-background-clip:text;background-clip:text;color:transparent}
+.xmb-h span{font:500 27px/1.1 "Cormorant Garamond",Georgia,serif;color:#F5EFE2}
+.xmb p{font-size:13px;color:#C9D8C1;margin:0}
+.xmb-orn{position:relative;z-index:1;flex:none;width:220px;height:150px;margin:-22px 18px -22px 0;overflow:visible}
+.xmb-orn .xo{animation:xmSway 5s ease-in-out infinite alternate}
+.xmb-orn .xs{transform-box:fill-box;transform-origin:center;animation:xmSpark 2.6s ease-in-out infinite}
+@keyframes xmSway{from{transform:rotate(-3.5deg)}to{transform:rotate(3.5deg)}}
+@keyframes xmSpark{0%,100%{opacity:.15;transform:scale(.6)}50%{opacity:1;transform:scale(1)}}
+.xmb-x{position:absolute;top:10px;right:12px;z-index:2;width:28px;height:28px;border-radius:50%;border:1px solid rgba(227,196,126,.3);background:rgba(0,0,0,.18);color:#E3C47E;font-size:17px;line-height:1;display:grid;place-items:center;padding:0}
+.xmb-x:hover{background:rgba(227,196,126,.2)}
+@media(max-width:640px){html.xmas .xmb{padding:16px;gap:6px}.xmb-tx{padding-right:30px}.xmb-ey{letter-spacing:.18em}.xmb-orn{width:118px;height:92px;margin:-12px -4px -12px 0}.xmb-h b{font-size:38px}.xmb-h span{font-size:21px}}
+@media(max-width:420px){.xmb-orn{display:none}}
+/* sign-in screen */
+html.xmas .xm-lgnote{display:flex;align-items:center;gap:12px;margin-top:22px;font:italic 500 20px/1.3 "Cormorant Garamond",Georgia,serif;color:#E3C47E}
+html.xmas .xm-lgnote::before,html.xmas .xm-lgnote::after{content:"";height:1px;width:30px;flex:none;background:linear-gradient(90deg,transparent,#C9A45C)}
+html.xmas .xm-lgnote::after{background:linear-gradient(90deg,#C9A45C,transparent)}
+/* dark mode versions */
+html.xmas[data-theme="dark"] .top{background:linear-gradient(90deg,#050F04,#0A230A 45%,#11360D 100%)}
+html.xmas[data-theme="dark"] .main{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cg stroke='%23E3C47E' stroke-opacity='.07' stroke-width='.9' stroke-linecap='round' fill='none'%3E%3Cpath d='M40.0 52.0L40.0 43.0M40.0 47.0L38.1 45.1M40.0 47.0L41.9 45.1M40.0 44.8L38.9 43.7M40.0 44.8L41.1 43.7M40.0 52.0L47.8 47.5M44.3 49.5L45.0 46.9M44.3 49.5L46.9 50.2M46.2 48.4L46.6 46.9M46.2 48.4L47.7 48.8M40.0 52.0L47.8 56.5M44.3 54.5L46.9 53.8M44.3 54.5L45.0 57.1M46.2 55.6L47.7 55.2M46.2 55.6L46.6 57.1M40.0 52.0L40.0 61.0M40.0 57.0L41.9 58.9M40.0 57.0L38.1 58.9M40.0 59.2L41.1 60.3M40.0 59.2L38.9 60.3M40.0 52.0L32.2 56.5M35.7 54.5L35.0 57.1M35.7 54.5L33.1 53.8M33.8 55.6L33.4 57.1M33.8 55.6L32.3 55.2M40.0 52.0L32.2 47.5M35.7 49.5L33.1 50.2M35.7 49.5L35.0 46.9M33.8 48.4L32.3 48.8M33.8 48.4L33.4 46.9M152.0 30.0L152.0 24.0M152.0 26.7L150.7 25.4M152.0 26.7L153.3 25.4M152.0 25.2L151.3 24.5M152.0 25.2L152.7 24.5M152.0 30.0L157.2 27.0M154.9 28.4L155.3 26.6M154.9 28.4L156.6 28.8M156.2 27.6L156.4 26.6M156.2 27.6L157.1 27.9M152.0 30.0L157.2 33.0M154.9 31.6L156.6 31.2M154.9 31.6L155.3 33.4M156.2 32.4L157.1 32.1M156.2 32.4L156.4 33.4M152.0 30.0L152.0 36.0M152.0 33.3L153.3 34.6M152.0 33.3L150.7 34.6M152.0 34.8L152.7 35.5M152.0 34.8L151.3 35.5M152.0 30.0L146.8 33.0M149.1 31.6L148.7 33.4M149.1 31.6L147.4 31.2M147.8 32.4L147.6 33.4M147.8 32.4L146.9 32.1M152.0 30.0L146.8 27.0M149.1 28.3L147.4 28.8M149.1 28.3L148.7 26.6M147.8 27.6L146.9 27.9M147.8 27.6L147.6 26.6M112.0 142.0L112.0 131.0M112.0 135.9L109.7 133.6M112.0 135.9L114.3 133.6M112.0 133.2L110.7 131.9M112.0 133.2L113.3 131.9M112.0 142.0L121.5 136.5M117.2 139.0L118.1 135.8M117.2 139.0L120.4 139.8M119.6 137.6L120.1 135.8M119.6 137.6L121.4 138.1M112.0 142.0L121.5 147.5M117.2 145.0L120.4 144.2M117.2 145.0L118.1 148.2M119.6 146.4L121.4 145.9M119.6 146.4L120.1 148.2M112.0 142.0L112.0 153.0M112.0 148.1L114.3 150.4M112.0 148.1L109.7 150.4M112.0 150.8L113.3 152.1M112.0 150.8L110.7 152.1M112.0 142.0L102.5 147.5M106.8 145.0L105.9 148.2M106.8 145.0L103.6 144.2M104.4 146.4L103.9 148.2M104.4 146.4L102.6 145.9M112.0 142.0L102.5 136.5M106.8 139.0L103.6 139.8M106.8 139.0L105.9 135.8M104.4 137.6L102.6 138.1M104.4 137.6L103.9 135.8M192.0 174.0L192.0 169.0M192.0 171.2L190.9 170.2M192.0 171.2L193.1 170.2M192.0 170.0L191.4 169.4M192.0 170.0L192.6 169.4M192.0 174.0L196.3 171.5M194.4 172.6L194.8 171.2M194.4 172.6L195.8 173.0M195.5 172.0L195.7 171.2M195.5 172.0L196.3 172.2M192.0 174.0L196.3 176.5M194.4 175.4L195.8 175.0M194.4 175.4L194.8 176.8M195.5 176.0L196.3 175.8M195.5 176.0L195.7 176.8M192.0 174.0L192.0 179.0M192.0 176.8L193.1 177.8M192.0 176.8L190.9 177.8M192.0 178.0L192.6 178.6M192.0 178.0L191.4 178.6M192.0 174.0L187.7 176.5M189.6 175.4L189.2 176.8M189.6 175.4L188.2 175.0M188.5 176.0L188.3 176.8M188.5 176.0L187.7 175.8M192.0 174.0L187.7 171.5M189.6 172.6L188.2 173.0M189.6 172.6L189.2 171.2M188.5 172.0L187.7 172.2M188.5 172.0L188.3 171.2M28.0 186.0L28.0 181.5M28.0 183.5L27.0 182.6M28.0 183.5L29.0 182.6M28.0 182.4L27.5 181.9M28.0 182.4L28.5 181.9M28.0 186.0L31.9 183.8M30.1 184.8L30.5 183.5M30.1 184.8L31.4 185.1M31.1 184.2L31.3 183.5M31.1 184.2L31.9 184.4M28.0 186.0L31.9 188.2M30.1 187.2L31.4 186.9M30.1 187.2L30.5 188.5M31.1 187.8L31.9 187.6M31.1 187.8L31.3 188.5M28.0 186.0L28.0 190.5M28.0 188.5L29.0 189.4M28.0 188.5L27.0 189.4M28.0 189.6L28.5 190.1M28.0 189.6L27.5 190.1M28.0 186.0L24.1 188.2M25.9 187.2L25.5 188.5M25.9 187.2L24.6 186.9M24.9 187.8L24.7 188.5M24.9 187.8L24.1 187.6M28.0 186.0L24.1 183.8M25.9 184.8L24.6 185.1M25.9 184.8L25.5 183.5M24.9 184.2L24.1 184.4M24.9 184.2L24.7 183.5'/%3E%3C/g%3E%3Cg fill='%23E3C47E' fill-opacity='.07'%3E%3Ccircle cx='90' cy='20' r='1.1'/%3E%3Ccircle cx='200' cy='92' r='1.1'/%3E%3Ccircle cx='70' cy='100' r='1.1'/%3E%3Ccircle cx='160' cy='210' r='1.1'/%3E%3Ccircle cx='12' cy='128' r='1.1'/%3E%3Ccircle cx='128' cy='76' r='1.1'/%3E%3C/g%3E%3C/svg%3E");background-size:220px 220px}
+html.xmas[data-theme="dark"] .side a.on{background:linear-gradient(90deg,rgba(201,164,92,.22),rgba(201,164,92,.05) 75%,transparent);color:#F1E2B6;box-shadow:inset 3px 0 0 #C9A45C}
+html.xmas[data-theme="dark"] .side a.on svg{color:#E3C47E}
+html.xmas[data-theme="dark"] .k7{background:linear-gradient(180deg,#201F1B,#1B1B1B);border-color:#3E4347}
+html.xmas[data-theme="dark"] .k7::after{background:linear-gradient(#EED48A,#B8893A 55%,#8E6A2A)}
+html.xmas[data-theme="dark"] .k7i{background:rgba(201,164,92,.15);color:#E3C47E}
+html.xmas[data-theme="dark"] .k7::before{opacity:.35}
+html.xmas[data-theme="dark"] .xmb{border-color:rgba(227,196,126,.3)}
+@media (prefers-reduced-motion:reduce){html.xmas .top::before,html.xmas .xmb::after,.xmb-orn *,html.xmas .xmb{animation:none!important}}
+@media print{#xsnow,.xmb{display:none!important}html.xmas .top::before,html.xmas .top::after{display:none}}
+</style>
 </head>
 <body class="locked">
 
@@ -673,6 +749,7 @@ html.themefade,html.themefade *{transition:background-color .35s ease,color .35s
       <div class="lg-eyebrow">Shared Services HR</div>
       <h1>Every hire, <em>one clear</em> view.</h1>
       <p>Manpower requests, candidate pipeline, interviews, offers and onboarding across all BRDC business units — in one secure workspace.</p>
+      <div class="xm-lgnote" aria-hidden="true">Maligayang Pasko at Manigong Bagong Taon</div>
     </div>
     <div class="lg-stats">
       <div><b>8</b><span>Business units</span></div>
@@ -1544,7 +1621,7 @@ function shell(active, body, extra){
       <span class="spacer"></span>
       ${REMOTE?'<span id="syncState" class="sync ok">Shared database</span>':''}
       ${overdue?`<button class="odp" onclick="showOverdue()" data-tip="See who is overdue">${overdue} overdue</button>`:''}
-      ${themeBtn()}<button class="txtb" onclick="cycleTxt()" title="Text size — click to change" aria-label="Change text size">A<span>A</span></button><span class="bellw"><button class="bell ${newN?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${newN?' — '+newN+' new':''}" data-tip="${newN?'You have '+newN+' new notification'+(newN>1?'s':'')+' — click to view':'Notifications'}"><i class="bi">🔔</i>${newN?`<span>${newN}</span>`:''}</button>
+      ${xmasBtn()}${themeBtn()}<button class="txtb" onclick="cycleTxt()" title="Text size — click to change" aria-label="Change text size">A<span>A</span></button><span class="bellw"><button class="bell ${newN?'ring':''}" onclick="toggleNotif(event)" aria-label="Notifications${newN?' — '+newN+' new':''}" data-tip="${newN?'You have '+newN+' new notification'+(newN>1?'s':'')+' — click to view':'Notifications'}"><i class="bi">🔔</i>${newN?`<span>${newN}</span>`:''}</button>
         <div class="notif"><div class="nh">Notifications <small>${acts.length} need attention${newN?' · '+newN+' new':''}</small></div>
         ${[...newList,...acts.filter(a=>!newSet.has(a.t))].slice(0,8).map(a=>`<a onclick="${a.a};render()" class="${newSet.has(a.t)?'nw':''}"><i style="background:${LVL[a.lvl][0]}"></i><span><b>${esc(a.t)}</b><small>${esc(a.s)}</small></span>${newSet.has(a.t)?'<em class="nwb">New</em>':''}</a>`).join('')||'<div class="nh" style="font-weight:400">All caught up.</div>'}
         ${acts.length>8?`<a class="more" onclick="go('s-dash')">See all ${acts.length} on the dashboard →</a>`:''}</div></span>
@@ -1648,6 +1725,7 @@ function rDash(){
       <select class="inp" onchange="buF=this.value;render()"><option value="">All business units</option>${Object.entries(BU).map(([k,v])=>`<option value="${k}" ${buF===k?'selected':''}>${v}</option>`).join('')}</select>
       <button class="btn" onclick="repTab='month';go('s-rep')">${ic('doc','width="14" height="14" style="vertical-align:-2px"')} Management report</button>${canEdit()?`<button class="btn" onclick="importApplicants()">⬆ Import candidates</button><button class="btn" onclick="addCandidate()">+ Add candidate</button>`:''}
     </div>
+    ${xmasBanner(open.reduce((s,j)=>s+vacancies(j),0),hiredMTD)}
     ${buF?`<div class="fchip">${buLogo(buF,'sm')}<span>Showing <b>${BU[buF]}</b> only</span><button class="btn sm" onclick="buF='';render()">✕ Show all business units</button></div>`:''}
 
     <div class="kpi7">${KPI.map(([l,v,s,i,a])=>`<button class="k7" onclick="${a}"><span class="k7i">${ic(i)}</span><span class="k7l">${l}</span><b>${v}</b><small>${s}</small></button>`).join('')}</div>
@@ -3295,7 +3373,7 @@ function buildDarkCss(){if(document.getElementById('darkcss'))return;let css='';
     for(let i=0;i<r.style.length;i++){const p=r.style[i],v=r.style.getPropertyValue(p),imp=r.style.getPropertyPriority(p)?' !important':'';
       const kind=p.startsWith('--')?dkVarKind(p):DK_PROPS[p];if(!kind)continue;const nv=mapColors(v,kind);if(nv)decl+=`${p}:${nv}${imp};`;}
     if(decl){const s=`${dkSel(r.selectorText)}{${decl}}`;wrap?wrap(s):(css+=s);}}};
-  for(const sh of document.styleSheets){if(sh.ownerNode&&sh.ownerNode.id==='darkcss')continue;let rules;try{rules=sh.cssRules;}catch(e){continue;}walk(rules);}
+  for(const sh of document.styleSheets){if(sh.ownerNode&&/^(darkcss|xmascss)$/.test(sh.ownerNode.id))continue;let rules;try{rules=sh.cssRules;}catch(e){continue;}walk(rules);}
   css+=`html[data-theme="dark"]{color-scheme:dark}html[data-theme="dark"] body{background:#111512}
     html[data-theme="dark"] .card,html[data-theme="dark"] .mdl-card{box-shadow:none}
     html[data-theme="dark"] img.phlogo,html[data-theme="dark"] .aflogo{filter:brightness(1.1)}
@@ -3314,6 +3392,85 @@ function themeIcon(){return themeNow()==='dark'
 function themeBtn(){return `<button class="txtb thb" onclick="toggleTheme()" title="${themeNow()==='dark'?'Switch to light mode':'Switch to dark mode'}" aria-label="Dark mode">${themeIcon()}</button>`;}
 (function(){let t=null;try{t=localStorage.getItem(THEME_KEY);}catch(e){}if(t==='dark')setTheme('dark');})();
 document.querySelectorAll('.lgtheme').forEach(b=>b.innerHTML=themeIcon());
+/* ============================================================
+   CHRISTMAS THEME — seasonal layer on top of light/dark.
+   Auto-on 1 Nov – 6 Jan (per browser; 🎄 button in the top bar turns it off/on).
+   ============================================================ */
+const XMAS_KEY='brdc-xmas';
+function xmasSeason(d){d=d||new Date();const m=d.getMonth();return m>=10||(m===0&&d.getDate()<=6);}
+function xmasOn(){return document.documentElement.classList.contains('xmas');}
+function xmasIcon(){return '<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5h4M12 3.5V6.5"/><circle cx="12" cy="14" r="7.5"/><path d="M4.8 12.3c2.3 1.4 4.7 2.1 7.2 2.1s4.9-.7 7.2-2.1"/><path d="M9.3 17.6h.01M12 18.4h.01M14.7 17.6h.01"/></svg>';}
+function xmasBtn(){if(!xmasSeason())return '';const on=xmasOn();return `<button class="txtb xmt${on?' on':''}" onclick="toggleXmas()" title="${on?'Turn off Christmas theme':'Turn on Christmas theme'}" aria-label="Christmas theme" aria-pressed="${on}">${xmasIcon()}</button>`;}
+function setXmas(on,save){const h=document.documentElement;h.classList.add('themefade');h.classList.toggle('xmas',on);
+  if(save){try{localStorage.setItem(XMAS_KEY,on?'on':'off');}catch(e){}}
+  setTimeout(()=>h.classList.remove('themefade'),450);
+  if(on)xsShower(9000);else xsStop();
+  if(SESSION)render();}
+function toggleXmas(){const on=!xmasOn();setXmas(on,true);toast(on?'Christmas theme on — Maligayang Pasko!':'Christmas theme off');}
+function xmasCount(){const n=new Date(),y=n.getFullYear(),t0=new Date(y,n.getMonth(),n.getDate()),DAY=864e5;
+  if(n.getMonth()===0)return{ey:'Manigong Bagong Taon · Happy New Year',big:'',title:`Happy New Year ${y}!`};
+  const xd=Math.round((new Date(y,11,25)-t0)/DAY);
+  if(xd>0)return{ey:"Maligayang Pasko · Season's greetings",big:xd,title:`day${xd===1?'':'s'} until Christmas`};
+  if(xd===0)return{ey:'Maligayang Pasko',big:'',title:'Merry Christmas!'};
+  const nd=Math.round((new Date(y+1,0,1)-t0)/DAY);return{ey:'Manigong Bagong Taon · Happy holidays',big:nd,title:`day${nd===1?'':'s'} until the New Year`};}
+function xmasBanner(vac,hired){if(!xmasOn())return '';let hid='';try{hid=localStorage.getItem('brdc-xmb');}catch(e){}if(hid===todayKey)return '';
+  const c=xmasCount(),jan=new Date().getMonth()===0,vs=`${vac} vacanc${vac===1?'y':'ies'}`;
+  const line=jan?`A fresh year, fresh hires — ${vs} open across BRDC.`:`${vs} left to fill before year-end · ${hired} hired this month.`;
+  const orn=(x,len,r,g,band,dur,dl)=>{const cy=len+7+r-1;return `<g class="xo" style="transform-origin:${x}px 0;animation-duration:${dur}s;animation-delay:${dl}s">
+      <line x1="${x}" y1="0" x2="${x}" y2="${len+1}" stroke="#C9A45C" stroke-width="1"/><rect x="${x-6}" y="${len}" width="12" height="8" rx="1.5" fill="url(#xgC)"/>
+      <circle cx="${x}" cy="${cy}" r="${r}" fill="url(#${g})"/>${band(x,cy,r)}
+      <ellipse cx="${x-r*.38}" cy="${cy-r*.42}" rx="${r*.27}" ry="${r*.15}" fill="#fff" opacity=".38" transform="rotate(-32 ${x-r*.38} ${cy-r*.42})"/></g>`;};
+  const arc=(col,op,w,dy)=>(x,cy,r)=>`<path d="M${x-r+1} ${cy+dy} Q${x} ${cy+dy+r*.36} ${x+r-1} ${cy+dy}" stroke="${col}" stroke-opacity="${op}" stroke-width="${w}" fill="none"/>`;
+  const dots=(x,cy,r)=>[-2,-1,0,1,2].map(i=>`<circle cx="${x+i*r*.36}" cy="${cy+1.2+Math.abs(i)*-.8}" r="1.3" fill="#F3D98F" opacity=".85"/>`).join('');
+  const star=(x,y,sc,dl)=>`<path class="xs" style="animation-delay:${dl}s" transform="translate(${x} ${y}) scale(${sc})" d="M0 -6L1.3 -1.3L6 0L1.3 1.3L0 6L-1.3 1.3L-6 0L-1.3 -1.3Z" fill="#F6E1A0"/>`;
+  return `<section class="xmb" aria-label="Holiday greeting">
+    <div class="xmb-tx"><div class="xmb-ey"><i></i>${c.ey}</div>
+      <div class="xmb-h">${c.big!==''?`<b>${c.big}</b>`:''}<span>${c.title}</span></div><p>${line}</p></div>
+    <svg class="xmb-orn" viewBox="0 0 220 150" aria-hidden="true"><defs>
+      <radialGradient id="xgR" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#FF8F80"/><stop offset=".45" stop-color="#D23A31"/><stop offset="1" stop-color="#5E110D"/></radialGradient>
+      <radialGradient id="xgG" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#FFF4CC"/><stop offset=".45" stop-color="#E3C47E"/><stop offset="1" stop-color="#7A5520"/></radialGradient>
+      <radialGradient id="xgE" cx=".36" cy=".3" r=".78"><stop offset="0" stop-color="#93E3AA"/><stop offset=".45" stop-color="#2E9150"/><stop offset="1" stop-color="#0A3519"/></radialGradient>
+      <linearGradient id="xgC" x1="0" x2="1"><stop offset="0" stop-color="#8A6224"/><stop offset=".5" stop-color="#F6E1A0"/><stop offset="1" stop-color="#8A6224"/></linearGradient></defs>
+      ${star(22,44,1,0)}${star(150,24,.8,1.1)}${star(206,112,.9,.6)}${star(92,136,.7,1.7)}
+      ${orn(176,34,18,'xgE',dots,4.4,-1.2)}${orn(58,50,22,'xgR',arc('#F3D98F',.55,1.4,0),5.2,0)}${orn(118,80,26,'xgG',(x,cy,r)=>arc('#8A6224',.55,1,-4)(x,cy,r)+arc('#8A6224',.55,1,4)(x,cy,r),6,-2.4)}
+    </svg>
+    <button class="xmb-x" onclick="hideXmb()" title="Hide for today" aria-label="Hide holiday greeting for today">×</button></section>`;}
+function hideXmb(){try{localStorage.setItem('brdc-xmb',todayKey);}catch(e){}const b=document.querySelector('.xmb');if(b){b.classList.add('bye');setTimeout(render,320);}else render();}
+
+/* snowfall — continuous on the sign-in screen and careers page; a short shower when you arrive or turn the theme on */
+const XS={c:null,g:null,f:[],until:0,raf:0,last:0,prev:'',w:0,h:0};
+function xsMode(){if(!xmasOn()||document.hidden)return '';try{if(matchMedia('(prefers-reduced-motion: reduce)').matches)return '';}catch(e){}
+  const L=document.getElementById('login');if(L&&L.style.display!=='none'&&!L.classList.contains('out'))return 'login';
+  if(cur==='s-careers')return 'calm';
+  return Date.now()<XS.until?'shower':'';}
+function xsSize(){if(!XS.c)return;const d=Math.min(devicePixelRatio||1,2);XS.w=innerWidth;XS.h=innerHeight;XS.c.width=XS.w*d;XS.c.height=XS.h*d;XS.g.setTransform(d,0,0,d,0,0);}
+function xsCanvas(){if(XS.c)return;const c=document.createElement('canvas');c.id='xsnow';c.setAttribute('aria-hidden','true');document.body.appendChild(c);XS.c=c;XS.g=c.getContext('2d');xsSize();addEventListener('resize',xsSize);}
+function xsFlake(){const cr=Math.random()<.16,r=cr?3.5+Math.random()*3.5:.8+Math.random()*1.9;
+  return{x:Math.random()*XS.w,y:-10-Math.random()*30,r,cr,gold:Math.random()<.22,vy:cr?.35+Math.random()*.3:.45+r*.25+Math.random()*.3,ph:Math.random()*6.3,sw:.4+Math.random()*.8,rot:Math.random()*6.3,vr:(Math.random()-.5)*.02,a:0,a0:cr?.8:.55+Math.random()*.4};}
+function xsLoop(t){XS.raf=0;let mode=xsMode();
+  if(XS.prev==='login'&&mode!=='login'&&xmasOn()&&!document.hidden){XS.until=Date.now()+10000;mode=xsMode();}
+  XS.prev=mode;
+  const target=mode==='login'?Math.min(90,XS.w/16):mode==='calm'?Math.min(36,XS.w/36):mode==='shower'?Math.min(80,XS.w/18):0;
+  const dt=Math.min(3,(t-(XS.last||t))/16.67)||1;XS.last=t;
+  if(XS.f.length<target&&Math.random()<.45)XS.f.push(xsFlake());
+  XS.c.style.zIndex=mode==='login'?'201':'38';
+  const g=XS.g,dark=mode==='login'||document.documentElement.dataset.theme==='dark';g.clearRect(0,0,XS.w,XS.h);
+  const base=dark?'255,255,255':'143,166,191',gold=dark?'232,205,138':'201,164,92';
+  XS.f=XS.f.filter(f=>{f.y+=f.vy*dt;f.x+=(Math.sin(t*.0011*f.sw+f.ph)*.35+.12)*dt;f.rot+=f.vr*dt;
+    f.a=target?Math.min(f.a0,f.a+.02*dt):f.a-.025*dt;if(f.a<=0||f.y>XS.h+12)return false;
+    const col=`rgba(${f.gold?gold:base},${(f.a*(dark?1:.85)).toFixed(3)})`;
+    if(f.cr){g.save();g.translate(f.x,f.y);g.rotate(f.rot);g.strokeStyle=col;g.lineWidth=.9;g.lineCap='round';g.beginPath();
+      for(let k=0;k<6;k++){g.moveTo(0,0);g.lineTo(0,-f.r);g.moveTo(0,-f.r*.55);g.lineTo(-f.r*.22,-f.r*.78);g.moveTo(0,-f.r*.55);g.lineTo(f.r*.22,-f.r*.78);g.rotate(Math.PI/3);}
+      g.stroke();g.restore();}
+    else{g.fillStyle=col;g.beginPath();g.arc(f.x,f.y,f.r,0,6.283);g.fill();}
+    return true;});
+  if(XS.f.length||target)XS.raf=requestAnimationFrame(xsLoop);else{g.clearRect(0,0,XS.w,XS.h);XS.last=0;}}
+function xsKick(){if(XS.raf||!xmasOn())return;if(!xsMode()&&XS.prev!=='login')return;xsCanvas();XS.raf=requestAnimationFrame(xsLoop);}
+function xsShower(ms){XS.until=Date.now()+ms;xsKick();}
+function xsStop(){XS.until=0;XS.f=[];if(XS.raf)cancelAnimationFrame(XS.raf);XS.raf=0;XS.last=0;if(XS.g)XS.g.clearRect(0,0,XS.w,XS.h);}
+document.addEventListener('visibilitychange',()=>{if(document.hidden){if(XS.raf)cancelAnimationFrame(XS.raf);XS.raf=0;XS.last=0;}else xsKick();});
+(function(){if(!xmasSeason()){document.documentElement.classList.remove('xmas');return;}
+  if(xmasOn())XS.until=Date.now()+12000;setInterval(xsKick,1500);xsKick();})();
 
 /* tab / menu animation */
 const ANIM_TRIGGERS='.tabs button,.brtabs button,.side a,.side .rvi,.bnav a,.pbuc,.pback,.psrc .schip,.afnav .pbtn,.backhr,#backhr';
